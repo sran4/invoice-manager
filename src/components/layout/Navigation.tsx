@@ -26,7 +26,8 @@ import {
   ClipboardList,
   Sun,
   Moon,
-  Monitor
+  Monitor,
+  BarChart3
 } from 'lucide-react';
 
 export default function Navigation() {
@@ -61,6 +62,7 @@ export default function Navigation() {
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Invoices', href: '/invoices', icon: FileText },
     { name: 'Customers', href: '/customers', icon: Users },
+    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     { name: 'Work Descriptions', href: '/work-descriptions', icon: ClipboardList },
     { name: 'Settings', href: '/settings', icon: Settings },
   ];

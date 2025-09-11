@@ -18,7 +18,8 @@ import {
   Eye,
   Download,
   User,
-  Phone
+  Phone,
+  BarChart3
 } from 'lucide-react';
 
 interface Invoice {
@@ -170,7 +171,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <AnimatedCard delay={0.1} className="gradient-card cursor-pointer group">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -251,11 +252,38 @@ export default function Dashboard() {
               </motion.div>
             </CardContent>
           </AnimatedCard>
+
+          <AnimatedCard delay={0.4} className="gradient-card cursor-pointer group">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <motion.div 
+                  className="p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg group-hover:from-green-200 group-hover:to-emerald-200 transition-all duration-300"
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <BarChart3 className="h-6 w-6 text-green-600" />
+                </motion.div>
+                <Badge variant="outline" className="border-green-300 text-green-600">Analytics</Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CardTitle className="text-lg mb-2">Analytics</CardTitle>
+              <CardDescription className="mb-4">
+                Track sales revenue with interactive charts and reports
+              </CardDescription>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button className="w-full gradient-button text-white border-0" onClick={() => router.push('/analytics')}>
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  View Analytics
+                </Button>
+              </motion.div>
+            </CardContent>
+          </AnimatedCard>
         </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <AnimatedCard delay={0.4} className="gradient-card">
+          <AnimatedCard delay={0.5} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
               <motion.div
@@ -280,7 +308,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.5} className="gradient-card">
+          <AnimatedCard delay={0.6} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
               <motion.div
@@ -295,7 +323,7 @@ export default function Dashboard() {
                 className="text-2xl font-bold gradient-text"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
+                transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
               >
                 ${stats.totalRevenue.toLocaleString()}
               </motion.div>
@@ -305,7 +333,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.6} className="gradient-card">
+          <AnimatedCard delay={0.7} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending</CardTitle>
               <motion.div
@@ -320,7 +348,7 @@ export default function Dashboard() {
                 className="text-2xl font-bold gradient-text"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
+                transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
               >
                 {stats.pendingInvoices}
               </motion.div>
@@ -330,7 +358,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.7} className="gradient-card">
+          <AnimatedCard delay={0.8} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Draft</CardTitle>
               <motion.div
@@ -345,7 +373,7 @@ export default function Dashboard() {
                 className="text-2xl font-bold gradient-text"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
+                transition={{ delay: 1.0, type: "spring", stiffness: 200 }}
               >
                 {stats.draftInvoices}
               </motion.div>
@@ -357,7 +385,7 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Invoices */}
-        <AnimatedCard delay={0.8} className="gradient-card">
+        <AnimatedCard delay={0.9} className="gradient-card">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>

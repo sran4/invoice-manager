@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import connectDB from '@/lib/db/connection';
 import Invoice from '@/lib/db/models/Invoice';
+import Customer from '@/lib/db/models/Customer';
 
 // GET /api/invoices - Get paginated invoices for the authenticated user
 export async function GET(request: NextRequest) {
@@ -30,9 +31,20 @@ export async function GET(request: NextRequest) {
     
     // Add search functionality if search term is provided
     if (search) {
-      // For now, we'll search by invoice number
-      // In a more advanced implementation, you might want to search across multiple fields
-      query.invoiceNumber = { $regex: search, $options: 'i' };
+      // Search by invoice number or customer name
+      const customerIds = await Customer.find({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } }
+        ]
+      }).select('_id');
+      
+      const customerIdList = customerIds.map(c => c._id);
+      
+      query.$or = [
+        { invoiceNumber: { $regex: search, $options: 'i' } },
+        { customerId: { $in: customerIdList } }
+      ];
     }
 
     // Add status filter if provided

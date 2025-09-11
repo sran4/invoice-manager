@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, User, X } from 'lucide-react';
@@ -42,6 +42,9 @@ export function CustomerSearch({
 
   const selectedCustomer = customers.find(c => c._id === selectedCustomerId);
 
+  // Generate random field name to confuse Chrome autocomplete
+  const randomFieldName = useMemo(() => `field-${Math.random().toString(36).substr(2, 9)}`, []);
+
   // Filter customers based on search term
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,6 +63,31 @@ export function CustomerSearch({
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Aggressively disable Chrome autocomplete
+  useEffect(() => {
+    const input = inputRef.current;
+    if (input) {
+      // Set attributes that Chrome respects more
+      input.setAttribute('autocomplete', 'new-password');
+      input.setAttribute('data-form-type', 'other');
+      input.setAttribute('data-lpignore', 'true');
+      
+      // Clear autocomplete on focus
+      const handleFocus = () => {
+        input.setAttribute('autocomplete', 'new-password');
+        // Force clear any existing autocomplete
+        setTimeout(() => {
+          input.setAttribute('autocomplete', 'new-password');
+        }, 1);
+      };
+      
+      input.addEventListener('focus', handleFocus);
+      return () => {
+        input.removeEventListener('focus', handleFocus);
+      };
+    }
   }, []);
 
   // Focus input when expanded
@@ -127,8 +155,16 @@ export function CustomerSearch({
           </div>
         ) : (
           // Show search input
-          <div className="relative">
-            <Input
+          <form autoComplete="off" style={{ display: 'contents' }}>
+            <div className="relative">
+              {/* Hidden input to trick Chrome autocomplete */}
+              <input
+                type="text"
+                style={{ display: 'none' }}
+                autoComplete="username"
+                tabIndex={-1}
+              />
+              <Input
               ref={inputRef}
               type="text"
               placeholder={placeholder}
@@ -142,14 +178,17 @@ export function CustomerSearch({
                 setIsFocused(false);
                 // Don't close immediately, let the click outside handler handle it
               }}
-              autoComplete="off"
+              autoComplete="new-password"
               autoCorrect="off"
               autoCapitalize="off"
               spellCheck="false"
+              name={randomFieldName}
+              id={randomFieldName}
               className="pr-10 bg-slate-800 border-slate-600 text-white placeholder:text-slate-400 focus:border-slate-500 focus:ring-slate-500"
             />
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-300" />
           </div>
+          </form>
         )}
       </div>
 

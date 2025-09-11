@@ -619,7 +619,7 @@ export default function CreateInvoicePage() {
                         variant="outline"
                         size="sm"
                         onClick={() => router.push('/templates')}
-                        className="border-slate-500 text-white hover:bg-slate-700 hover:text-white hover:border-slate-400"
+                        className={`bg-gradient-to-r ${currentTemplate.gradient} text-white border-0 hover:opacity-90 hover:bg-gradient-to-r ${currentTemplate.gradient}`}
                       >
                         Change Template
                       </Button>

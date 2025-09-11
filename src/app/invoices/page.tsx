@@ -130,6 +130,14 @@ export default function InvoicesPage() {
         setInvoices(data.invoices || []);
         setPagination(data.pagination || null);
         setCurrentPage(page);
+        
+        // Auto-clear search term after successful search (optional)
+        // Uncomment the lines below if you want to auto-clear the search
+        // if (search && data.invoices && data.invoices.length > 0) {
+        //   setTimeout(() => {
+        //     setSearchTerm('');
+        //   }, 2000); // Clear after 2 seconds
+        // }
       }
     } catch (error) {
       console.error('Error fetching invoices:', error);
@@ -478,12 +486,38 @@ export default function InvoicesPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Input
-              placeholder="Search by invoice number..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border-red-200 focus:border-red-400 focus:ring-red-200 mb-4"
-            />
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="flex-1 relative">
+                <Input
+                  placeholder="Search by invoice number, customer name, or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={`w-full border-red-200 focus:border-red-400 focus:ring-red-200 ${searchTerm ? 'bg-red-50 border-red-300' : ''}`}
+                />
+                {searchTerm && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="flex items-center space-x-1">
+                      <span className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded-full">
+                        Active Search
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {searchTerm && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('');
+                    fetchInvoices(1, '', statusFilter);
+                  }}
+                  className="border-red-200 text-red-600 hover:bg-red-50"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
             
             {/* Status Filter Tabs */}
             <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
@@ -522,10 +556,30 @@ export default function InvoicesPage() {
             </Tabs>
             
             {pagination && (
-              <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">
-                Showing {((currentPage - 1) * 10) + 1}-{Math.min(currentPage * 10, pagination.totalCount)} of {pagination.totalCount} invoices
-                {statusFilter !== 'all' && ` (${statusFilter} status)`}
-              </p>
+              <div className="mt-2">
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  Showing {((currentPage - 1) * 10) + 1}-{Math.min(currentPage * 10, pagination.totalCount)} of {pagination.totalCount} invoices
+                  {statusFilter !== 'all' && ` (${statusFilter} status)`}
+                </p>
+                {searchTerm && (
+                  <div className="flex items-center space-x-2 mt-1">
+                    <p className="text-sm text-red-600">
+                      Search results for: <span className="font-semibold">"{searchTerm}"</span>
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSearchTerm('');
+                        fetchInvoices(1, '', statusFilter);
+                      }}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1 h-auto"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                )}
+              </div>
             )}
           </CardContent>
         </AnimatedCard>
@@ -589,7 +643,18 @@ export default function InvoicesPage() {
                         <div className="flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-300">
                           <div className="flex items-center">
                             <User className="h-4 w-4 mr-1" />
-                            {getCustomerDetails(invoice.customerId).name}, {getCustomerDetails(invoice.customerId).city}
+                            <span 
+                              className="cursor-pointer hover:text-red-400 transition-colors duration-200"
+                              onClick={() => {
+                                const customerName = getCustomerDetails(invoice.customerId).name;
+                                setSearchTerm(customerName);
+                                fetchInvoices(1, customerName, statusFilter);
+                              }}
+                              title={`Click to search all invoices for ${getCustomerDetails(invoice.customerId).name}`}
+                            >
+                              {getCustomerDetails(invoice.customerId).name}
+                            </span>
+                            , {getCustomerDetails(invoice.customerId).city}
                           </div>
                           <div className="flex items-center">
                             <Phone className="h-4 w-4 mr-1" />

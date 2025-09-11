@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import RevenueDonutChart from '@/components/charts/RevenueDonutChart';
 import RevenueLineChart from '@/components/charts/RevenueLineChart';
-import RevenueBarChart from '@/components/charts/RevenueBarChart';
+import CustomerShippingBarChart from '@/components/charts/CustomerShippingBarChart';
 import DateRangePicker from '@/components/ui/date-range-picker';
 import CustomerMultiSelect from '@/components/ui/customer-multi-select';
 
@@ -68,7 +68,7 @@ interface AnalyticsData {
     customerId: string;
     customerName: string;
     revenue: number;
-    invoiceCount: number;
+    totalShipped: number;
   }>;
   revenueByMonth: Array<{
     month: string;
@@ -80,7 +80,7 @@ interface AnalyticsData {
     revenue: number;
     count: number;
   }>;
-  invoiceStatusBreakdown?: {
+  invoiceStatusBreakdown: {
     paid: number;
     sent: number;
     overdue: number;
@@ -94,7 +94,7 @@ export default function Analytics() {
   const router = useRouter();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState('this-month');
+  const [dateRange, setDateRange] = useState('this-year'); // Default to year-to-date
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
@@ -132,21 +132,18 @@ export default function Analytics() {
       if (response.ok) {
         const data = await response.json();
         setCustomers(data.customers || []);
-      } else {
-        const errorData = await response.json();
-        console.error('Customers API error:', errorData);
       }
     } catch (error) {
       console.error('Error fetching customers:', error);
     }
   };
 
-  const handleDateRangeChange = (newRange: string) => {
-    setDateRange(newRange);
+  const handleDateRangeChange = (newDateRange: string) => {
+    setDateRange(newDateRange);
   };
 
-  const handleCustomerSelectionChange = (selectedIds: string[]) => {
-    setSelectedCustomers(selectedIds);
+  const handleCustomerSelectionChange = (newSelectedCustomers: string[]) => {
+    setSelectedCustomers(newSelectedCustomers);
   };
 
   const handleExport = async (type: 'chart-data' | 'full-details' | 'summary') => {
@@ -160,14 +157,13 @@ export default function Analytics() {
         a.download = `analytics-${type}-${new Date().toISOString().split('T')[0]}.xlsx`;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
       } else {
-        const errorData = await response.json();
-        console.error('Export API error:', errorData);
+        console.error('Export failed');
       }
     } catch (error) {
-      console.error('Error exporting data:', error);
+      console.error('Export error:', error);
     }
   };
 
@@ -182,6 +178,8 @@ export default function Analytics() {
   if (!session) {
     return null;
   }
+
+  const currentYear = new Date().getFullYear();
 
   return (
     <div className="pt-20 p-6 min-h-screen">
@@ -199,26 +197,29 @@ export default function Analytics() {
           <p className="text-slate-600 dark:text-slate-300 text-lg">
             Track your sales revenue with interactive charts and detailed reports
           </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+            📊 Default view shows year-to-date data (Jan 1, {currentYear} - present)
+          </p>
         </motion.div>
 
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Sidebar - Filters (25%) */}
           <div className="lg:col-span-1">
-            <AnimatedCard delay={0.1} className="gradient-card sticky top-24">
+            <AnimatedCard delay={0.1} className="gradient-card">
               <CardHeader>
-                <CardTitle className="gradient-text flex items-center">
-                  <Filter className="h-5 w-5 mr-2" />
-                  Filters & Controls
-                </CardTitle>
+                <div className="flex items-center space-x-2">
+                  <Filter className="h-5 w-5 text-blue-500" />
+                  <CardTitle className="gradient-text">Filters & Controls</CardTitle>
+                </div>
                 <CardDescription>
                   Customize your analytics view
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Date Range Selection */}
+                {/* Date Range Filter */}
                 <div>
-                  <h3 className="text-sm font-medium mb-3 flex items-center">
+                  <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center">
                     <Calendar className="h-4 w-4 mr-2" />
                     Date Range
                   </h3>
@@ -228,9 +229,9 @@ export default function Analytics() {
                   />
                 </div>
 
-                {/* Customer Selection */}
+                {/* Customer Filter */}
                 <div>
-                  <h3 className="text-sm font-medium mb-3 flex items-center">
+                  <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center">
                     <Users className="h-4 w-4 mr-2" />
                     Customers
                   </h3>
@@ -238,7 +239,6 @@ export default function Analytics() {
                     customers={customers}
                     selectedCustomers={selectedCustomers}
                     onSelectionChange={handleCustomerSelectionChange}
-                    placeholder="Select customers..."
                   />
                 </div>
 
@@ -257,194 +257,227 @@ export default function Analytics() {
             </AnimatedCard>
           </div>
 
-          {/* Right Content Area (75%) */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Revenue Overview */}
-            {analyticsData ? (
-              <>
-                <AnimatedCard delay={0.2} className="gradient-card">
-                  <CardHeader>
-                    <CardTitle className="gradient-text flex items-center">
-                      <DollarSign className="h-5 w-5 mr-2" />
-                      Revenue Overview
-                    </CardTitle>
-                    <CardDescription>
-                      Total revenue: ${(analyticsData.totalRevenue || 0).toLocaleString()}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                        <DollarSign className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-green-600">
-                          ${(analyticsData.totalRevenue || 0).toLocaleString()}
-                        </p>
-                        <p className="text-sm text-gray-600">Total Revenue</p>
+          {/* Right Content Area - Charts (75%) */}
+          <div className="lg:col-span-3">
+            {/* Revenue Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <AnimatedCard delay={0.2} className="gradient-card">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <motion.div
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <DollarSign className="h-4 w-4 text-green-500" />
+                  </motion.div>
+                </CardHeader>
+                <CardContent>
+                  <motion.div 
+                    className="text-2xl font-bold gradient-text"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                  >
+                    ${(analyticsData?.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </motion.div>
+                  <p className="text-xs text-muted-foreground">
+                    {dateRange === 'this-year' ? `Year-to-date (${currentYear})` : 'Selected period'}
+                  </p>
+                </CardContent>
+              </AnimatedCard>
+
+              <AnimatedCard delay={0.3} className="gradient-card">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Shipped</CardTitle>
+                  <motion.div
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <TrendingUp className="h-4 w-4 text-blue-500" />
+                  </motion.div>
+                </CardHeader>
+                <CardContent>
+                  <motion.div 
+                    className="text-2xl font-bold gradient-text"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                  >
+                    ${(analyticsData?.revenueByCustomer?.reduce((sum, customer) => sum + customer.totalShipped, 0) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </motion.div>
+                  <p className="text-xs text-muted-foreground">
+                    Amount shipped to customers
+                  </p>
+                </CardContent>
+              </AnimatedCard>
+
+              <AnimatedCard delay={0.4} className="gradient-card">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
+                  <motion.div
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Users className="h-4 w-4 text-purple-500" />
+                  </motion.div>
+                </CardHeader>
+                <CardContent>
+                  <motion.div 
+                    className="text-2xl font-bold gradient-text"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                  >
+                    {(analyticsData?.revenueByCustomer || []).length}
+                  </motion.div>
+                  <p className="text-xs text-muted-foreground">
+                    {customers.length} total customers
+                  </p>
+                </CardContent>
+              </AnimatedCard>
+            </div>
+
+            {/* Invoice Status Breakdown */}
+            {analyticsData?.invoiceStatusBreakdown && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <AnimatedCard delay={0.5} className="gradient-card">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-green-600">Paid</p>
+                        <p className="text-2xl font-bold">{analyticsData.invoiceStatusBreakdown.paid}</p>
                       </div>
-                      <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
-                        <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-blue-600">
-                          {(analyticsData.revenueByCustomer || []).length}
-                        </p>
-                        <p className="text-sm text-gray-600">Active Customers</p>
-                      </div>
-                      <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
-                        <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-purple-600">
-                          {(analyticsData.revenueByCustomer || []).reduce((sum, c) => sum + c.invoiceCount, 0)}
-                        </p>
-                        <p className="text-sm text-gray-600">Total Invoices</p>
-                      </div>
+                      <Badge className="bg-green-100 text-green-800">Paid</Badge>
                     </div>
                   </CardContent>
                 </AnimatedCard>
 
-                {/* Invoice Status Breakdown */}
-                {analyticsData.invoiceStatusBreakdown && (
-                  <AnimatedCard delay={0.25} className="gradient-card">
-                    <CardHeader>
-                      <CardTitle className="gradient-text flex items-center">
-                        <FileText className="h-5 w-5 mr-2" />
-                        Invoice Status Breakdown
-                      </CardTitle>
-                      <CardDescription>
-                        Overview of invoice statuses for the selected period
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                          <div className="text-xl font-bold text-green-600">
-                            {analyticsData.invoiceStatusBreakdown.paid}
-                          </div>
-                          <div className="text-xs text-gray-600">Paid</div>
-                        </div>
-                        <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
-                          <div className="text-xl font-bold text-blue-600">
-                            {analyticsData.invoiceStatusBreakdown.sent}
-                          </div>
-                          <div className="text-xs text-gray-600">Sent</div>
-                        </div>
-                        <div className="text-center p-3 bg-gradient-to-br from-red-50 to-rose-50 rounded-lg">
-                          <div className="text-xl font-bold text-red-600">
-                            {analyticsData.invoiceStatusBreakdown.overdue}
-                          </div>
-                          <div className="text-xs text-gray-600">Overdue</div>
-                        </div>
-                        <div className="text-center p-3 bg-gradient-to-br from-gray-50 to-slate-50 rounded-lg">
-                          <div className="text-xl font-bold text-gray-600">
-                            {analyticsData.invoiceStatusBreakdown.draft}
-                          </div>
-                          <div className="text-xs text-gray-600">Draft</div>
-                        </div>
+                <AnimatedCard delay={0.6} className="gradient-card">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-blue-600">Sent</p>
+                        <p className="text-2xl font-bold">{analyticsData.invoiceStatusBreakdown.sent}</p>
                       </div>
-                      <div className="mt-4 text-center text-sm text-gray-500">
-                        Total Invoices: <span className="font-semibold">{analyticsData.invoiceStatusBreakdown.total}</span>
+                      <Badge className="bg-blue-100 text-blue-800">Sent</Badge>
+                    </div>
+                  </CardContent>
+                </AnimatedCard>
+
+                <AnimatedCard delay={0.7} className="gradient-card">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-orange-600">Overdue</p>
+                        <p className="text-2xl font-bold">{analyticsData.invoiceStatusBreakdown.overdue}</p>
                       </div>
-                    </CardContent>
-                  </AnimatedCard>
-                )}
+                      <Badge className="bg-orange-100 text-orange-800">Overdue</Badge>
+                    </div>
+                  </CardContent>
+                </AnimatedCard>
 
-                {/* Charts */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Revenue by Customer (Donut Chart) */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <RevenueDonutChart 
-                      data={analyticsData.revenueByCustomer || []}
-                      title="Revenue by Customer"
-                      description="Distribution of revenue across customers"
-                    />
-                  </motion.div>
+                <AnimatedCard delay={0.8} className="gradient-card">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Draft</p>
+                        <p className="text-2xl font-bold">{analyticsData.invoiceStatusBreakdown.draft}</p>
+                      </div>
+                      <Badge className="bg-gray-100 text-gray-800">Draft</Badge>
+                    </div>
+                  </CardContent>
+                </AnimatedCard>
+              </div>
+            )}
 
-                  {/* Revenue Trend (Line Chart) */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    <RevenueLineChart 
-                      data={analyticsData.revenueByMonth || []}
-                      title="Revenue Trend"
-                      description="Monthly revenue progression"
-                    />
-                  </motion.div>
-                </div>
-
-                {/* Revenue by Month (Bar Chart) */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <RevenueBarChart 
-                    data={analyticsData.revenueByMonth || []}
-                    title="Monthly Revenue Breakdown"
-                    description="Revenue distribution by month"
-                  />
-                </motion.div>
-              </>
-            ) : (
-              <AnimatedCard delay={0.2} className="gradient-card">
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <AnimatedCard delay={0.6} className="gradient-card">
+                <CardHeader>
+                  <CardTitle className="gradient-text">Revenue vs Customer Dollar Amount Shipped</CardTitle>
+                  <CardDescription>
+                    Distribution of revenue across customers showing total amount shipped
+                  </CardDescription>
+                </CardHeader>
                 <CardContent>
-                  <div className="text-center py-12">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    >
-                      <BarChart3 className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    </motion.div>
-                    <p className="text-slate-600 dark:text-slate-300 mb-2">No analytics data available</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      Create some invoices to see your analytics
-                    </p>
-                  </div>
+                  <RevenueDonutChart 
+                    data={analyticsData?.revenueByCustomer || []} 
+                    totalRevenue={analyticsData?.totalRevenue || 0}
+                  />
                 </CardContent>
               </AnimatedCard>
-            )}
+
+              <AnimatedCard delay={0.7} className="gradient-card">
+                <CardHeader>
+                  <CardTitle className="gradient-text">Amount Shipped to Each Customer</CardTitle>
+                  <CardDescription>
+                    Total dollar amount shipped to each customer
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CustomerShippingBarChart 
+                    data={analyticsData?.revenueByCustomer || []}
+                  />
+                </CardContent>
+              </AnimatedCard>
+            </div>
+
+            <AnimatedCard delay={0.8} className="gradient-card">
+              <CardHeader>
+                <CardTitle className="gradient-text">Revenue Trends Over Time</CardTitle>
+                <CardDescription>
+                  Monthly revenue progression showing growth patterns
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RevenueLineChart 
+                  data={analyticsData?.revenueByMonth || []}
+                />
+              </CardContent>
+            </AnimatedCard>
           </div>
         </div>
 
-        {/* Export Options - Full Width at Bottom */}
-        <AnimatedCard delay={0.6} className="gradient-card mt-8">
+        {/* Export Data Section */}
+        <AnimatedCard delay={0.9} className="gradient-card mt-8">
           <CardHeader>
-            <CardTitle className="gradient-text flex items-center">
-              <Download className="h-5 w-5 mr-2" />
-              Export Data
-            </CardTitle>
+            <div className="flex items-center space-x-2">
+              <Download className="h-5 w-5 text-blue-500" />
+              <CardTitle className="gradient-text">Export Data</CardTitle>
+            </div>
             <CardDescription>
-              Download your analytics data in various formats
+              Download your analytics data in Excel format
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                variant="outline"
-                onClick={() => handleExport('chart-data')}
-                className="hover:bg-green-50 hover:border-green-300"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Chart Data (Excel)
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleExport('full-details')}
-                className="hover:bg-blue-50 hover:border-blue-300"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Full Invoice Details (Excel)
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleExport('summary')}
-                className="hover:bg-purple-50 hover:border-purple-300"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Summary Report (Excel)
-              </Button>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  className="w-full gradient-button text-white border-0" 
+                  onClick={() => handleExport('chart-data')}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Chart Data
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  className="w-full gradient-button text-white border-0" 
+                  onClick={() => handleExport('full-details')}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Full Details
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  className="w-full gradient-button text-white border-0" 
+                  onClick={() => handleExport('summary')}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Summary Report
+                </Button>
+              </motion.div>
             </div>
           </CardContent>
         </AnimatedCard>

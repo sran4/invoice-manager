@@ -15,9 +15,8 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const { searchParams } = new URL(request.url);
-    const dateRange = searchParams.get('dateRange') || 'this-month';
+    const dateRange = searchParams.get('dateRange') || 'this-year'; // Default to year-to-date
     const customerIds = searchParams.get('customers')?.split(',').filter(Boolean) || [];
-
 
     // Calculate date range
     const now = new Date();
@@ -33,15 +32,11 @@ export async function GET(request: NextRequest) {
         endDate = new Date(now.getFullYear(), now.getMonth(), 0);
         break;
       case 'this-year':
-        startDate = new Date(now.getFullYear(), 0, 1);
+        startDate = new Date(now.getFullYear(), 0, 1); // January 1st of current year
         break;
       default:
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        startDate = new Date(now.getFullYear(), 0, 1); // Default to year-to-date
     }
-
-    console.log('Analytics API - Date range:', dateRange);
-    console.log('Analytics API - Start date:', startDate.toISOString());
-    console.log('Analytics API - End date:', endDate.toISOString());
 
     // Build query
     const query: any = {
@@ -58,20 +53,10 @@ export async function GET(request: NextRequest) {
 
     // Fetch invoices
     const invoices = await Invoice.find(query).lean();
-    console.log('Analytics API - Query:', JSON.stringify(query, null, 2));
-    console.log('Analytics API - Total invoices found:', invoices.length);
-    console.log('Analytics API - Invoice details:', invoices.map(inv => ({ 
-      id: inv._id, 
-      customerId: inv.customerId, 
-      status: inv.status, 
-      total: inv.total,
-      createdAt: inv.createdAt 
-    })));
 
     // Fetch customers for mapping
     const customers = await Customer.find({ userId: session.user.email }).lean();
     const customerMap = new Map(customers.map(c => [c._id.toString(), c]));
-    console.log('Analytics API - Customers found:', customers.length);
 
     // Calculate analytics data
     const paidInvoices = invoices.filter(invoice => invoice.status === 'paid');
@@ -79,27 +64,12 @@ export async function GET(request: NextRequest) {
     const overdueInvoices = invoices.filter(invoice => invoice.status === 'overdue');
     const draftInvoices = invoices.filter(invoice => invoice.status === 'draft');
     
-    console.log('Analytics API - Invoice status breakdown:');
-    console.log('  - Paid invoices:', paidInvoices.length);
-    console.log('  - Sent invoices:', sentInvoices.length);
-    console.log('  - Overdue invoices:', overdueInvoices.length);
-    console.log('  - Draft invoices:', draftInvoices.length);
-    
     // For revenue calculation, include paid, sent, and overdue invoices
     const revenueInvoices = invoices.filter(invoice => 
       ['paid', 'sent', 'overdue'].includes(invoice.status)
     );
     
-    console.log('Analytics API - Revenue invoices (paid/sent/overdue):', revenueInvoices.length);
-    console.log('Analytics API - Revenue invoice details:', revenueInvoices.map(inv => ({ 
-      id: inv._id, 
-      customerId: inv.customerId, 
-      status: inv.status,
-      total: inv.total 
-    })));
-    
     const totalRevenue = revenueInvoices.reduce((sum, invoice) => sum + invoice.total, 0);
-    console.log('Analytics API - Total revenue calculated:', totalRevenue);
 
     // Revenue by customer
     const revenueByCustomerMap = new Map();
@@ -109,29 +79,22 @@ export async function GET(request: NextRequest) {
         const customer = customerMap.get(customerId);
         const customerName = customer ? customer.name : 'Unknown Customer';
         
-        console.log(`Processing invoice ${invoice._id} for customer ${customerId} (${customerName})`);
-        
         if (!revenueByCustomerMap.has(customerId)) {
           revenueByCustomerMap.set(customerId, {
             customerId,
             customerName,
             revenue: 0,
-            invoiceCount: 0
+            totalShipped: 0
           });
         }
         
         const existing = revenueByCustomerMap.get(customerId);
         existing.revenue += invoice.total;
-        existing.invoiceCount += 1;
-        
-        console.log(`Updated customer ${customerName}: revenue=${existing.revenue}, count=${existing.invoiceCount}`);
+        existing.totalShipped += invoice.total;
       });
 
     const revenueByCustomer = Array.from(revenueByCustomerMap.values())
       .sort((a, b) => b.revenue - a.revenue);
-    
-    console.log('Analytics API - Revenue by customer map size:', revenueByCustomerMap.size);
-    console.log('Analytics API - Revenue by customer data:', revenueByCustomer);
 
     // Revenue by month
     const revenueByMonthMap = new Map();

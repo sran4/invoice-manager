@@ -19,7 +19,8 @@ import {
   Download,
   User,
   Phone,
-  BarChart3
+  BarChart3,
+  AlertTriangle
 } from 'lucide-react';
 
 interface Invoice {
@@ -110,14 +111,27 @@ export default function Dashboard() {
     return null;
   }
 
-  // Calculate real stats from actual data
+  // Filter invoices for current year (Year-to-Date)
+  const currentYear = new Date().getFullYear();
+  const yearStart = new Date(currentYear, 0, 1); // January 1st of current year
+  
+  const yearToDateInvoices = invoices.filter(invoice => {
+    const invoiceDate = new Date(invoice.createdAt);
+    return invoiceDate >= yearStart;
+  });
+
+  // Calculate real stats from year-to-date data
   const stats = {
-    totalInvoices: invoices.length,
-    totalRevenue: invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.total, 0),
-    pendingInvoices: invoices.filter(i => i.status === 'sent').length,
-    paidInvoices: invoices.filter(i => i.status === 'paid').length,
-    draftInvoices: invoices.filter(i => i.status === 'draft').length,
-    overdueInvoices: invoices.filter(i => i.status === 'overdue').length
+    totalInvoices: yearToDateInvoices.length,
+    totalRevenue: yearToDateInvoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.total, 0),
+    totalRevenueAll: yearToDateInvoices.reduce((sum, i) => sum + i.total, 0),
+    pendingInvoices: yearToDateInvoices.filter(i => i.status === 'sent').length,
+    pendingAmount: yearToDateInvoices.filter(i => i.status === 'sent').reduce((sum, i) => sum + i.total, 0),
+    paidInvoices: yearToDateInvoices.filter(i => i.status === 'paid').length,
+    draftInvoices: yearToDateInvoices.filter(i => i.status === 'draft').length,
+    draftAmount: yearToDateInvoices.filter(i => i.status === 'draft').reduce((sum, i) => sum + i.total, 0),
+    overdueInvoices: yearToDateInvoices.filter(i => i.status === 'overdue').length,
+    overdueAmount: yearToDateInvoices.filter(i => i.status === 'overdue').reduce((sum, i) => sum + i.total, 0)
   };
 
   // Helper function to get customer details
@@ -133,7 +147,7 @@ export default function Dashboard() {
     };
   };
 
-  // Get recent invoices (last 5)
+  // Get recent invoices (last 5) - still show all invoices for recent activity
   const recentInvoices = invoices
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5)
@@ -167,6 +181,9 @@ export default function Dashboard() {
           </h1>
           <p className="text-slate-600 dark:text-slate-300 text-lg">
             Manage your invoices, customers, and grow your business
+          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+            📊 Dashboard shows year-to-date data (Jan 1, {currentYear} - present)
           </p>
         </motion.div>
 
@@ -282,15 +299,15 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <AnimatedCard delay={0.5} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
               >
-                <FileText className="h-4 w-4 text-red-500" />
+                <DollarSign className="h-4 w-4 text-blue-500" />
               </motion.div>
             </CardHeader>
             <CardContent>
@@ -300,17 +317,17 @@ export default function Dashboard() {
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
               >
-                {stats.totalInvoices}
+                ${stats.totalRevenueAll.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </motion.div>
               <p className="text-xs text-muted-foreground">
-                {stats.draftInvoices} draft, {stats.paidInvoices} paid
+                From {stats.totalInvoices} invoices (YTD)
               </p>
             </CardContent>
           </AnimatedCard>
 
           <AnimatedCard delay={0.6} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium">Paid Revenue</CardTitle>
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
@@ -325,10 +342,10 @@ export default function Dashboard() {
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
               >
-                ${stats.totalRevenue.toLocaleString()}
+                ${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </motion.div>
               <p className="text-xs text-muted-foreground">
-                From {stats.paidInvoices} paid invoices
+                From {stats.paidInvoices} paid invoices (YTD)
               </p>
             </CardContent>
           </AnimatedCard>
@@ -353,7 +370,7 @@ export default function Dashboard() {
                 {stats.pendingInvoices}
               </motion.div>
               <p className="text-xs text-muted-foreground">
-                Awaiting payment
+                ${stats.pendingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} awaiting payment (YTD)
               </p>
             </CardContent>
           </AnimatedCard>
@@ -378,20 +395,45 @@ export default function Dashboard() {
                 {stats.draftInvoices}
               </motion.div>
               <p className="text-xs text-muted-foreground">
-                In progress
+                ${stats.draftAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in progress (YTD)
+              </p>
+            </CardContent>
+          </AnimatedCard>
+
+          <AnimatedCard delay={0.9} className="gradient-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Overdue</CardTitle>
+              <motion.div
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AlertTriangle className="h-4 w-4 text-orange-500" />
+              </motion.div>
+            </CardHeader>
+            <CardContent>
+              <motion.div 
+                className="text-2xl font-bold gradient-text"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1.1, type: "spring", stiffness: 200 }}
+              >
+                {stats.overdueInvoices}
+              </motion.div>
+              <p className="text-xs text-muted-foreground">
+                ${stats.overdueAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} overdue (YTD)
               </p>
             </CardContent>
           </AnimatedCard>
         </div>
 
         {/* Recent Invoices */}
-        <AnimatedCard delay={0.9} className="gradient-card">
+        <AnimatedCard delay={1.0} className="gradient-card">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="gradient-text">Recent Invoices</CardTitle>
                 <CardDescription>
-                  Your latest invoice activity
+                  Your latest invoice activity (all time)
                 </CardDescription>
               </div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -467,7 +509,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
-                        <p className="font-medium gradient-text">${invoice.amount.toLocaleString()}</p>
+                        <p className="font-medium gradient-text">${invoice.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         <p className="text-sm text-slate-600 dark:text-slate-300">{invoice.date}</p>
                       </div>
                       <Badge 

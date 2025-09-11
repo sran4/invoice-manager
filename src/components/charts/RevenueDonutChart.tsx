@@ -7,7 +7,7 @@ interface RevenueByCustomer {
   customerId: string;
   customerName: string;
   revenue: number;
-  invoiceCount: number;
+  totalShipped: number;
 }
 
 interface RevenueDonutChartProps {
@@ -31,7 +31,7 @@ export default function RevenueDonutChart({
   const chartData = (data || []).map((item, index) => ({
     name: item.customerName || 'Unknown Customer',
     value: item.revenue || 0,
-    count: item.invoiceCount || 0,
+    totalShipped: item.totalShipped || 0,
     fill: COLORS[index % COLORS.length]
   }));
 
@@ -42,10 +42,10 @@ export default function RevenueDonutChart({
         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
           <p className="font-medium">{data.name}</p>
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Revenue: <span className="font-semibold text-green-600">${data.value.toLocaleString()}</span>
+            Revenue: <span className="font-semibold text-green-600">${data.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Invoices: <span className="font-semibold">{data.count}</span>
+            Amount Shipped: <span className="font-semibold text-blue-600">${data.totalShipped.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </p>
         </div>
       );
@@ -125,7 +125,7 @@ export default function RevenueDonutChart({
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                ${totalRevenue.toLocaleString()}
+                ${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 Total Revenue
@@ -143,7 +143,10 @@ export default function RevenueDonutChart({
                 />
                 <span className="truncate max-w-[120px]">{item.name}</span>
               </div>
-              <span className="font-medium">${item.value.toLocaleString()}</span>
+              <div className="text-right">
+                <div className="font-medium">${item.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="text-xs text-gray-500">Shipped: ${item.totalShipped.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              </div>
             </div>
           ))}
           {chartData.length > 5 && (

@@ -154,7 +154,7 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Invoice Details</span>
-                  <span className="text-2xl font-bold">${invoice.total.toLocaleString()}</span>
+                  <span className="text-2xl font-bold">${invoice.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">

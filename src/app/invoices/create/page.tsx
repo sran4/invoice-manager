@@ -80,23 +80,23 @@ export default function CreateInvoicePage() {
     items?: string;
   }>({});
 
-  // Template configurations
+  // Template configurations (matching templates page IDs)
   const templateConfigs = {
     'modern-blue': {
       gradient: 'from-blue-500 to-cyan-500',
       name: 'Modern Blue'
     },
-    'classic-purple': {
-      gradient: 'from-purple-500 to-pink-500',
-      name: 'Classic Purple'
-    },
-    'minimal-gray': {
-      gradient: 'from-gray-600 to-gray-800',
-      name: 'Minimal Gray'
-    },
-    'professional-green': {
+    'classic-green': {
       gradient: 'from-green-500 to-emerald-500',
-      name: 'Professional Green'
+      name: 'Classic Green'
+    },
+    'minimal-purple': {
+      gradient: 'from-purple-500 to-pink-500',
+      name: 'Minimal Purple'
+    },
+    'professional-gray': {
+      gradient: 'from-gray-600 to-slate-600',
+      name: 'Professional Gray'
     },
     'creative-orange': {
       gradient: 'from-orange-500 to-red-500',
@@ -132,8 +132,10 @@ export default function CreateInvoicePage() {
     
     // Get selected template from localStorage
     const template = localStorage.getItem('selectedTemplate');
+    console.log('Loading template from localStorage:', template);
     if (template) {
       setSelectedTemplate(template);
+      console.log('Set selected template to:', template);
     }
     
     fetchCustomers();
@@ -141,6 +143,30 @@ export default function CreateInvoicePage() {
     fetchUserSettings();
     generateInvoiceNumber();
   }, [session, status, router]);
+
+  // Listen for template changes from templates page
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const template = localStorage.getItem('selectedTemplate');
+      console.log('Storage change detected, template:', template, 'current:', selectedTemplate);
+      if (template && template !== selectedTemplate) {
+        console.log('Changing template from', selectedTemplate, 'to', template);
+        setSelectedTemplate(template);
+        toast.success(`Template changed to ${templateConfigs[template as keyof typeof templateConfigs]?.name || template}`);
+      }
+    };
+
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check on focus (when user comes back from templates page)
+    window.addEventListener('focus', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleStorageChange);
+    };
+  }, [selectedTemplate]);
 
   // Update due date when issue date changes
   useEffect(() => {
@@ -527,6 +553,7 @@ export default function CreateInvoicePage() {
                           value={formData.invoiceNumber}
                           onChange={(e) => setFormData(prev => ({ ...prev, invoiceNumber: e.target.value }))}
                           className={`pl-10 ${fieldErrors.invoiceNumber ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                          autoComplete="off"
                           required
                         />
                       </div>
@@ -583,7 +610,7 @@ export default function CreateInvoicePage() {
                           </Badge>
                         </div>
                         <div>
-                          <p className="font-medium text-white">Modern Blue</p>
+                          <p className="font-medium text-white">{currentTemplate.name}</p>
                           <p className="text-sm text-slate-300">Current template</p>
                         </div>
                       </div>
@@ -675,6 +702,7 @@ export default function CreateInvoicePage() {
                               const value = e.target.value;
                               updateItem(item.id, 'quantity', value === '' ? 0 : parseFloat(value) || 0);
                             }}
+                            autoComplete="off"
                           />
                         </div>
                         
@@ -689,6 +717,7 @@ export default function CreateInvoicePage() {
                               const value = e.target.value;
                               updateItem(item.id, 'rate', value === '' ? 0 : parseFloat(value) || 0);
                             }}
+                            autoComplete="off"
                           />
                         </div>
                         
@@ -790,6 +819,7 @@ export default function CreateInvoicePage() {
                             taxRate: value === '' ? 0 : parseFloat(value) || 0 
                           }));
                         }}
+                        autoComplete="off"
                       />
                     </div>
                     
@@ -809,6 +839,7 @@ export default function CreateInvoicePage() {
                             discount: value === '' ? 0 : parseFloat(value) || 0 
                           }));
                         }}
+                        autoComplete="off"
                       />
                     </div>
                   </div>

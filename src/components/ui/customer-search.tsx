@@ -165,7 +165,7 @@ export function CustomerSearch({
                 tabIndex={-1}
               />
               <Input
-              ref={inputRef}
+                ref={inputRef}
               type="text"
               placeholder={placeholder}
               value={searchTerm}

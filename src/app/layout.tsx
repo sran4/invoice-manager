@@ -30,7 +30,24 @@ export default function RootLayout({
             <main className="min-h-screen">
               {children}
             </main>
-            <Toaster />
+            <Toaster 
+              position="top-right"
+              expand={true}
+              richColors={true}
+              closeButton={true}
+              duration={8000}
+              toastOptions={{
+                style: {
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+                  backdropFilter: 'blur(10px)',
+                },
+                className: 'toast-gradient',
+              }}
+            />
           </SessionProvider>
         </ThemeProvider>
       </body>

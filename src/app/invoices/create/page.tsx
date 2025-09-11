@@ -59,11 +59,23 @@ export default function CreateInvoicePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
+  
+  const [loading, setLoading] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [workDescriptions, setWorkDescriptions] = useState<WorkDescription[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('modern-blue');
+  const [selectedTemplate, setSelectedTemplate] = useState('modern-blue');
   const [userSettings, setUserSettings] = useState<{
+    companySettings?: {
+      companyName?: string;
+      email?: string;
+      phone?: string;
+      address?: {
+        street?: string;
+        city?: string;
+        state?: string;
+        zipCode?: string;
+      };
+    };
     preferences?: {
       invoiceDefaults?: {
         dueDays?: number;
@@ -105,7 +117,7 @@ export default function CreateInvoicePage() {
   };
 
   const currentTemplate = templateConfigs[selectedTemplate as keyof typeof templateConfigs] || templateConfigs['modern-blue'];
-  
+
   const [formData, setFormData] = useState({
     customerId: '',
     invoiceNumber: '',
@@ -120,7 +132,7 @@ export default function CreateInvoicePage() {
       quantity: 1,
       rate: 0,
       amount: 0
-    }] as InvoiceItem[]
+    }]
   });
 
   useEffect(() => {
@@ -141,7 +153,8 @@ export default function CreateInvoicePage() {
     fetchCustomers();
     fetchWorkDescriptions();
     fetchUserSettings();
-    generateInvoiceNumber();
+    fetchInvoiceNumber();
+    setLoading(false);
   }, [session, status, router]);
 
   // Listen for template changes from templates page
@@ -152,16 +165,16 @@ export default function CreateInvoicePage() {
       if (template && template !== selectedTemplate) {
         console.log('Changing template from', selectedTemplate, 'to', template);
         setSelectedTemplate(template);
-        toast.success(`Template changed to ${templateConfigs[template as keyof typeof templateConfigs]?.name || template}`);
+        toast.success(`Template changed to ${templateConfigs[template as keyof typeof templateConfigs]?.name || template}`, {
+          description: 'Your invoice will now use this beautiful template.',
+          duration: 3000,
+        });
       }
     };
 
-    // Listen for storage changes
     window.addEventListener('storage', handleStorageChange);
-    
-    // Also check on focus (when user comes back from templates page)
     window.addEventListener('focus', handleStorageChange);
-
+    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', handleStorageChange);
@@ -170,45 +183,17 @@ export default function CreateInvoicePage() {
 
   // Update due date when issue date changes
   useEffect(() => {
-    if (userSettings?.preferences?.invoiceDefaults?.dueDays && formData.issueDate) {
-      const dueDays = userSettings.preferences.invoiceDefaults.dueDays;
+    if (formData.issueDate) {
+      const dueDays = userSettings?.preferences?.invoiceDefaults?.dueDays || 30; // Default to 30 days if not set
       const issueDate = new Date(formData.issueDate);
       const dueDate = new Date(issueDate);
       dueDate.setDate(dueDate.getDate() + dueDays);
-      
       setFormData(prev => ({
         ...prev,
         dueDate: dueDate.toISOString().split('T')[0]
       }));
     }
   }, [formData.issueDate, userSettings]);
-
-  // Apply tax rate from user settings
-  useEffect(() => {
-    if (userSettings?.preferences?.invoiceDefaults?.taxRate !== undefined) {
-      setFormData(prev => ({
-        ...prev,
-        taxRate: Number(userSettings.preferences.invoiceDefaults.taxRate) || 0
-      }));
-    }
-  }, [userSettings]);
-
-  // Ensure there's always at least one item
-  useEffect(() => {
-    if (formData.items.length === 0) {
-      const defaultItem: InvoiceItem = {
-        id: Date.now().toString(),
-        description: '',
-        quantity: 1,
-        rate: 0,
-        amount: 0
-      };
-      setFormData(prev => ({
-        ...prev,
-        items: [defaultItem]
-      }));
-    }
-  }, [formData.items.length]);
 
   // Real-time validation for customer selection
   useEffect(() => {
@@ -237,15 +222,6 @@ export default function CreateInvoicePage() {
       if (response.ok) {
         const data = await response.json();
         setCustomers(data.customers || []);
-        
-        // Check if there's a customer parameter in the URL
-        const customerParam = searchParams.get('customer');
-        if (customerParam && data.customers) {
-          const customerExists = data.customers.find((c: Customer) => c._id === customerParam);
-          if (customerExists) {
-            setFormData(prev => ({ ...prev, customerId: customerParam }));
-          }
-        }
       }
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -269,27 +245,14 @@ export default function CreateInvoicePage() {
       const response = await fetch('/api/settings');
       if (response.ok) {
         const data = await response.json();
-        setUserSettings(data);
-        
-        // Pre-populate due date if settings are available
-        if (data.preferences?.invoiceDefaults?.dueDays) {
-          const dueDays = data.preferences.invoiceDefaults.dueDays;
-          const issueDate = new Date(formData.issueDate);
-          const dueDate = new Date(issueDate);
-          dueDate.setDate(dueDate.getDate() + dueDays);
-          
-          setFormData(prev => ({
-            ...prev,
-            dueDate: dueDate.toISOString().split('T')[0]
-          }));
-        }
+        setUserSettings(data.settings || null);
       }
     } catch (error) {
       console.error('Error fetching user settings:', error);
     }
   };
 
-  const generateInvoiceNumber = async () => {
+  const fetchInvoiceNumber = async () => {
     try {
       const response = await fetch('/api/invoices/next-number');
       if (response.ok) {
@@ -297,11 +260,27 @@ export default function CreateInvoicePage() {
         setFormData(prev => ({ ...prev, invoiceNumber: data.invoiceNumber }));
       }
     } catch (error) {
-      console.error('Error generating invoice number:', error);
-      // Fallback to manual number
-      setFormData(prev => ({ ...prev, invoiceNumber: 'INV-1000' }));
+      console.error('Error fetching invoice number:', error);
     }
   };
+
+  // Apply tax rate from user settings
+  useEffect(() => {
+    if (userSettings?.preferences?.invoiceDefaults?.taxRate !== undefined) {
+      setFormData(prev => ({
+        ...prev,
+        taxRate: Number(userSettings?.preferences?.invoiceDefaults?.taxRate) || 0
+      }));
+    }
+  }, [userSettings]);
+
+  // Pre-select customer from URL parameter
+  useEffect(() => {
+    const customerId = searchParams.get('customer');
+    if (customerId && customers.length > 0) {
+      setFormData(prev => ({ ...prev, customerId }));
+    }
+  }, [searchParams, customers]);
 
   const addItem = () => {
     const newItem: InvoiceItem = {
@@ -318,8 +297,8 @@ export default function CreateInvoicePage() {
   };
 
   const removeItem = (itemId: string) => {
+    if (formData.items.length <= 1) return; // Prevent removing the last item
     setFormData(prev => {
-      // Don't allow removing the last item
       if (prev.items.length <= 1) {
         return prev;
       }
@@ -389,6 +368,11 @@ export default function CreateInvoicePage() {
         if (value.every((item: any) => !item.description.trim())) {
           return 'Please add descriptions to invoice items';
         }
+        // Check for missing rates
+        const itemsWithoutRate = value.filter((item: any) => !item.rate || item.rate <= 0);
+        if (itemsWithoutRate.length > 0) {
+          return 'Please enter a valid rate for all invoice items';
+        }
         return '';
       default:
         return '';
@@ -403,7 +387,10 @@ export default function CreateInvoicePage() {
     errors.items = validateField('items', formData.items);
     
     setFieldErrors(errors);
-    return Object.values(errors).every(error => !error);
+    
+    const hasFieldErrors = Object.values(errors).some(error => error);
+    
+    return !hasFieldErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -411,7 +398,27 @@ export default function CreateInvoicePage() {
     
     // Validate all fields
     if (!validateAllFields()) {
-      toast.error('Please fix the errors below');
+      const hasCustomerError = fieldErrors.customerId;
+      const hasInvoiceNumberError = fieldErrors.invoiceNumber;
+      const hasItemsError = fieldErrors.items;
+      
+      let errorMessage = 'Please fix the following issues:';
+      let errorDescription = '';
+      
+      if (hasCustomerError) {
+        errorDescription += '• Select a customer\n';
+      }
+      if (hasInvoiceNumberError) {
+        errorDescription += '• Enter invoice number\n';
+      }
+      if (hasItemsError) {
+        errorDescription += '• ' + hasItemsError + '\n';
+      }
+      
+      toast.error(errorMessage, {
+        description: errorDescription.trim(),
+        duration: 8000,
+      });
       return;
     }
     
@@ -427,7 +434,7 @@ export default function CreateInvoicePage() {
         total: calculateTotal()
       };
 
-      console.log('Sending invoice data:', invoiceData);
+      console.log('Submitting invoice data:', invoiceData);
       console.log('Form data:', formData);
       console.log('Calculated values:', {
         subtotal: calculateSubtotal(),
@@ -435,7 +442,7 @@ export default function CreateInvoicePage() {
         discount: calculateDiscount(),
         total: calculateTotal()
       });
-      
+
       const response = await fetch('/api/invoices', {
         method: 'POST',
         headers: {
@@ -444,23 +451,28 @@ export default function CreateInvoicePage() {
         body: JSON.stringify(invoiceData),
       });
 
+      const result = await response.json();
+      console.log('API Response:', result);
+
       if (response.ok) {
-        toast.success('Invoice created successfully!');
+        toast.success('Invoice created successfully!', {
+          description: 'Your invoice has been saved and is ready to send.',
+          duration: 4000,
+        });
         router.push('/invoices');
       } else {
-        const error = await response.json();
-        console.error('Invoice creation error:', error);
-        toast.error(error.error || error.message || 'Failed to create invoice');
+        console.error('API Error:', result);
+        toast.error(result.error || result.message || 'Failed to create invoice');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating invoice:', error);
-      toast.error('Failed to create invoice');
+      toast.error(error.error || error.message || 'An error occurred while creating the invoice');
     } finally {
       setLoading(false);
     }
   };
 
-  if (status === 'loading') {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -514,23 +526,14 @@ export default function CreateInvoicePage() {
                         customers={customers}
                         selectedCustomerId={formData.customerId}
                         onCustomerSelect={(customerId) => setFormData(prev => ({ ...prev, customerId }))}
-                        placeholder="Search customers by name or email..."
+                        placeholder="Search for a customer..."
+                        className="w-full"
                       />
                     </div>
                     {fieldErrors.customerId && (
                       <p className="text-red-500 text-sm mt-1">{fieldErrors.customerId}</p>
                     )}
                   </div>
-                  
-                  {customers.length === 0 && (
-                    <div className="text-center py-4">
-                      <p className="text-slate-600 mb-2">No customers found</p>
-                      <Button type="button" variant="outline" onClick={() => router.push('/customers/new')}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Customer
-                      </Button>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
 
@@ -552,9 +555,9 @@ export default function CreateInvoicePage() {
                           id="invoiceNumber"
                           value={formData.invoiceNumber}
                           onChange={(e) => setFormData(prev => ({ ...prev, invoiceNumber: e.target.value }))}
-                          className={`pl-10 ${fieldErrors.invoiceNumber ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                          className="pl-10 text-slate-600"
                           autoComplete="off"
-                          required
+                          placeholder="Auto-generated"
                         />
                       </div>
                       {fieldErrors.invoiceNumber && (
@@ -571,8 +574,7 @@ export default function CreateInvoicePage() {
                           type="date"
                           value={formData.issueDate}
                           onChange={(e) => setFormData(prev => ({ ...prev, issueDate: e.target.value }))}
-                          className="pl-10"
-                          required
+                          className="pl-10 text-slate-600"
                         />
                       </div>
                     </div>
@@ -580,49 +582,45 @@ export default function CreateInvoicePage() {
                     <div className="space-y-2">
                       <Label htmlFor="dueDate">Due Date</Label>
                       <div className="relative">
-                        <GradientTooltip content="Go to Settings to change default due days">
-                          <div className="flex items-center justify-between h-10 px-3 border border-slate-600 rounded-lg bg-slate-800 cursor-help">
-                            <div className="flex items-center space-x-3">
-                              <Calendar className="h-4 w-4 text-slate-300" />
-                              <span className="text-white">
-                                {formData.dueDate ? new Date(formData.dueDate).toLocaleDateString() : 'Calculating...'}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-6">
-                              <div className="p-0.5 bg-gradient-to-r from-slate-400 to-slate-500 rounded-full">
-                                <Settings className="h-2.5 w-2.5 text-white" />
-                              </div>
-                            </div>
-                          </div>
-                        </GradientTooltip>
+                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                        <div className="flex items-center">
+                          <Input
+                            id="dueDate"
+                            type="text"
+                            value={formData.dueDate ? new Date(formData.dueDate).toLocaleDateString() : ''}
+                            readOnly
+                            className="pl-10 pr-10 bg-slate-50 text-slate-600"
+                            placeholder="Auto-calculated"
+                          />
+                          <GradientTooltip
+                            content="Due date is auto-calculated from issue date. You can change the default number of days in Settings."
+                          >
+                            <Settings className="absolute right-3 top-3 h-4 w-4 text-slate-400 cursor-help hover:text-slate-600" />
+                          </GradientTooltip>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Template Selection */}
                   <div className="space-y-2">
                     <Label>Invoice Template</Label>
-                    <div className="flex items-center justify-between p-3 border border-slate-600 rounded-lg bg-slate-800">
-                      <div className="flex items-center space-x-3">
-                        <div className={`p-2 rounded-lg bg-gradient-to-r ${currentTemplate.gradient}`}>
-                          <Badge className="bg-white/20 text-white border-white/30 text-xs">
-                            {currentTemplate.name}
-                          </Badge>
+                    <div className="p-4 bg-slate-800 rounded-lg border border-slate-700">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${currentTemplate.gradient}`}></div>
+                          <span className="font-medium text-white">{currentTemplate.name}</span>
                         </div>
-                        <div>
-                          <p className="font-medium text-white">{currentTemplate.name}</p>
-                          <p className="text-sm text-slate-300">Current template</p>
-                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push('/templates')}
+                          className={`bg-gradient-to-r ${currentTemplate.gradient} text-white border-0 hover:opacity-90 hover:bg-gradient-to-r ${currentTemplate.gradient}`}
+                        >
+                          Change Template
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push('/templates')}
-                        className={`bg-gradient-to-r ${currentTemplate.gradient} text-white border-0 hover:opacity-90 hover:bg-gradient-to-r ${currentTemplate.gradient}`}
-                      >
-                        Change Template
-                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -647,7 +645,6 @@ export default function CreateInvoicePage() {
                           size="sm"
                           onClick={() => addWorkDescription(workDescription)}
                         >
-                          <Plus className="h-3 w-3 mr-1" />
                           {workDescription.title}
                         </Button>
                       ))}
@@ -668,11 +665,6 @@ export default function CreateInvoicePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {fieldErrors.items && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                      <p className="text-red-600 text-sm">{fieldErrors.items}</p>
-                    </div>
-                  )}
                   {formData.items.length === 0 ? (
                     <div className="text-center py-8 text-slate-600">
                       <FileText className="h-12 w-12 mx-auto mb-4 text-slate-400" />
@@ -680,70 +672,75 @@ export default function CreateInvoicePage() {
                     </div>
                   ) : (
                     formData.items.map((item, index) => (
-                      <div key={item.id} className={`grid grid-cols-12 gap-4 items-end p-4 border rounded-lg ${fieldErrors.items ? 'border-red-300' : ''}`}>
-                        <div className="col-span-5 space-y-2">
-                          <Label>Description</Label>
-                          <Textarea
-                            value={item.description}
-                            onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                            placeholder="Item description..."
-                            rows={2}
-                          />
-                        </div>
+                      <div key={item.id} className="p-4 border rounded-lg">
+                        <div className="grid grid-cols-12 gap-4 items-end">
+                          <div className="col-span-5 space-y-2">
+                            <Label>Description *</Label>
+                            <Textarea
+                              value={item.description}
+                              onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                              placeholder="Item description..."
+                              rows={2}
+                              className="text-slate-600"
+                            />
+                          </div>
+                          
+                          <div className="col-span-2 space-y-2">
+                            <Label>Quantity</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.quantity === 0 ? '' : item.quantity}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                updateItem(item.id, 'quantity', value === '' ? 0 : parseFloat(value) || 0);
+                              }}
+                              autoComplete="off"
+                              className="text-slate-600"
+                            />
+                          </div>
+                          
+                          <div className="col-span-2 space-y-2">
+                            <Label>Rate *</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.rate === 0 ? '' : item.rate}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                updateItem(item.id, 'rate', value === '' ? 0 : parseFloat(value) || 0);
+                              }}
+                              autoComplete="off"
+                              className="text-slate-600"
+                            />
+                          </div>
                         
-                        <div className="col-span-2 space-y-2">
-                          <Label>Quantity</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.quantity === 0 ? '' : item.quantity}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              updateItem(item.id, 'quantity', value === '' ? 0 : parseFloat(value) || 0);
-                            }}
-                            autoComplete="off"
-                          />
-                        </div>
-                        
-                        <div className="col-span-2 space-y-2">
-                          <Label>Rate</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.rate === 0 ? '' : item.rate}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              updateItem(item.id, 'rate', value === '' ? 0 : parseFloat(value) || 0);
-                            }}
-                            autoComplete="off"
-                          />
-                        </div>
-                        
-                        <div className="col-span-2 space-y-2">
-                          <Label>Amount</Label>
-                          <Input
-                            type="number"
-                            value={item.amount}
-                            readOnly
-                            className="bg-slate-50"
-                          />
-                        </div>
-                        
-                        <div className="col-span-1">
-                          <button
-                            type="button"
-                            onClick={() => removeItem(item.id)}
-                            disabled={formData.items.length <= 1}
-                            className={`p-2 rounded-md transition-colors ${
-                              formData.items.length <= 1 
-                                ? 'text-gray-400 cursor-not-allowed' 
-                                : 'text-red-600 hover:text-red-700 hover:bg-red-50'
-                            }`}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          <div className="col-span-2 space-y-2">
+                            <Label>Amount</Label>
+                            <Input
+                              type="number"
+                              value={item.amount}
+                              readOnly
+                              className="bg-slate-50 text-slate-600"
+                            />
+                          </div>
+                          
+                          <div className="col-span-1">
+                            <button
+                              type="button"
+                              onClick={() => removeItem(item.id)}
+                              disabled={formData.items.length <= 1}
+                              className={`p-2 rounded-md transition-colors ${
+                                formData.items.length <= 1 
+                                  ? 'text-gray-400 cursor-not-allowed' 
+                                  : 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                              }`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))
@@ -762,10 +759,10 @@ export default function CreateInvoicePage() {
                     onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                     placeholder="Add any additional notes or terms..."
                     rows={4}
+                    className="text-slate-600"
                   />
                 </CardContent>
               </Card>
-
             </div>
 
             {/* Sidebar - Calculations */}
@@ -820,6 +817,7 @@ export default function CreateInvoicePage() {
                           }));
                         }}
                         autoComplete="off"
+                        className="text-slate-600"
                       />
                     </div>
                     
@@ -840,37 +838,26 @@ export default function CreateInvoicePage() {
                           }));
                         }}
                         autoComplete="off"
+                        className="text-slate-600"
                       />
                     </div>
                   </div>
                   
-                  {/* Action Buttons */}
-                  <div className="flex items-center space-x-4 pt-6 border-t">
+                  <div className="space-y-3 pt-4">
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => router.back()}
-                      disabled={loading}
-                      className="w-24"
+                      className="w-full"
+                      onClick={() => router.push('/invoices')}
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
-                      disabled={loading || formData.items.length === 0}
-                      className={`flex-1 bg-gradient-to-r ${currentTemplate.gradient} hover:opacity-90 text-white border-0`}
+                      className={`w-full bg-gradient-to-r ${currentTemplate.gradient} text-white border-0 hover:opacity-90`}
+                      disabled={loading}
                     >
-                      {loading ? (
-                        <div className="flex items-center">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Creating...
-                        </div>
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-2" />
-                          Create Invoice
-                        </>
-                      )}
+                      {loading ? 'Creating...' : 'Create Invoice'}
                     </Button>
                   </div>
                 </CardContent>

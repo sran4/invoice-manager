@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
+    const status = searchParams.get('status') || '';
 
     await connectDB();
 
@@ -32,6 +33,11 @@ export async function GET(request: NextRequest) {
       // For now, we'll search by invoice number
       // In a more advanced implementation, you might want to search across multiple fields
       query.invoiceNumber = { $regex: search, $options: 'i' };
+    }
+
+    // Add status filter if provided
+    if (status && status !== 'all') {
+      query.status = status;
     }
 
     // Calculate pagination

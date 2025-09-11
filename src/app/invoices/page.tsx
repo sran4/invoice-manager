@@ -26,6 +26,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Invoice {
   _id: string;
@@ -74,6 +75,8 @@ export default function InvoicesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [allInvoices, setAllInvoices] = useState<Invoice[]>([]);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -81,8 +84,9 @@ export default function InvoicesPage() {
       router.push('/auth/signin');
       return;
     }
-    fetchInvoices(1, searchTerm);
+    fetchInvoices(1, searchTerm, statusFilter);
     fetchCustomers();
+    fetchAllInvoices();
   }, [session, status, router]);
 
   // Handle search with debouncing
@@ -90,11 +94,17 @@ export default function InvoicesPage() {
     if (status === 'loading' || !session) return;
     
     const timeoutId = setTimeout(() => {
-      fetchInvoices(1, searchTerm);
+      fetchInvoices(1, searchTerm, statusFilter);
     }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [searchTerm]);
+
+  // Handle status filter changes
+  useEffect(() => {
+    if (status === 'loading' || !session) return;
+    fetchInvoices(1, searchTerm, statusFilter);
+  }, [statusFilter]);
 
   useEffect(() => {
     if (invoicesLoaded && customersLoaded) {
@@ -102,13 +112,14 @@ export default function InvoicesPage() {
     }
   }, [invoicesLoaded, customersLoaded]);
 
-  const fetchInvoices = async (page: number = 1, search: string = '') => {
+  const fetchInvoices = async (page: number = 1, search: string = '', status: string = 'all') => {
     try {
       setSearchLoading(true);
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '10',
-        ...(search && { search })
+        ...(search && { search }),
+        ...(status !== 'all' && { status })
       });
       
       const response = await fetch(`/api/invoices?${params}`);
@@ -143,6 +154,18 @@ export default function InvoicesPage() {
     }
   };
 
+  const fetchAllInvoices = async () => {
+    try {
+      const response = await fetch('/api/invoices?limit=1000'); // Get all invoices for stats
+      if (response.ok) {
+        const data = await response.json();
+        setAllInvoices(data.invoices || []);
+      }
+    } catch (error) {
+      console.error('Error fetching all invoices:', error);
+    }
+  };
+
   const handleDeleteInvoice = async (invoiceId: string) => {
     if (!confirm('Are you sure you want to delete this invoice?')) return;
     
@@ -153,7 +176,8 @@ export default function InvoicesPage() {
       
       if (response.ok) {
         // Refresh current page after deletion
-        fetchInvoices(currentPage, searchTerm);
+        fetchInvoices(currentPage, searchTerm, statusFilter);
+        fetchAllInvoices(); // Refresh stats
       }
     } catch (error) {
       console.error('Error deleting invoice:', error);
@@ -172,7 +196,8 @@ export default function InvoicesPage() {
       
       if (response.ok) {
         // Refresh current page after status update
-        fetchInvoices(currentPage, searchTerm);
+        fetchInvoices(currentPage, searchTerm, statusFilter);
+        fetchAllInvoices(); // Refresh stats
       }
     } catch (error) {
       console.error('Error updating invoice status:', error);
@@ -230,7 +255,7 @@ export default function InvoicesPage() {
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
-    fetchInvoices(page, searchTerm);
+    fetchInvoices(page, searchTerm, statusFilter);
   };
 
   const handlePrevPage = () => {
@@ -245,15 +270,15 @@ export default function InvoicesPage() {
     }
   };
 
-  // Note: Stats are now based on pagination total count, not current page invoices
+  // Calculate stats from all invoices
   const stats = {
-    total: pagination?.totalCount || 0,
-    paid: 0, // These would need separate API calls for accurate counts
-    pending: 0,
-    overdue: 0,
-    draft: 0,
-    totalRevenue: 0,
-    totalValue: 0
+    total: allInvoices.length,
+    paid: allInvoices.filter(i => i.status === 'paid').length,
+    pending: allInvoices.filter(i => i.status === 'sent').length,
+    overdue: allInvoices.filter(i => i.status === 'overdue').length,
+    draft: allInvoices.filter(i => i.status === 'draft').length,
+    totalRevenue: allInvoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.total, 0),
+    totalValue: allInvoices.reduce((sum, i) => sum + i.total, 0)
   };
 
   if (status === 'loading' || loading) {
@@ -457,11 +482,49 @@ export default function InvoicesPage() {
               placeholder="Search by invoice number..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border-red-200 focus:border-red-400 focus:ring-red-200"
+              className="w-full border-red-200 focus:border-red-400 focus:ring-red-200 mb-4"
             />
+            
+            {/* Status Filter Tabs */}
+            <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
+              <TabsList className="grid w-full grid-cols-5 bg-slate-100 dark:bg-slate-800">
+                <TabsTrigger 
+                  value="all" 
+                  className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
+                >
+                  All
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="draft" 
+                  className="data-[state=active]:bg-purple-500 data-[state=active]:text-white"
+                >
+                  Draft
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="sent" 
+                  className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+                >
+                  Sent
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="paid" 
+                  className="data-[state=active]:bg-green-500 data-[state=active]:text-white"
+                >
+                  Paid
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="overdue" 
+                  className="data-[state=active]:bg-red-600 data-[state=active]:text-white"
+                >
+                  Overdue
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
             {pagination && (
               <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">
                 Showing {((currentPage - 1) * 10) + 1}-{Math.min(currentPage * 10, pagination.totalCount)} of {pagination.totalCount} invoices
+                {statusFilter !== 'all' && ` (${statusFilter} status)`}
               </p>
             )}
           </CardContent>

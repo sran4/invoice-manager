@@ -77,7 +77,7 @@ export default function Dashboard() {
   const fetchDashboardData = async () => {
     try {
       const [invoicesResponse, customersResponse] = await Promise.all([
-        fetch('/api/invoices'),
+        fetch('/api/invoices?limit=1000'), // Get all invoices for accurate stats
         fetch('/api/customers')
       ]);
 

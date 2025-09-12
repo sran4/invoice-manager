@@ -14,34 +14,79 @@ A beautiful, modern invoice management system built with Next.js 15, React, Mong
 - **Dark/Light Mode**: Seamless theme switching with stunning dark-to-light gradients
 - **Responsive**: Fully responsive design that works on all devices
 - **Animations**: Smooth Framer Motion animations throughout the app
+- **Professional Layout**: Clean, intuitive interface designed for productivity
 
 ### 📊 **Dashboard & Analytics**
 - **Real-time Dashboard**: View your business metrics at a glance
 - **Invoice Statistics**: Track total invoices, revenue, and status breakdowns
 - **Recent Activity**: Quick access to your latest invoices and customers
+- **Visual Charts**: Beautiful data visualization for business insights
+- **Quick Actions**: Fast access to create invoices, add customers, and view reports
 
-### 🧾 **Invoice Management**
-- **Create Invoices**: Build professional invoices with ease
-- **5 Beautiful Templates**: Choose from modern, classic, minimal, professional, and creative designs
+### 🧾 **Advanced Invoice Management**
+- **Create Professional Invoices**: Build stunning invoices with our intuitive editor
+- **5 Beautiful Templates**: Choose from modern-blue, classic-green, minimal-purple, professional-gray, and creative-orange designs
+- **Template-Specific PDFs**: PDF exports automatically match your selected template colors and styling
 - **Template Preview**: See exactly how your invoice will look before creating
-- **Auto-calculations**: Automatic tax, discount, and total calculations
-- **Invoice Status**: Track draft, sent, paid, and overdue invoices
+- **Auto-calculations**: Automatic tax, discount, and total calculations with real-time updates
+- **Invoice Status Tracking**: Track draft, sent, paid, and overdue invoices
+- **Invoice Numbering**: Automatic invoice numbering system
+- **Due Date Management**: Set and track payment due dates
+- **Notes & Terms**: Add custom notes and terms to your invoices
+
+### 📄 **PDF Export & Printing**
+- **Professional PDF Generation**: High-quality PDF exports using jsPDF
+- **Template-Aware PDFs**: PDFs automatically use your selected template colors
+- **Company Branding**: PDFs include your company information from settings
+- **Timestamp Tracking**: Generation timestamps for record-keeping
+- **Print-Ready Format**: Optimized for both digital and physical printing
+- **Multi-page Support**: Automatic page breaks for long invoices
+- **Clean Layout**: Professional formatting without internal status information
 
 ### 👥 **Customer Management**
-- **Customer Database**: Store and manage customer information
+- **Customer Database**: Store and manage comprehensive customer information
 - **Quick Selection**: Select customers from dropdown when creating invoices
-- **Customer Details**: Name, email, phone, address, and custom fields
+- **Customer Details**: Name, email, phone, address, company name, and custom fields
+- **Customer Search**: Fast search and filter capabilities
+- **Customer History**: View all invoices for each customer
+- **Bulk Operations**: Manage multiple customers efficiently
+
+### 🎨 **Template System**
+- **5 Professional Templates**: Each with unique color schemes and styling
+- **Template Selection**: Choose templates during invoice creation
+- **Template Preview**: Preview templates before selection
+- **Consistent Branding**: Templates maintain your company branding
+- **PDF Integration**: Templates are reflected in PDF exports
 
 ### ⚙️ **Settings & Customization**
-- **Company Settings**: Manage your company information and branding
+- **Company Settings**: Manage your company information, logo, and branding
 - **Theme Preferences**: Choose between light, dark, or auto theme
 - **Notification Settings**: Customize your notification preferences
+- **Invoice Defaults**: Set default tax rates, due dates, and currency
 - **Security Settings**: Manage your account security
+- **User Preferences**: Customize your experience
 
 ### 🔐 **Authentication & Security**
 - **User Authentication**: Secure login/signup with NextAuth.js
-- **User Isolation**: Each user has their own separate system
+- **User Isolation**: Each user has their own separate system and data
 - **Secure Data**: All data is encrypted and securely stored
+- **Session Management**: Secure session handling
+- **Protected Routes**: Authentication required for all sensitive operations
+
+### 🚀 **Performance & Reliability**
+- **Fast Loading**: Optimized for speed and performance
+- **Real-time Updates**: Instant updates across the application
+- **Error Handling**: Comprehensive error handling and user feedback
+- **Toast Notifications**: Beautiful success and error notifications
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
+- **Offline Support**: Basic functionality works offline
+
+### 📱 **Mobile Experience**
+- **Mobile-First Design**: Optimized for mobile devices
+- **Touch-Friendly**: Easy to use on touch screens
+- **Responsive Layout**: Adapts to any screen size
+- **Mobile Navigation**: Intuitive mobile navigation
+- **Fast Performance**: Optimized for mobile networks
 
 ## 🚀 Quick Start
 
@@ -117,6 +162,7 @@ A beautiful, modern invoice management system built with Next.js 15, React, Mong
 - **Authentication**: NextAuth.js
 - **Icons**: Lucide React
 - **Notifications**: Sonner
+- **PDF Generation**: jsPDF
 
 ## 📁 Project Structure
 
@@ -136,6 +182,8 @@ invoice-manager/
 │   │   └── layout/           # Layout components
 │   ├── contexts/             # React contexts
 │   ├── lib/                  # Utility functions
+│   │   ├── pdf-export.ts     # PDF generation utilities
+│   │   └── company-settings.ts # Company settings management
 │   └── types/                # TypeScript type definitions
 ├── public/                   # Static assets
 └── README.md

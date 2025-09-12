@@ -15,6 +15,8 @@ import {
   FileText,
   User
 } from 'lucide-react';
+import { generateInvoicePDF, fetchCompanySettings, getDefaultCompanyInfo } from '@/lib/pdf-export';
+import { toast } from 'sonner';
 
 interface Invoice {
   _id: string;
@@ -39,10 +41,26 @@ interface Invoice {
   createdAt: string;
 }
 
+interface Customer {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  companyName?: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country?: string;
+  };
+}
+
 export default function InvoiceViewPage({ params }: { params: Promise<{ id: string }> }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [invoiceId, setInvoiceId] = useState<string>('');
 
@@ -65,10 +83,11 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
 
   const fetchInvoice = async () => {
     try {
-      const response = await fetch(`/api/invoices/${invoiceId}`);
+      const response = await fetch(`/api/invoices/${invoiceId}/export`);
       if (response.ok) {
         const data = await response.json();
         setInvoice(data.invoice);
+        setCustomer(data.customer);
       } else {
         router.push('/invoices');
       }
@@ -93,9 +112,21 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  const handleDownloadPDF = () => {
-    // TODO: Implement PDF generation
-    alert('PDF export feature will be implemented next!');
+  const handleDownloadPDF = async () => {
+    if (!invoice || !customer) {
+      toast.error('Invoice or customer data not available');
+      return;
+    }
+
+    try {
+      // Try to fetch company settings from API, fallback to default if not available
+      const companyInfo = await fetchCompanySettings() || getDefaultCompanyInfo();
+      await generateInvoicePDF(invoice, customer, companyInfo);
+      toast.success('Invoice PDF downloaded successfully!');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to generate PDF. Please try again.');
+    }
   };
 
   if (status === 'loading' || loading) {
@@ -106,7 +137,7 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  if (!session || !invoice) {
+  if (!session || !invoice || !customer) {
     return null;
   }
 

@@ -14,9 +14,11 @@ import { motion } from 'framer-motion';
 import { 
   ArrowLeft, 
   Save,
-  FileText
+  FileText,
+  Download
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { generateInvoicePDF, fetchCompanySettings, getDefaultCompanyInfo } from '@/lib/pdf-export';
 
 interface Invoice {
   _id: string;
@@ -41,10 +43,26 @@ interface Invoice {
   createdAt: string;
 }
 
+interface Customer {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  companyName?: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country?: string;
+  };
+}
+
 export default function EditInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [invoiceId, setInvoiceId] = useState<string>('');
@@ -68,10 +86,11 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
 
   const fetchInvoice = async () => {
     try {
-      const response = await fetch(`/api/invoices/${invoiceId}`);
+      const response = await fetch(`/api/invoices/${invoiceId}/export`);
       if (response.ok) {
         const data = await response.json();
         setInvoice(data.invoice);
+        setCustomer(data.customer);
       } else {
         router.push('/invoices');
       }
@@ -114,6 +133,22 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
     }
   };
 
+  const handleDownloadPDF = async () => {
+    if (!invoice || !customer) {
+      toast.error('Invoice or customer data not available');
+      return;
+    }
+
+    try {
+      const companyInfo = await fetchCompanySettings() || getDefaultCompanyInfo();
+      await generateInvoicePDF(invoice, customer, companyInfo);
+      toast.success('Invoice PDF downloaded successfully!');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to generate PDF. Please try again.');
+    }
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -122,7 +157,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  if (!session || !invoice) {
+  if (!session || !invoice || !customer) {
     return null;
   }
 
@@ -272,6 +307,17 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              variant="outline"
+              onClick={handleDownloadPDF}
+              disabled={saving}
+              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download PDF
+            </Button>
+          </motion.div>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button
               variant="outline"

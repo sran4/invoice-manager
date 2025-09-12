@@ -26,6 +26,8 @@ import {
   ChevronRight,
   AlertTriangle
 } from 'lucide-react';
+import { generateInvoicePDF, fetchCompanySettings, getDefaultCompanyInfo } from '@/lib/pdf-export';
+import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -216,11 +218,27 @@ export default function InvoicesPage() {
 
   const handleDownloadPDF = async (invoiceId: string) => {
     try {
-      // For now, we'll show a toast message since PDF export is not implemented yet
-      // TODO: Implement actual PDF generation
-      alert('PDF export feature coming soon!');
+      // Fetch invoice and customer data for PDF generation
+      const response = await fetch(`/api/invoices/${invoiceId}/export`);
+      if (!response.ok) {
+        toast.error('Failed to fetch invoice data');
+        return;
+      }
+
+      const data = await response.json();
+      const { invoice, customer } = data;
+
+      if (!invoice || !customer) {
+        toast.error('Invoice or customer data not available');
+        return;
+      }
+
+      const companyInfo = await fetchCompanySettings() || getDefaultCompanyInfo();
+      await generateInvoicePDF(invoice, customer, companyInfo);
+      toast.success('Invoice PDF downloaded successfully!');
     } catch (error) {
       console.error('Error downloading PDF:', error);
+      toast.error('Failed to generate PDF. Please try again.');
     }
   };
 

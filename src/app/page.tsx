@@ -18,8 +18,15 @@ import {
   Shield,
   ArrowRight,
   CheckCircle,
-  X
+  X,
+  Calendar,
+  DollarSign,
+  BarChart3,
+  Filter,
+  TrendingUp,
+  Smartphone
 } from 'lucide-react';
+import { Accordion } from '@/components/ui/accordion';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -42,32 +49,62 @@ export default function Home() {
     {
       icon: FileText,
       title: 'Professional Templates',
-      description: 'Choose from 5 beautiful, modern invoice templates with customizable themes.',
+      description: 'Choose from 5 beautiful, modern invoice templates with customizable themes and colors.',
     },
     {
       icon: Users,
       title: 'Customer Management',
-      description: 'Store and manage customer information for quick invoice creation.',
+      description: 'Store unlimited customers with detailed analytics, payment history, and performance tracking.',
     },
     {
       icon: Palette,
       title: 'Custom Branding',
-      description: 'Add your company logo and customize colors to match your brand.',
+      description: 'Add your company logo, customize colors, and maintain consistent branding across all invoices.',
     },
     {
       icon: Download,
       title: 'PDF Export',
-      description: 'Generate professional PDF invoices ready for printing or emailing.',
+      description: 'Generate professional PDF invoices with template-specific colors and company branding.',
     },
     {
       icon: Zap,
       title: 'Auto Calculations',
-      description: 'Automatic tax calculations, discounts, and totals for accurate billing.',
+      description: 'Automatic tax calculations, discounts, and totals with real-time updates and accuracy.',
     },
     {
       icon: Shield,
       title: 'Secure & Private',
-      description: 'Your data is secure with user authentication and private storage.',
+      description: 'Enterprise-grade security with user authentication, data encryption, and private storage.',
+    },
+    {
+      icon: Calendar,
+      title: 'Overdue Tracking',
+      description: 'Automatically track overdue invoices, send reminders, and manage payment collections.',
+    },
+    {
+      icon: DollarSign,
+      title: 'Revenue Analytics',
+      description: 'Comprehensive yearly revenue tracking, monthly trends, and business performance insights.',
+    },
+    {
+      icon: BarChart3,
+      title: 'Customer Analytics',
+      description: 'Detailed per-customer analytics with payment patterns, reliability scores, and revenue contribution.',
+    },
+    {
+      icon: Filter,
+      title: 'Advanced Filtering',
+      description: 'Filter invoices by customer, status, date range, and amount for precise business insights.',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Business Reports',
+      description: 'Generate comprehensive reports including tax summaries, payment analysis, and growth metrics.',
+    },
+    {
+      icon: Smartphone,
+      title: 'Mobile Optimized',
+      description: 'Fully responsive design that works perfectly on desktop, tablet, and mobile devices.',
     },
   ];
 
@@ -91,6 +128,77 @@ export default function Home() {
       description: 'Simple and elegant design with purple gradient highlights',
       gradient: 'from-purple-500 to-pink-500',
     },
+  ];
+
+  const faqData = [
+    {
+      question: "How do I create my first invoice?",
+      answer: "Simply sign up for a free account, go to the 'Create Invoice' page, select a template, add your customer information, and fill in the invoice details. Our system will automatically calculate totals, taxes, and discounts for you."
+    },
+    {
+      question: "Can I customize the invoice templates?",
+      answer: "Yes! We offer 5 beautiful templates (Modern Blue, Classic Green, Minimal Purple, Professional Gray, and Creative Orange) that you can choose from. Each template has its own color scheme and styling that will be reflected in your PDF exports."
+    },
+    {
+      question: "How do I export invoices as PDF?",
+      answer: "Once you've created an invoice, you can download it as a professional PDF by clicking the 'Download PDF' button. The PDF will automatically use your selected template colors and include your company information from settings."
+    },
+    {
+      question: "How does yearly tracking work?",
+      answer: "Our system automatically tracks all your invoices throughout the year. You can view yearly summaries, revenue trends, and performance analytics. The dashboard shows monthly breakdowns, quarterly reports, and annual totals to help you understand your business growth over time."
+    },
+    {
+      question: "Can I track invoice statuses like overdue, sent, and paid?",
+      answer: "Absolutely! Our system provides comprehensive status tracking: Draft (being created), Sent (delivered to client), Paid (payment received), and Overdue (past due date). You can filter invoices by status, set up automatic reminders for overdue invoices, and track your cash flow in real-time."
+    },
+    {
+      question: "Can I see graphs and analytics per customer?",
+      answer: "Yes! Each customer has their own detailed analytics page showing payment history, total amount invoiced, average payment time, and visual charts. You can see which customers pay on time, identify your most valuable clients, and track customer-specific trends over time."
+    },
+    {
+      question: "What kind of business reports can I generate?",
+      answer: "You can generate comprehensive reports including: Monthly/Yearly revenue reports, Customer payment analysis, Invoice status summaries, Tax reports, Overdue invoice lists, and Custom date range reports. All reports can be exported as PDFs for your records."
+    },
+    {
+      question: "How do I manage overdue invoices?",
+      answer: "The system automatically marks invoices as overdue when they pass their due date. You can view all overdue invoices in a dedicated section, send reminder emails, update payment status, and track which customers consistently pay late. This helps you improve your cash flow management."
+    },
+    {
+      question: "Can I see my business performance over time?",
+      answer: "Yes! The dashboard provides detailed analytics including: Revenue trends by month/quarter/year, Invoice volume statistics, Payment success rates, Customer growth metrics, and Comparative performance charts. These insights help you make informed business decisions."
+    },
+    {
+      question: "Is my data secure?",
+      answer: "Absolutely! We use industry-standard security measures including user authentication, data encryption, and secure database storage. Each user has their own isolated system, so your data is completely private."
+    },
+    {
+      question: "Can I manage multiple customers?",
+      answer: "Yes! You can add unlimited customers to your database. Each customer's information is stored securely and can be quickly selected when creating new invoices. You can also view the invoice history for each customer."
+    },
+    {
+      question: "What payment methods do you support?",
+      answer: "Our invoice system is designed to work with any payment method. You can include payment instructions, bank details, or payment links in your invoices. We focus on creating professional invoices that you can send to clients via email or print."
+    },
+    {
+      question: "Can I set up automatic invoice reminders?",
+      answer: "Yes! You can configure automatic reminders for overdue invoices. The system can send email reminders at customizable intervals (e.g., 7 days, 14 days, 30 days after due date) to help you collect payments faster and maintain good customer relationships."
+    },
+    {
+      question: "How do I track my best customers?",
+      answer: "The customer analytics section shows you detailed insights about each client including: Total amount invoiced, Average payment time, Number of invoices, Payment reliability score, and Revenue contribution. This helps you identify and nurture your most valuable relationships."
+    },
+    {
+      question: "Is there a mobile app?",
+      answer: "Our web application is fully responsive and works perfectly on mobile devices, tablets, and desktops. You can access all features from any device with an internet connection - no separate app installation required."
+    },
+    {
+      question: "How much does it cost?",
+      answer: "Our invoice management system is completely free to use! You can create unlimited invoices, manage unlimited customers, and access all features without any cost or subscription fees."
+    },
+    {
+      question: "Can I backup my data?",
+      answer: "Your data is automatically backed up and stored securely in our database. You can also export your invoices as PDFs for your own records. We recommend keeping copies of important invoices for your business records."
+    }
   ];
 
   if (status === 'loading') {
@@ -122,13 +230,14 @@ export default function Home() {
               Create Professional Invoices
             </motion.h1>
             <motion.p 
-              className="text-xl text-gray-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto"
+              className="text-xl text-gray-600 dark:text-slate-300 mb-8 max-w-4xl mx-auto"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               Design beautiful, professional invoices with our modern templates. 
-              Manage customers, track payments, and grow your business.
+              Track overdue payments, analyze revenue trends, filter by customers, 
+              and gain powerful business insights with comprehensive analytics.
             </motion.p>
             <motion.div 
               className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -167,14 +276,14 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl font-bold gradient-text dark:text-white mb-4">
-              Everything You Need
+              Complete Business Solution
             </h2>
             <p className="text-xl text-gray-600 dark:text-slate-300">
-              Powerful features to streamline your invoicing process
+              Advanced features for professional invoicing, customer management, and business analytics
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
@@ -292,15 +401,15 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl font-bold text-white mb-6">
-              Ready to Get Started?
+              Ready to Transform Your Business?
             </h2>
             <p className="text-xl text-white/90 mb-8">
-              Join thousands of businesses already using our invoice management system
+              Join thousands of businesses using our comprehensive invoice management system with advanced analytics, overdue tracking, and customer insights
             </p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link href="/auth/signup">
                 <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-6 text-lg">
-                  Create Your First Invoice
+                  Start Your Free Account
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -431,6 +540,39 @@ export default function Home() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* FAQ Section */}
+      <div className="py-24 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-800 dark:to-slate-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl font-bold gradient-text dark:text-white mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-slate-300">
+              Everything you need to know about our invoice management system
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <Accordion 
+              items={faqData} 
+              className="max-w-3xl mx-auto"
+              allowMultiple={true}
+            />
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

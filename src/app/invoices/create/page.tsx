@@ -819,7 +819,7 @@ export default function CreateInvoicePage() {
                     onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                     placeholder="Add any additional notes or terms..."
                     rows={4}
-                    className="text-slate-600"
+                    className="text-slate-200 placeholder:text-slate-400 focus:text-slate-100 focus:placeholder:text-slate-500"
                   />
                 </CardContent>
               </Card>

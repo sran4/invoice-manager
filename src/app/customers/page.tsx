@@ -19,6 +19,8 @@ import {
   Mail,
   MapPin
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Customer {
   _id: string;
@@ -41,6 +43,9 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -65,26 +70,49 @@ export default function CustomersPage() {
     }
   };
 
-  const handleDeleteCustomer = async (customerId: string) => {
-    if (!confirm('Are you sure you want to delete this customer?')) return;
+  const handleDeleteCustomer = (customerId: string) => {
+    const customer = customers.find(c => c._id === customerId);
+    if (customer) {
+      setCustomerToDelete(customer);
+      setShowDeleteModal(true);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!customerToDelete) return;
     
+    setDeletingCustomerId(customerToDelete._id);
     try {
-      const response = await fetch(`/api/customers/${customerId}`, {
+      const response = await fetch(`/api/customers/${customerToDelete._id}`, {
         method: 'DELETE',
       });
       
       if (response.ok) {
-        setCustomers(customers.filter(c => c._id !== customerId));
+        setCustomers(customers.filter(c => c._id !== customerToDelete._id));
+        toast.success(`${customerToDelete.name} deleted successfully!`);
+      } else {
+        toast.error('Failed to delete customer');
       }
     } catch (error) {
       console.error('Error deleting customer:', error);
+      toast.error('Failed to delete customer');
+    } finally {
+      setDeletingCustomerId(null);
+      setShowDeleteModal(false);
+      setCustomerToDelete(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setCustomerToDelete(null);
   };
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm)
+    customer.phone.includes(searchTerm) ||
+    (customer.companyName && customer.companyName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (status === 'loading' || loading) {
@@ -193,6 +221,9 @@ export default function CustomersPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-lg">{customer.name}</CardTitle>
+                      {customer.companyName && (
+                        <p className="text-sm text-slate-600 mt-1">{customer.companyName}</p>
+                      )}
                       <CardDescription>
                         Added {new Date(customer.createdAt).toLocaleDateString()}
                       </CardDescription>
@@ -209,9 +240,14 @@ export default function CustomersPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteCustomer(customer._id)}
-                        className="text-red-600 hover:text-red-700"
+                        disabled={deletingCustomerId === customer._id}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-all duration-200 hover:scale-110"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {deletingCustomerId === customer._id ? (
+                          <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -258,6 +294,58 @@ export default function CustomersPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-red-600">
+              <Trash2 className="h-5 w-5 mr-2" />
+              Delete Customer
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete <strong>{customerToDelete?.name}</strong>? 
+              This action cannot be undone and will permanently remove all customer data.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              disabled={deletingCustomerId !== null}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <motion.div
+              animate={deletingCustomerId === customerToDelete?._id ? {
+                x: [-3, 3, -3, 3, 0],
+                transition: { duration: 0.6, repeat: 3 }
+              } : {}}
+              className="w-full sm:w-auto"
+            >
+              <Button
+                variant="destructive"
+                onClick={confirmDelete}
+                disabled={deletingCustomerId !== null}
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
+              >
+                {deletingCustomerId === customerToDelete?._id ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Customer
+                  </>
+                )}
+              </Button>
+            </motion.div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

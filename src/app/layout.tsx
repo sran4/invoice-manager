@@ -31,21 +31,27 @@ export default function RootLayout({
               {children}
             </main>
             <Toaster 
-              position="top-right"
+              position="top-center"
               expand={true}
               richColors={true}
               closeButton={true}
-              duration={8000}
+              duration={4000}
+              visibleToasts={3}
               toastOptions={{
                 style: {
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   color: 'white',
-                  borderRadius: '12px',
-                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
-                  backdropFilter: 'blur(10px)',
+                  borderRadius: '16px',
+                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+                  backdropFilter: 'blur(20px)',
+                  marginTop: '20vh',
+                  zIndex: 9999,
+                  transform: 'translateX(-50%)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 },
-                className: 'toast-gradient',
+                className: 'toast-gradient toast-flip toast-flip-exit',
+                duration: 4000,
               }}
             />
           </SessionProvider>

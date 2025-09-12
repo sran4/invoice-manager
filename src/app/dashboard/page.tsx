@@ -226,7 +226,7 @@ export default function Dashboard() {
                 >
                   <Users className="h-6 w-6 text-blue-600" />
                 </motion.div>
-                <Badge variant="outline" className="border-blue-300 text-blue-600">Manage</Badge>
+                <Badge className="gradient-blue-cyan text-white">Manage</Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -253,7 +253,7 @@ export default function Dashboard() {
                 >
                   <FileText className="h-6 w-6 text-purple-600" />
                 </motion.div>
-                <Badge variant="outline" className="border-purple-300 text-purple-600">Templates</Badge>
+                <Badge className="gradient-purple-pink text-white">Templates</Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -280,7 +280,7 @@ export default function Dashboard() {
                 >
                   <BarChart3 className="h-6 w-6 text-green-600" />
                 </motion.div>
-                <Badge variant="outline" className="border-green-300 text-green-600">Analytics</Badge>
+                <Badge className="gradient-green-emerald text-white">Analytics</Badge>
               </div>
             </CardHeader>
             <CardContent>

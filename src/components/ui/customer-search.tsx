@@ -11,6 +11,7 @@ interface Customer {
   name: string;
   email: string;
   phone: string;
+  companyName?: string;
   address: {
     street: string;
     city: string;
@@ -48,7 +49,8 @@ export function CustomerSearch({
   // Filter customers based on search term
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (customer.companyName && customer.companyName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   // Close search when clicking outside
@@ -137,6 +139,9 @@ export function CustomerSearch({
               <User className="h-5 w-5 text-slate-300" />
               <div>
                 <p className="font-medium text-white">{selectedCustomer.name}</p>
+                {selectedCustomer.companyName && (
+                  <p className="text-sm text-slate-400">{selectedCustomer.companyName}</p>
+                )}
                 <p className="text-sm text-slate-300">{selectedCustomer.email}</p>
               </div>
             </div>
@@ -217,6 +222,9 @@ export function CustomerSearch({
                       <User className="h-4 w-4 text-slate-300 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-white truncate">{customer.name}</p>
+                        {customer.companyName && (
+                          <p className="text-sm text-slate-400 truncate">{customer.companyName}</p>
+                        )}
                         <p className="text-sm text-slate-300 truncate">{customer.email}</p>
                         {customer.phone && (
                           <p className="text-xs text-slate-400 truncate">{customer.phone}</p>

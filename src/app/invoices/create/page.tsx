@@ -23,7 +23,12 @@ import {
   DollarSign,
   Calendar,
   Hash,
-  Settings
+  Settings,
+  Palette,
+  Layout,
+  Sparkles,
+  Briefcase,
+  Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -32,6 +37,7 @@ interface Customer {
   name: string;
   email: string;
   phone: string;
+  companyName?: string;
   address: {
     street: string;
     city: string;
@@ -96,23 +102,33 @@ export default function CreateInvoicePage() {
   const templateConfigs = {
     'modern-blue': {
       gradient: 'from-blue-500 to-cyan-500',
-      name: 'Modern Blue'
+      name: 'Modern Blue',
+      icon: Layout,
+      iconColor: 'text-blue-400'
     },
     'classic-green': {
       gradient: 'from-green-500 to-emerald-500',
-      name: 'Classic Green'
+      name: 'Classic Green',
+      icon: FileText,
+      iconColor: 'text-green-400'
     },
     'minimal-purple': {
       gradient: 'from-purple-500 to-pink-500',
-      name: 'Minimal Purple'
+      name: 'Minimal Purple',
+      icon: Sparkles,
+      iconColor: 'text-purple-400'
     },
     'professional-gray': {
       gradient: 'from-gray-600 to-slate-600',
-      name: 'Professional Gray'
+      name: 'Professional Gray',
+      icon: Briefcase,
+      iconColor: 'text-gray-400'
     },
     'creative-orange': {
       gradient: 'from-orange-500 to-red-500',
-      name: 'Creative Orange'
+      name: 'Creative Orange',
+      icon: Palette,
+      iconColor: 'text-orange-400'
     }
   };
 
@@ -126,6 +142,8 @@ export default function CreateInvoicePage() {
     notes: '',
     taxRate: 0,
     discount: 0,
+    companyName: '',
+    currency: 'USD',
     items: [{
       id: 'default-item-1',
       description: '',
@@ -245,7 +263,10 @@ export default function CreateInvoicePage() {
       const response = await fetch('/api/settings');
       if (response.ok) {
         const data = await response.json();
-        setUserSettings(data.settings || null);
+        setUserSettings({
+          companySettings: data.companySettings,
+          preferences: data.preferences
+        });
       }
     } catch (error) {
       console.error('Error fetching user settings:', error);
@@ -264,13 +285,31 @@ export default function CreateInvoicePage() {
     }
   };
 
-  // Apply tax rate from user settings
+  // Apply user preferences to form defaults
   useEffect(() => {
-    if (userSettings?.preferences?.invoiceDefaults?.taxRate !== undefined) {
-      setFormData(prev => ({
-        ...prev,
-        taxRate: Number(userSettings?.preferences?.invoiceDefaults?.taxRate) || 0
-      }));
+    if (userSettings?.preferences?.invoiceDefaults) {
+      const defaults = userSettings.preferences.invoiceDefaults;
+      
+      // Set tax rate
+      if (defaults.taxRate !== undefined && defaults.taxRate !== null) {
+        setFormData(prev => ({
+          ...prev,
+          taxRate: Number(defaults.taxRate) || 0
+        }));
+      }
+      
+      // Set currency
+      if (defaults.currency) {
+        setFormData(prev => ({
+          ...prev,
+          currency: defaults.currency
+        }));
+      }
+      
+      // Set default template if not already set from localStorage
+      if (defaults.template && !localStorage.getItem('selectedTemplate')) {
+        setSelectedTemplate(defaults.template);
+      }
     }
   }, [userSettings]);
 
@@ -353,6 +392,17 @@ export default function CreateInvoicePage() {
 
   const calculateTotal = () => {
     return calculateSubtotal() + calculateTax() - calculateDiscount();
+  };
+
+  const formatCurrency = (amount: number) => {
+    const symbols = {
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      CAD: 'C$'
+    };
+    const symbol = symbols[formData.currency as keyof typeof symbols] || '$';
+    return `${symbol}${amount.toFixed(2)}`;
   };
 
   const validateField = (field: string, value: any) => {
@@ -499,7 +549,7 @@ export default function CreateInvoicePage() {
             </Button>
             <div>
               <h1 className="text-4xl font-bold gradient-text">Create Invoice</h1>
-              <p className="text-slate-600 text-lg">
+              <p className="text-slate-300 text-lg">
                 Create a new invoice using the <span className={`font-semibold bg-gradient-to-r ${currentTemplate.gradient} bg-clip-text text-transparent`}>{currentTemplate.name}</span> template
               </p>
             </div>
@@ -533,6 +583,14 @@ export default function CreateInvoicePage() {
                     {fieldErrors.customerId && (
                       <p className="text-red-500 text-sm mt-1">{fieldErrors.customerId}</p>
                     )}
+                    <div className="mt-2">
+                      <a 
+                        href="/customers/new" 
+                        className="text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors duration-200"
+                      >
+                        + Create New Customer
+                      </a>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -550,12 +608,12 @@ export default function CreateInvoicePage() {
                     <div className="space-y-2">
                       <Label htmlFor="invoiceNumber">Invoice Number *</Label>
                       <div className="relative">
-                        <Hash className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                        <Hash className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
                         <Input
                           id="invoiceNumber"
                           value={formData.invoiceNumber}
                           onChange={(e) => setFormData(prev => ({ ...prev, invoiceNumber: e.target.value }))}
-                          className="pl-10 text-slate-600"
+                          className="pl-10 text-slate-200"
                           autoComplete="off"
                           placeholder="Auto-generated"
                         />
@@ -568,13 +626,13 @@ export default function CreateInvoicePage() {
                     <div className="space-y-2">
                       <Label htmlFor="issueDate">Issue Date *</Label>
                       <div className="relative">
-                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
                         <Input
                           id="issueDate"
                           type="date"
                           value={formData.issueDate}
                           onChange={(e) => setFormData(prev => ({ ...prev, issueDate: e.target.value }))}
-                          className="pl-10 text-slate-600"
+                          className="pl-10 text-slate-200 [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:invert"
                         />
                       </div>
                     </div>
@@ -582,20 +640,20 @@ export default function CreateInvoicePage() {
                     <div className="space-y-2">
                       <Label htmlFor="dueDate">Due Date</Label>
                       <div className="relative">
-                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
                         <div className="flex items-center">
                           <Input
                             id="dueDate"
                             type="text"
                             value={formData.dueDate ? new Date(formData.dueDate).toLocaleDateString() : ''}
                             readOnly
-                            className="pl-10 pr-10 bg-slate-50 text-slate-600"
+                            className="pl-10 pr-10 bg-slate-50 text-slate-200"
                             placeholder="Auto-calculated"
                           />
                           <GradientTooltip
                             content="Due date is auto-calculated from issue date. You can change the default number of days in Settings."
                           >
-                            <Settings className="absolute right-3 top-3 h-4 w-4 text-slate-400 cursor-help hover:text-slate-600" />
+                            <Settings className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400 cursor-help hover:text-purple-400 transition-colors duration-200" />
                           </GradientTooltip>
                         </div>
                       </div>
@@ -608,7 +666,9 @@ export default function CreateInvoicePage() {
                     <div className="p-4 bg-slate-800 rounded-lg border border-slate-700">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${currentTemplate.gradient}`}></div>
+                          <div className={`p-2 rounded-lg bg-gradient-to-r ${currentTemplate.gradient} bg-opacity-20 border border-slate-600`}>
+                            <currentTemplate.icon className={`w-5 h-5 ${currentTemplate.iconColor}`} />
+                          </div>
                           <span className="font-medium text-white">{currentTemplate.name}</span>
                         </div>
                         <Button
@@ -681,7 +741,7 @@ export default function CreateInvoicePage() {
                               onChange={(e) => updateItem(item.id, 'description', e.target.value)}
                               placeholder="Item description..."
                               rows={2}
-                              className="text-slate-600"
+                              className="text-slate-200"
                             />
                           </div>
                           
@@ -697,7 +757,7 @@ export default function CreateInvoicePage() {
                                 updateItem(item.id, 'quantity', value === '' ? 0 : parseFloat(value) || 0);
                               }}
                               autoComplete="off"
-                              className="text-slate-600"
+                              className="text-slate-200"
                             />
                           </div>
                           
@@ -713,7 +773,7 @@ export default function CreateInvoicePage() {
                                 updateItem(item.id, 'rate', value === '' ? 0 : parseFloat(value) || 0);
                               }}
                               autoComplete="off"
-                              className="text-slate-600"
+                              className="text-slate-200"
                             />
                           </div>
                         
@@ -723,7 +783,7 @@ export default function CreateInvoicePage() {
                               type="number"
                               value={item.amount}
                               readOnly
-                              className="bg-slate-50 text-slate-600"
+                              className="bg-slate-50 text-slate-200"
                             />
                           </div>
                           
@@ -778,23 +838,23 @@ export default function CreateInvoicePage() {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span>Subtotal:</span>
-                      <span>${calculateSubtotal().toFixed(2)}</span>
+                      <span>{formatCurrency(calculateSubtotal())}</span>
                     </div>
                     
                     <div className="flex justify-between">
                       <span>Tax ({formData.taxRate}%):</span>
-                      <span>${calculateTax().toFixed(2)}</span>
+                      <span>{formatCurrency(calculateTax())}</span>
                     </div>
                     
                     <div className="flex justify-between">
                       <span>Discount ({formData.discount}%):</span>
-                      <span>-${calculateDiscount().toFixed(2)}</span>
+                      <span>-{formatCurrency(calculateDiscount())}</span>
                     </div>
                     
                     <div className="border-t pt-3">
                       <div className="flex justify-between font-bold text-lg">
                         <span>Total:</span>
-                        <span>${calculateTotal().toFixed(2)}</span>
+                        <span>{formatCurrency(calculateTotal())}</span>
                       </div>
                     </div>
                   </div>
@@ -817,7 +877,7 @@ export default function CreateInvoicePage() {
                           }));
                         }}
                         autoComplete="off"
-                        className="text-slate-600"
+                        className="text-slate-200"
                       />
                     </div>
                     
@@ -838,8 +898,26 @@ export default function CreateInvoicePage() {
                           }));
                         }}
                         autoComplete="off"
-                        className="text-slate-600"
+                        className="text-slate-200"
                       />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="currency">Currency</Label>
+                      <Select
+                        value={formData.currency}
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, currency: value }))}
+                      >
+                        <SelectTrigger className="text-slate-200">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="USD">USD ($)</SelectItem>
+                          <SelectItem value="EUR">EUR (€)</SelectItem>
+                          <SelectItem value="GBP">GBP (£)</SelectItem>
+                          <SelectItem value="CAD">CAD (C$)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   

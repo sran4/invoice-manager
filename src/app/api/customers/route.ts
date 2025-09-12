@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, phone, fax, address } = body;
+    const { name, email, phone, fax, companyName, address } = body;
 
     // Validate required fields
     if (!name || !email || !phone || !address?.street || !address?.city || !address?.state || !address?.zipCode) {
@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
       email: email.toLowerCase(),
       phone,
       fax: fax || undefined,
+      companyName: companyName || undefined,
       address: {
         street: address.street,
         city: address.city,

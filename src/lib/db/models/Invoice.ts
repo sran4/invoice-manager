@@ -22,6 +22,7 @@ export interface IInvoice extends Document {
   status: 'draft' | 'sent' | 'paid' | 'overdue';
   notes?: string;
   template: string;
+  companyName?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -105,6 +106,10 @@ const InvoiceSchema = new Schema<IInvoice>({
     type: String,
     required: true,
   },
+  companyName: {
+    type: String,
+    required: false,
+  },
 }, {
   timestamps: true,
 });
@@ -120,4 +125,3 @@ if (mongoose.models.Invoice) {
 }
 
 export default mongoose.model<IInvoice>('Invoice', InvoiceSchema);
-

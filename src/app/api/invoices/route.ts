@@ -31,11 +31,12 @@ export async function GET(request: NextRequest) {
     
     // Add search functionality if search term is provided
     if (search) {
-      // Search by invoice number or customer name
+      // Search by invoice number, customer name, or company name
       const customerIds = await Customer.find({
         $or: [
           { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } }
+          { email: { $regex: search, $options: 'i' } },
+          { companyName: { $regex: search, $options: 'i' } }
         ]
       }).select('_id');
       
@@ -114,7 +115,8 @@ export async function POST(request: NextRequest) {
       subtotal,
       tax,
       discount,
-      total
+      total,
+      companyName
     } = body;
 
     // Validate required fields
@@ -140,6 +142,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Auto-populate companyName from customer if not provided
+    let finalCompanyName = companyName;
+    if (!finalCompanyName) {
+      const customer = await Customer.findById(customerId);
+      if (customer && customer.companyName) {
+        finalCompanyName = customer.companyName;
+      }
+    }
+
     const invoice = new Invoice({
       userId: session.user.email,
       customerId,
@@ -153,6 +164,7 @@ export async function POST(request: NextRequest) {
       tax,
       discount,
       total,
+      companyName: finalCompanyName,
       status: 'draft'
     });
 

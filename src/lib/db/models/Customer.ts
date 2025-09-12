@@ -6,6 +6,7 @@ export interface ICustomer extends Document {
   email: string;
   phone?: string;
   fax?: string;
+  companyName?: string;
   address: {
     street: string;
     city: string;
@@ -36,6 +37,10 @@ const CustomerSchema = new Schema<ICustomer>({
   },
   fax: {
     type: String,
+  },
+  companyName: {
+    type: String,
+    required: false,
   },
   address: {
     street: {
@@ -72,4 +77,3 @@ if (mongoose.models.Customer) {
 }
 
 export default mongoose.model<ICustomer>('Customer', CustomerSchema);
-

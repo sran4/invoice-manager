@@ -236,7 +236,7 @@ export default function SettingsPage() {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-4xl font-bold gradient-text mb-2 float-animation">Settings</h1>
-          <p className="text-slate-600 text-lg">
+          <p className="text-slate-300 text-lg">
             Manage your account settings and preferences
           </p>
         </motion.div>
@@ -261,8 +261,8 @@ export default function SettingsPage() {
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                         activeTab === tab.id
-                          ? 'bg-gradient-to-r from-red-100 to-blue-100 text-red-700'
-                          : 'hover:bg-slate-100 text-slate-600'
+                          ? 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700'
+                          : 'hover:bg-slate-100 text-slate-300'
                       }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -270,7 +270,14 @@ export default function SettingsPage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.2 + index * 0.1 }}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className={`h-5 w-5 ${
+                        activeTab === tab.id 
+                          ? tab.id === 'company' ? 'text-blue-500' :
+                            tab.id === 'preferences' ? 'text-purple-500' :
+                            tab.id === 'notifications' ? 'text-orange-500' :
+                            tab.id === 'security' ? 'text-green-500' : 'text-blue-500'
+                          : 'text-slate-400'
+                      }`} />
                       <span className="font-medium">{tab.name}</span>
                     </motion.button>
                   );
@@ -289,8 +296,8 @@ export default function SettingsPage() {
               {activeTab === 'company' && (
                 <AnimatedCard delay={0.3} className="gradient-card">
                   <CardHeader>
-                    <CardTitle className="flex items-center gradient-text">
-                      <Building className="h-6 w-6 mr-2" />
+                    <CardTitle className="flex items-center text-blue-400">
+                      <Building className="h-6 w-6 mr-2 text-blue-400" />
                       Company Information
                     </CardTitle>
                     <CardDescription>
@@ -348,9 +355,12 @@ export default function SettingsPage() {
                           id="company-email"
                           type="email"
                           value={companySettings.email}
-                          onChange={(e) => setCompanySettings(prev => ({ ...prev, email: e.target.value }))}
-                          className="border-red-200 focus:border-red-400 focus:ring-red-200"
+                          disabled
+                          className="bg-slate-100 text-slate-300 cursor-not-allowed border-slate-200"
                         />
+                        <p className="text-sm text-slate-500">
+                          Email is automatically set from your account
+                        </p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="company-phone">Phone</Label>
@@ -456,8 +466,8 @@ export default function SettingsPage() {
               {activeTab === 'preferences' && (
                 <AnimatedCard delay={0.3} className="gradient-card">
                   <CardHeader>
-                    <CardTitle className="flex items-center gradient-text">
-                      <Palette className="h-6 w-6 mr-2" />
+                    <CardTitle className="flex items-center text-purple-400">
+                      <Palette className="h-6 w-6 mr-2 text-purple-400" />
                       User Preferences
                     </CardTitle>
                     <CardDescription>
@@ -563,8 +573,8 @@ export default function SettingsPage() {
               {activeTab === 'notifications' && (
                 <AnimatedCard delay={0.3} className="gradient-card">
                   <CardHeader>
-                    <CardTitle className="flex items-center gradient-text">
-                      <Bell className="h-6 w-6 mr-2" />
+                    <CardTitle className="flex items-center text-orange-400">
+                      <Bell className="h-6 w-6 mr-2 text-orange-400" />
                       Notifications
                     </CardTitle>
                     <CardDescription>
@@ -576,7 +586,7 @@ export default function SettingsPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <Label className="text-base font-medium">Email Notifications</Label>
-                          <p className="text-sm text-slate-600">Receive notifications via email</p>
+                          <p className="text-sm text-slate-300">Receive notifications via email</p>
                         </div>
                         <Switch
                           checked={userPreferences.notifications.email}
@@ -589,7 +599,7 @@ export default function SettingsPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <Label className="text-base font-medium">Browser Notifications</Label>
-                          <p className="text-sm text-slate-600">Show browser notifications</p>
+                          <p className="text-sm text-slate-300">Show browser notifications</p>
                         </div>
                         <Switch
                           checked={userPreferences.notifications.browser}
@@ -602,7 +612,7 @@ export default function SettingsPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <Label className="text-base font-medium">Invoice Reminders</Label>
-                          <p className="text-sm text-slate-600">Remind about upcoming due dates</p>
+                          <p className="text-sm text-slate-300">Remind about upcoming due dates</p>
                         </div>
                         <Switch
                           checked={userPreferences.notifications.invoiceReminders}
@@ -615,7 +625,7 @@ export default function SettingsPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <Label className="text-base font-medium">Payment Reminders</Label>
-                          <p className="text-sm text-slate-600">Remind about overdue payments</p>
+                          <p className="text-sm text-slate-300">Remind about overdue payments</p>
                         </div>
                         <Switch
                           checked={userPreferences.notifications.paymentReminders}
@@ -633,8 +643,8 @@ export default function SettingsPage() {
               {activeTab === 'security' && (
                 <AnimatedCard delay={0.3} className="gradient-card">
                   <CardHeader>
-                    <CardTitle className="flex items-center gradient-text">
-                      <Shield className="h-6 w-6 mr-2" />
+                    <CardTitle className="flex items-center text-green-400">
+                      <Shield className="h-6 w-6 mr-2 text-green-400" />
                       Security
                     </CardTitle>
                     <CardDescription>
@@ -645,7 +655,7 @@ export default function SettingsPage() {
                     <div className="space-y-4">
                       <div className="p-4 bg-gradient-to-r from-red-50 to-blue-50 rounded-lg">
                         <h3 className="font-medium text-slate-900 mb-2">Change Password</h3>
-                        <p className="text-sm text-slate-600 mb-4">Update your account password</p>
+                        <p className="text-sm text-slate-300 mb-4">Update your account password</p>
                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                           <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
                             Change Password
@@ -654,7 +664,7 @@ export default function SettingsPage() {
                       </div>
                       <div className="p-4 bg-gradient-to-r from-red-50 to-blue-50 rounded-lg">
                         <h3 className="font-medium text-slate-900 mb-2">Two-Factor Authentication</h3>
-                        <p className="text-sm text-slate-600 mb-4">Add an extra layer of security</p>
+                        <p className="text-sm text-slate-300 mb-4">Add an extra layer of security</p>
                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                           <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
                             Enable 2FA
@@ -663,7 +673,7 @@ export default function SettingsPage() {
                       </div>
                       <div className="p-4 bg-gradient-to-r from-red-50 to-blue-50 rounded-lg">
                         <h3 className="font-medium text-slate-900 mb-2">Export Data</h3>
-                        <p className="text-sm text-slate-600 mb-4">Download your account data</p>
+                        <p className="text-sm text-slate-300 mb-4">Download your account data</p>
                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                           <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
                             <Download className="h-4 w-4 mr-2" />

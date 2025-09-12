@@ -130,6 +130,18 @@
   background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
 }
 
+.gradient-blue-cyan {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #0891b2 100%);
+}
+
+.gradient-purple-pink {
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #be185d 100%);
+}
+
+.gradient-green-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+}
+
 
 .gradient-card {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
@@ -190,6 +202,80 @@
 }
 
 /* Custom Toast Animations */
+
+/* 1. Bounce Slide In */
+@keyframes toast-bounce-in {
+  0% {
+    transform: translateX(-50%) translateY(-100px) scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(-50%) translateY(20px) scale(1.1);
+    opacity: 0.8;
+  }
+  70% {
+    transform: translateX(-50%) translateY(-10px) scale(0.95);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 2. Flip Slide In */
+@keyframes toast-flip-in {
+  0% {
+    transform: translateX(-50%) rotateY(-90deg) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(-50%) rotateY(10deg) scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(-50%) rotateY(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 3. Zoom Pop In */
+@keyframes toast-zoom-in {
+  0% {
+    transform: translateX(-50%) scale(0) rotate(180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.2) rotate(90deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(-50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* 4. Elastic Slide In */
+@keyframes toast-elastic-in {
+  0% {
+    transform: translateX(-50%) translateY(-50px) scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-50%) translateY(10px) scale(1.05);
+    opacity: 0.9;
+  }
+  80% {
+    transform: translateX(-50%) translateY(-5px) scale(0.98);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Legacy slide in (keeping for compatibility) */
 @keyframes toast-slide-in {
   0% {
     transform: translateX(100%) scale(0.8);
@@ -207,12 +293,24 @@
 
 @keyframes toast-slide-out {
   0% {
-    transform: translateX(0) scale(1);
+    transform: translateX(0) scale(1) rotate(0deg);
     opacity: 1;
+    filter: blur(0px);
+  }
+  30% {
+    transform: translateX(-10px) scale(0.95) rotate(-1deg);
+    opacity: 0.8;
+    filter: blur(0.5px);
+  }
+  70% {
+    transform: translateX(20px) scale(0.8) rotate(2deg);
+    opacity: 0.3;
+    filter: blur(2px);
   }
   100% {
-    transform: translateX(100%) scale(0.8);
+    transform: translateX(100%) scale(0.6) rotate(5deg);
     opacity: 0;
+    filter: blur(4px);
   }
 }
 
@@ -225,10 +323,24 @@
   }
 }
 
+/* Default toast animation */
 .toast-gradient {
-  animation: toast-slide-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: toast-bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   position: relative;
   overflow: hidden;
+}
+
+/* Animation variants */
+.toast-gradient.toast-flip {
+  animation: toast-flip-in 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast-gradient.toast-zoom {
+  animation: toast-zoom-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast-gradient.toast-elastic {
+  animation: toast-elastic-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .toast-gradient::before {
@@ -251,6 +363,143 @@
   }
 }
 
+/* Modern fade-out animation for center toasts */
+@keyframes toast-fade-out {
+  0% {
+    transform: translateX(-50%) scale(1) rotate(0deg);
+    opacity: 1;
+    filter: blur(0px) brightness(1);
+  }
+  20% {
+    transform: translateX(-50%) scale(0.98) rotate(-0.5deg);
+    opacity: 0.9;
+    filter: blur(0.3px) brightness(1.1);
+  }
+  50% {
+    transform: translateX(-50%) scale(0.9) rotate(1deg);
+    opacity: 0.6;
+    filter: blur(1px) brightness(1.2);
+  }
+  80% {
+    transform: translateX(-50%) scale(0.7) rotate(-2deg);
+    opacity: 0.2;
+    filter: blur(3px) brightness(1.5);
+  }
+  100% {
+    transform: translateX(-50%) scale(0.5) rotate(3deg);
+    opacity: 0;
+    filter: blur(5px) brightness(2);
+  }
+}
+
+/* Modern slide-up fade-out */
+@keyframes toast-slide-up-fade {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  30% {
+    transform: translateX(-50%) translateY(-10px) scale(0.95);
+    opacity: 0.8;
+    filter: blur(0.5px);
+  }
+  70% {
+    transform: translateX(-50%) translateY(-30px) scale(0.8);
+    opacity: 0.3;
+    filter: blur(2px);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-50px) scale(0.6);
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+/* 1. Flip Exit */
+@keyframes toast-flip-out {
+  0% {
+    transform: translateX(-50%) rotateY(0deg) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50%) rotateY(90deg) scale(0.8);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(-50%) rotateY(180deg) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* 2. Zoom Shrink Exit */
+@keyframes toast-zoom-out {
+  0% {
+    transform: translateX(-50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(-50%) scale(1.1) rotate(5deg);
+    opacity: 0.8;
+  }
+  70% {
+    transform: translateX(-50%) scale(0.5) rotate(10deg);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateX(-50%) scale(0) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* 3. Elastic Bounce Exit */
+@keyframes toast-elastic-out {
+  0% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: translateX(-50%) scale(1.1);
+    opacity: 0.9;
+  }
+  40% {
+    transform: translateX(-50%) scale(0.9);
+    opacity: 0.7;
+  }
+  60% {
+    transform: translateX(-50%) scale(1.05);
+    opacity: 0.5;
+  }
+  80% {
+    transform: translateX(-50%) scale(0.7);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateX(-50%) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* 4. Slide Down Exit */
+@keyframes toast-slide-down {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(-50%) translateY(20px) scale(0.95);
+    opacity: 0.8;
+  }
+  70% {
+    transform: translateX(-50%) translateY(60px) scale(0.8);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateX(-50%) translateY(100px) scale(0.6);
+    opacity: 0;
+  }
+}
+
 /* Toast success variant */
 .toast-gradient[data-type="success"] {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -269,4 +518,136 @@
 /* Toast info variant */
 .toast-gradient[data-type="info"] {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+/* Toast positioning for center alignment */
+[data-sonner-toaster] {
+  position: fixed !important;
+  top: 20vh !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+}
+
+[data-sonner-toast] {
+  margin: 0 auto !important;
+  max-width: 400px !important;
+  width: 90vw !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Modern toast exit animations */
+[data-sonner-toast][data-removed="true"] {
+  animation: toast-elastic-out 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
+
+/* Exit animation variants */
+[data-sonner-toast][data-removed="true"].toast-flip-exit {
+  animation: toast-flip-out 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
+
+[data-sonner-toast][data-removed="true"].toast-zoom-exit {
+  animation: toast-zoom-out 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
+
+[data-sonner-toast][data-removed="true"].toast-slide-down-exit {
+  animation: toast-slide-down 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
+
+[data-sonner-toast][data-removed="true"].toast-slide-up-exit {
+  animation: toast-slide-up-fade 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
+
+/* Alternative fade-out effect */
+[data-sonner-toast][data-removed="true"].toast-fade-out {
+  animation: toast-fade-out 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
+
+/* Enhanced toast hover effects */
+[data-sonner-toast]:hover {
+  transform: translateX(-50%) scale(1.02) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Toast pulse effect before disappearing */
+@keyframes toast-pulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+[data-sonner-toast][data-removing="true"] {
+  animation: toast-pulse 0.5s ease-in-out 2, toast-elastic-out 0.7s cubic-bezier(0.4, 0, 0.2, 1) 1s forwards !important;
+}
+
+/* Modern glassmorphism effect */
+.toast-gradient {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 
+TOAST ANIMATION OPTIONS:
+
+ENTRANCE ANIMATIONS:
+- Default: toast-bounce-in (bounces down from top)
+- .toast-flip: toast-flip-in (flips in with 3D rotation)
+- .toast-zoom: toast-zoom-in (zooms in with rotation)
+- .toast-elastic: toast-elastic-in (elastic bounce effect)
+
+EXIT ANIMATIONS:
+- Default: toast-elastic-out (elastic bounce out)
+- .toast-flip-exit: toast-flip-out (flips out with 3D rotation)
+- .toast-zoom-exit: toast-zoom-out (zooms out with rotation)
+- .toast-slide-down-exit: toast-slide-down (slides down)
+- .toast-slide-up-exit: toast-slide-up-fade (slides up with blur)
+- .toast-fade-out: toast-fade-out (fades with rotation and blur)
+
+To change animations, modify the className in layout.tsx:
+- For entrance: Add class like "toast-flip" to toastOptions.className
+- For exit: Add class like "toast-flip-exit" to toastOptions.className
+*/
+
+/* Date Picker Icon Styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+  filter: brightness(0) invert(1);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(200deg);
+}
+
+/* Firefox date picker styling */
+input[type="date"]::-moz-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+  filter: brightness(0) invert(1);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator:hover {
+  filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(200deg);
 }

@@ -16,6 +16,7 @@ interface CustomerFormData {
   email: string;
   phone: string;
   fax: string;
+  companyName: string;
   address: {
     street: string;
     city: string;
@@ -33,6 +34,7 @@ export default function NewCustomerPage() {
     email: '',
     phone: '',
     fax: '',
+    companyName: '',
     address: {
       street: '',
       city: '',
@@ -151,6 +153,17 @@ export default function NewCustomerPage() {
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     placeholder="Enter customer's full name"
                     required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Company Name (Optional)</Label>
+                  <Input
+                    id="companyName"
+                    type="text"
+                    value={formData.companyName}
+                    onChange={(e) => handleInputChange('companyName', e.target.value)}
+                    placeholder="Enter company name if applicable"
                   />
                 </div>
 

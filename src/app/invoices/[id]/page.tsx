@@ -111,7 +111,7 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="pt-20 p-6">
+    <div className="pt-32 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -124,8 +124,8 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-slate-900">Invoice {invoice.invoiceNumber}</h1>
-              <p className="text-slate-600 text-lg">
+              <h1 className="text-4xl font-bold text-white">Invoice {invoice.invoiceNumber}</h1>
+              <p className="text-blue-300 text-lg">
                 Created on {new Date(invoice.createdAt).toLocaleDateString()}
               </p>
             </div>
@@ -160,21 +160,21 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h3 className="font-semibold text-slate-700 mb-2">Invoice Number</h3>
-                    <p className="text-slate-600">{invoice.invoiceNumber}</p>
+                    <h3 className="font-semibold text-blue-400 mb-2">Invoice Number</h3>
+                    <p className="text-slate-200">{invoice.invoiceNumber}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-700 mb-2">Template</h3>
-                    <p className="text-slate-600 capitalize">{invoice.template.replace('-', ' ')}</p>
+                    <h3 className="font-semibold text-blue-400 mb-2">Template</h3>
+                    <p className="text-slate-200 capitalize">{invoice.template.replace('-', ' ')}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-700 mb-2">Issue Date</h3>
-                    <p className="text-slate-600">{new Date(invoice.issueDate).toLocaleDateString()}</p>
+                    <h3 className="font-semibold text-blue-400 mb-2">Issue Date</h3>
+                    <p className="text-slate-200">{new Date(invoice.issueDate).toLocaleDateString()}</p>
                   </div>
                   {invoice.dueDate && (
                     <div>
-                      <h3 className="font-semibold text-slate-700 mb-2">Due Date</h3>
-                      <p className="text-slate-600">{new Date(invoice.dueDate).toLocaleDateString()}</p>
+                      <h3 className="font-semibold text-blue-400 mb-2">Due Date</h3>
+                      <p className="text-slate-200">{new Date(invoice.dueDate).toLocaleDateString()}</p>
                     </div>
                   )}
                 </div>
@@ -191,13 +191,13 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
                   {invoice.items.map((item, index) => (
                     <div key={item.id} className="flex justify-between items-start p-4 border rounded-lg">
                       <div className="flex-1">
-                        <h4 className="font-medium">{item.description}</h4>
-                        <p className="text-sm text-slate-600">
+                        <h4 className="font-medium text-white">{item.description}</h4>
+                        <p className="text-sm text-blue-300">
                           {item.quantity} × ${item.rate.toFixed(2)}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">${item.amount.toFixed(2)}</p>
+                        <p className="font-medium text-white">${item.amount.toFixed(2)}</p>
                       </div>
                     </div>
                   ))}
@@ -212,7 +212,7 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
                   <CardTitle>Notes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-600 whitespace-pre-wrap">{invoice.notes}</p>
+                  <p className="text-slate-200 whitespace-pre-wrap">{invoice.notes}</p>
                 </CardContent>
               </Card>
             )}
@@ -227,21 +227,21 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>${invoice.subtotal.toFixed(2)}</span>
+                  <span className="text-blue-400">Subtotal:</span>
+                  <span className="text-slate-200">${invoice.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Tax:</span>
-                  <span>${invoice.tax.toFixed(2)}</span>
+                  <span className="text-blue-400">Tax:</span>
+                  <span className="text-slate-200">${invoice.tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Discount:</span>
-                  <span>-${invoice.discount.toFixed(2)}</span>
+                  <span className="text-blue-400">Discount:</span>
+                  <span className="text-slate-200">-${invoice.discount.toFixed(2)}</span>
                 </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between font-bold text-lg">
-                    <span>Total:</span>
-                    <span>${invoice.total.toFixed(2)}</span>
+                    <span className="text-green-400">Total:</span>
+                    <span className="text-green-400">${invoice.total.toFixed(2)}</span>
                   </div>
                 </div>
               </CardContent>

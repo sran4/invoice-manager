@@ -46,6 +46,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
+  companyName?: string;
   address: {
     street: string;
     city: string;
@@ -58,7 +59,7 @@ interface Customer {
 interface PaginationInfo {
   currentPage: number;
   totalPages: number;
-  totalItems: number;
+  totalCount: number;
   limit: number;
   hasNextPage: boolean;
   hasPrevPage: boolean;
@@ -227,10 +228,11 @@ export default function InvoicesPage() {
   const getCustomerDetails = (customerId: string) => {
     const customer = customers.find(c => c._id === customerId);
     if (!customer) {
-      return { name: 'Unknown Customer', city: 'Unknown City', phone: 'No Phone' };
+      return { name: 'Unknown Customer', companyName: '', city: 'Unknown City', phone: 'No Phone' };
     }
     return {
       name: customer.name,
+      companyName: customer.companyName || '',
       city: customer.address.city,
       phone: customer.phone || 'No Phone'
     };
@@ -302,10 +304,10 @@ export default function InvoicesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold gradient-text mb-2 float-animation">Invoices</h1>
-              <p className="text-slate-600 dark:text-slate-300 text-lg">
+              <p className="text-slate-200 text-lg">
                 Manage and track all your invoices
               </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+              <p className="text-sm text-blue-300 mt-2">
                 📊 Stats show year-to-date data (Jan 1, {currentYear} - present)
               </p>
             </div>
@@ -326,7 +328,7 @@ export default function InvoicesPage() {
           {/* 1. Total Revenue */}
           <AnimatedCard delay={0.1} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium text-green-400">Total Revenue</CardTitle>
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
@@ -343,7 +345,7 @@ export default function InvoicesPage() {
               >
                 ${stats.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </motion.div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-green-300">
                 All invoices (YTD)
               </p>
             </CardContent>
@@ -352,7 +354,7 @@ export default function InvoicesPage() {
           {/* 2. Paid Revenue */}
           <AnimatedCard delay={0.2} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Paid Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium text-emerald-400">Paid Revenue</CardTitle>
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
@@ -369,7 +371,7 @@ export default function InvoicesPage() {
               >
                 ${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </motion.div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-emerald-300">
                 From paid invoices (YTD)
               </p>
             </CardContent>
@@ -378,7 +380,7 @@ export default function InvoicesPage() {
           {/* 3. Overdue */}
           <AnimatedCard delay={0.3} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Overdue</CardTitle>
+              <CardTitle className="text-sm font-medium text-red-400">Overdue</CardTitle>
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
@@ -395,7 +397,7 @@ export default function InvoicesPage() {
               >
                 {stats.overdue}
               </motion.div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-red-300">
                 ${stats.overdueAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} past due (YTD)
               </p>
             </CardContent>
@@ -404,7 +406,7 @@ export default function InvoicesPage() {
           {/* 4. Draft */}
           <AnimatedCard delay={0.4} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Draft</CardTitle>
+              <CardTitle className="text-sm font-medium text-yellow-400">Draft</CardTitle>
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
@@ -421,7 +423,7 @@ export default function InvoicesPage() {
               >
                 {stats.draft}
               </motion.div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-yellow-300">
                 ${stats.draftAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in progress (YTD)
               </p>
             </CardContent>
@@ -430,7 +432,7 @@ export default function InvoicesPage() {
           {/* 5. Pending */}
           <AnimatedCard delay={0.5} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-blue-400">Pending</CardTitle>
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
@@ -447,7 +449,7 @@ export default function InvoicesPage() {
               >
                 {stats.pending}
               </motion.div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-blue-300">
                 ${stats.pendingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} awaiting payment (YTD)
               </p>
             </CardContent>
@@ -456,7 +458,7 @@ export default function InvoicesPage() {
           {/* 6. Total Invoices */}
           <AnimatedCard delay={0.6} className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
+              <CardTitle className="text-sm font-medium text-purple-400">Total Invoices</CardTitle>
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
@@ -473,7 +475,7 @@ export default function InvoicesPage() {
               >
                 {stats.total}
               </motion.div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-purple-300">
                 Year-to-date
               </p>
             </CardContent>
@@ -508,7 +510,7 @@ export default function InvoicesPage() {
                   placeholder="Search by invoice number, customer name, or amount..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full"
+                  className="w-full placeholder:text-blue-300 text-slate-200"
                 />
               </div>
               {searchTerm && (
@@ -528,12 +530,12 @@ export default function InvoicesPage() {
             
             {/* Status Filter Tabs */}
             <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="draft">Draft</TabsTrigger>
-                <TabsTrigger value="sent">Sent</TabsTrigger>
-                <TabsTrigger value="paid">Paid</TabsTrigger>
-                <TabsTrigger value="overdue">Overdue</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-5 bg-slate-800">
+                <TabsTrigger value="all" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-slate-300 hover:text-white">All</TabsTrigger>
+                <TabsTrigger value="draft" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-white text-slate-300 hover:text-white">Draft</TabsTrigger>
+                <TabsTrigger value="sent" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-slate-300 hover:text-white">Sent</TabsTrigger>
+                <TabsTrigger value="paid" className="data-[state=active]:bg-green-500 data-[state=active]:text-white text-slate-300 hover:text-white">Paid</TabsTrigger>
+                <TabsTrigger value="overdue" className="data-[state=active]:bg-red-500 data-[state=active]:text-white text-slate-300 hover:text-white">Overdue</TabsTrigger>
               </TabsList>
             </Tabs>
           </CardContent>
@@ -546,12 +548,12 @@ export default function InvoicesPage() {
               <div>
                 <CardTitle className="gradient-text">Invoice List</CardTitle>
                 <CardDescription>
-                  {pagination ? `${pagination.totalItems} total invoices` : 'Loading...'}
+                  {pagination ? `${pagination.totalCount} total invoices` : 'Loading...'}
                 </CardDescription>
               </div>
               {searchTerm && (
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-slate-600 dark:text-slate-300">
+                  <span className="text-sm text-blue-300">
                     Search results for: "{searchTerm}"
                   </span>
                   <Button
@@ -583,10 +585,10 @@ export default function InvoicesPage() {
                 >
                   <FileText className="h-16 w-16 text-slate-400 mx-auto mb-4" />
                 </motion.div>
-                <h3 className="text-lg font-medium text-slate-600 dark:text-slate-300 mb-2">
+                <h3 className="text-lg font-medium text-slate-200 mb-2">
                   {searchTerm ? 'No invoices found' : 'No invoices yet'}
                 </h3>
-                <p className="text-slate-500 dark:text-slate-400 mb-4">
+                <p className="text-slate-300 mb-4">
                   {searchTerm 
                     ? `No invoices match your search for "${searchTerm}"`
                     : 'Create your first invoice to get started'
@@ -627,21 +629,38 @@ export default function InvoicesPage() {
                         </motion.div>
                         <div>
                           <h3 className="font-semibold text-lg">{invoice.invoiceNumber}</h3>
-                          <div className="flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-300 mt-1">
-                            <div className="flex items-center">
-                              <User className="h-3 w-3 mr-1" />
-                              {customerDetails.name}
-                            </div>
-                            <div className="flex items-center">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              {new Date(invoice.issueDate).toLocaleDateString()}
-                            </div>
-                            {invoice.dueDate && (
+                          <div className="space-y-2 mt-1">
+                            {/* Customer Information */}
+                            <div className="flex items-center space-x-4 text-sm text-slate-200">
                               <div className="flex items-center">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                Due: {new Date(invoice.dueDate).toLocaleDateString()}
+                                <User className="h-3 w-3 mr-1 text-blue-400" />
+                                {customerDetails.name}
+                                {customerDetails.companyName && (
+                                  <span className="ml-1 text-blue-300">({customerDetails.companyName})</span>
+                                )}
                               </div>
-                            )}
+                              <div className="flex items-center">
+                                <Phone className="h-3 w-3 mr-1 text-green-400" />
+                                {customerDetails.phone}
+                              </div>
+                              <div className="flex items-center">
+                                <span className="text-orange-400">📍</span>
+                                {customerDetails.city}
+                              </div>
+                            </div>
+                            {/* Invoice Dates */}
+                            <div className="flex items-center space-x-4 text-sm text-slate-300">
+                              <div className="flex items-center">
+                                <Calendar className="h-3 w-3 mr-1 text-purple-400" />
+                                {new Date(invoice.issueDate).toLocaleDateString()}
+                              </div>
+                              {invoice.dueDate && (
+                                <div className="flex items-center">
+                                  <Calendar className="h-3 w-3 mr-1 text-red-400" />
+                                  Due: {new Date(invoice.dueDate).toLocaleDateString()}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -649,9 +668,6 @@ export default function InvoicesPage() {
                         <div className="text-right">
                           <p className="font-bold text-xl gradient-text">
                             ${invoice.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </p>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">
-                            {customerDetails.city}
                           </p>
                         </div>
                         <Badge 
@@ -698,14 +714,14 @@ export default function InvoicesPage() {
                             </Button>
                           </motion.div>
                           <Select onValueChange={(value) => handleUpdateStatus(invoice._id, value)}>
-                            <SelectTrigger className="w-32">
+                            <SelectTrigger className="w-32 bg-slate-800 border-slate-600 text-blue-500 hover:text-blue-400 hover:border-blue-400 transition-colors duration-200 [&>span]:text-blue-500 [&>span]:font-semibold">
                               <SelectValue placeholder="Status" />
                             </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="draft">Draft</SelectItem>
-                              <SelectItem value="sent">Sent</SelectItem>
-                              <SelectItem value="paid">Paid</SelectItem>
-                              <SelectItem value="overdue">Overdue</SelectItem>
+                            <SelectContent className="bg-slate-800 border-slate-600">
+                              <SelectItem value="draft" className="text-yellow-300 hover:bg-yellow-500/20 hover:text-yellow-200 font-medium">Draft</SelectItem>
+                              <SelectItem value="sent" className="text-blue-300 hover:bg-blue-500/20 hover:text-blue-200 font-medium">Sent</SelectItem>
+                              <SelectItem value="paid" className="text-green-300 hover:bg-green-500/20 hover:text-green-200 font-medium">Paid</SelectItem>
+                              <SelectItem value="overdue" className="text-red-300 hover:bg-red-500/20 hover:text-red-200 font-medium">Overdue</SelectItem>
                             </SelectContent>
                           </Select>
                           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
@@ -714,7 +730,7 @@ export default function InvoicesPage() {
                               size="sm"
                               onClick={() => handleDeleteInvoice(invoice._id)}
                               title="Delete Invoice"
-                              className="hover:bg-red-100 text-red-600"
+                              className="hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400 hover:shadow-lg hover:shadow-red-500/25 transition-all duration-200"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -734,8 +750,8 @@ export default function InvoicesPage() {
           <AnimatedCard delay={1.0} className="gradient-card mt-8">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-slate-600 dark:text-slate-300">
-                  Showing {((pagination.currentPage - 1) * pagination.limit) + 1} to {Math.min(pagination.currentPage * pagination.limit, pagination.totalItems)} of {pagination.totalItems} invoices
+                <div className="text-sm text-slate-200">
+                  Showing {((pagination.currentPage - 1) * pagination.limit) + 1} to {Math.min(pagination.currentPage * pagination.limit, pagination.totalCount)} of {pagination.totalCount} invoices
                 </div>
                 <div className="flex items-center space-x-2">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -750,7 +766,7 @@ export default function InvoicesPage() {
                       Previous
                     </Button>
                   </motion.div>
-                  <span className="text-sm text-slate-600 dark:text-slate-300">
+                  <span className="text-sm text-slate-200">
                     Page {pagination.currentPage} of {pagination.totalPages}
                   </span>
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

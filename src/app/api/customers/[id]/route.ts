@@ -7,7 +7,7 @@ import Customer from '@/lib/db/models/Customer';
 // GET /api/customers/[id] - Get a specific customer
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -20,9 +20,10 @@ export async function GET(
     }
 
     await connectDB();
+    const { id } = await params;
 
     const customer = await Customer.findOne({
-      _id: params.id,
+      _id: id,
       userId: session.user.email
     });
 
@@ -49,7 +50,7 @@ export async function GET(
 // PUT /api/customers/[id] - Update a specific customer
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -62,7 +63,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, email, phone, fax, address } = body;
+    const { name, email, phone, fax, companyName, address } = body;
 
     // Validate required fields
     if (!name || !email || !phone || !address?.street || !address?.city || !address?.state || !address?.zipCode) {
@@ -73,10 +74,11 @@ export async function PUT(
     }
 
     await connectDB();
+    const { id } = await params;
 
     // Check if customer exists and belongs to user
     const existingCustomer = await Customer.findOne({
-      _id: params.id,
+      _id: id,
       userId: session.user.email
     });
 
@@ -92,7 +94,7 @@ export async function PUT(
       const emailExists = await Customer.findOne({
         userId: session.user.email,
         email: email.toLowerCase(),
-        _id: { $ne: params.id }
+        _id: { $ne: id }
       });
 
       if (emailExists) {
@@ -104,12 +106,13 @@ export async function PUT(
     }
 
     const updatedCustomer = await Customer.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name,
         email: email.toLowerCase(),
         phone,
         fax: fax || undefined,
+        companyName: companyName || undefined,
         address: {
           street: address.street,
           city: address.city,
@@ -137,7 +140,7 @@ export async function PUT(
 // DELETE /api/customers/[id] - Delete a specific customer
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -150,9 +153,10 @@ export async function DELETE(
     }
 
     await connectDB();
+    const { id } = await params;
 
     const customer = await Customer.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId: session.user.email
     });
 

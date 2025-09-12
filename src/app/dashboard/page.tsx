@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -66,6 +66,7 @@ export default function Dashboard() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const dataFetchedRef = useRef(false);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -73,21 +74,29 @@ export default function Dashboard() {
       router.push('/auth/signin');
       return;
     }
-    fetchDashboardData();
+    
+    // Prevent duplicate data fetching
+    if (dataFetchedRef.current) return;
+    
+    // Debounce the data fetching to prevent rapid API calls
+    const timeoutId = setTimeout(() => {
+      dataFetchedRef.current = true;
+      fetchDashboardData();
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
   }, [session, status, router]);
 
   const fetchDashboardData = async () => {
     try {
-      const [invoicesResponse, customersResponse] = await Promise.all([
-        fetch('/api/invoices?limit=1000'), // Get all invoices for accurate stats
-        fetch('/api/customers')
-      ]);
-
+      // Fetch data sequentially to prevent layout shifts from simultaneous loading
+      const invoicesResponse = await fetch('/api/invoices?limit=1000');
       if (invoicesResponse.ok) {
         const invoicesData = await invoicesResponse.json();
         setInvoices(invoicesData.invoices || []);
       }
 
+      const customersResponse = await fetch('/api/customers');
       if (customersResponse.ok) {
         const customersData = await customersResponse.json();
         setCustomers(customersData.customers || []);
@@ -101,8 +110,55 @@ export default function Dashboard() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="pt-20 p-6 dashboard-container prevent-layout-shift">
+        <div className="max-w-7xl mx-auto">
+          {/* Loading Skeleton */}
+          <div className="mb-8">
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-2 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse"></div>
+          </div>
+          
+          {/* Quick Actions Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="gradient-card p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="gradient-card p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Recent Invoices Skeleton */}
+          <div className="gradient-card p-6 animate-pulse">
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-4">
+                    <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    </div>
+                  </div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -167,11 +223,11 @@ export default function Dashboard() {
     });
 
   return (
-    <div className="pt-20 p-6 min-h-screen">
+    <div className="pt-20 p-6 dashboard-container prevent-layout-shift">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div 
-          className="mb-8"
+          className="mb-8 motion-safe"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -189,7 +245,7 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <AnimatedCard delay={0.1} className="gradient-card cursor-pointer group">
+          <AnimatedCard delay={0.1} className="gradient-card cursor-pointer group motion-safe">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <motion.div 
@@ -216,7 +272,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.2} className="gradient-card cursor-pointer group">
+          <AnimatedCard delay={0.2} className="gradient-card cursor-pointer group motion-safe">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <motion.div 
@@ -243,7 +299,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.3} className="gradient-card cursor-pointer group">
+          <AnimatedCard delay={0.3} className="gradient-card cursor-pointer group motion-safe">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <motion.div 
@@ -270,7 +326,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.4} className="gradient-card cursor-pointer group">
+          <AnimatedCard delay={0.4} className="gradient-card cursor-pointer group motion-safe">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <motion.div 
@@ -300,7 +356,7 @@ export default function Dashboard() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <AnimatedCard delay={0.5} className="gradient-card">
+          <AnimatedCard delay={0.5} className="gradient-card motion-safe">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
               <motion.div
@@ -325,7 +381,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.6} className="gradient-card">
+          <AnimatedCard delay={0.6} className="gradient-card motion-safe">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Paid Revenue</CardTitle>
               <motion.div
@@ -350,7 +406,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.7} className="gradient-card">
+          <AnimatedCard delay={0.7} className="gradient-card motion-safe">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending</CardTitle>
               <motion.div
@@ -375,7 +431,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.8} className="gradient-card">
+          <AnimatedCard delay={0.8} className="gradient-card motion-safe">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Draft</CardTitle>
               <motion.div
@@ -400,7 +456,7 @@ export default function Dashboard() {
             </CardContent>
           </AnimatedCard>
 
-          <AnimatedCard delay={0.9} className="gradient-card">
+          <AnimatedCard delay={0.9} className="gradient-card motion-safe">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Overdue</CardTitle>
               <motion.div
@@ -427,7 +483,7 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Invoices */}
-        <AnimatedCard delay={1.0} className="gradient-card">
+        <AnimatedCard delay={1.0} className="gradient-card motion-safe">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>

@@ -125,6 +125,121 @@
   }
 }
 
+/* 🔧 SCROLLBAR STABILIZATION - Fix jumping scrollbar issue */
+@layer utilities {
+  /* Prevent layout shifts from scrollbar appearance/disappearance */
+  html {
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+    height: 100%;
+  }
+  
+  /* Prevent content jumping during animations */
+  .prevent-layout-shift {
+    contain: layout style;
+  }
+  
+  /* Stabilize dashboard content - NO OVERFLOW */
+  .dashboard-container {
+    min-height: calc(100vh - 4rem); /* Account for navbar height */
+    overflow: visible; /* Remove any overflow that could create inner scrollbars */
+    height: auto;
+  }
+  
+  /* Prevent animation-induced layout shifts */
+  .motion-safe {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Single scrollbar on body only */
+  body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Remove any potential inner scrollbars */
+  main {
+    overflow: visible;
+  }
+  
+  /* Webkit scrollbar styling for consistency */
+  body::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+  }
+  
+  body::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  
+  body::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+    background-clip: content-box;
+  }
+  
+  /* Prevent layout shifts from dynamic content */
+  .dashboard-container * {
+    box-sizing: border-box;
+  }
+  
+  /* Stabilize grid layouts */
+  .grid {
+    contain: layout;
+  }
+  
+  /* Prevent animation-induced reflows */
+  .motion-safe * {
+    transform: translateZ(0);
+  }
+  
+  /* Ensure no nested scrolling containers */
+  .max-w-7xl {
+    overflow: visible;
+  }
+  
+  /* Force all containers to not create scrollbars */
+  .dashboard-container > * {
+    overflow: visible !important;
+  }
+  
+  /* Remove any potential scrollbars from grid containers */
+  .grid {
+    overflow: visible !important;
+  }
+  
+  /* Ensure cards don't create scrollbars */
+  .gradient-card {
+    overflow: visible !important;
+  }
+  
+  /* Remove scrollbars from any motion containers */
+  .motion-safe {
+    overflow: visible !important;
+  }
+  
+  /* AGGRESSIVE: Remove ALL scrollbars except body */
+  *:not(body):not(html) {
+    overflow: visible !important;
+  }
+  
+  /* Ensure no element creates its own scrollbar */
+  div, section, article, aside, nav, header, footer, main {
+    overflow: visible !important;
+  }
+}
+
 /* Custom gradient backgrounds */
 .gradient-red-blue {
   background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);

@@ -27,7 +27,7 @@ export default function RootLayout({
         <ThemeProvider>
           <SessionProvider>
             <ClientNavigation />
-            <main className="min-h-screen">
+            <main className="min-h-screen overflow-visible">
               {children}
             </main>
             <Toaster 

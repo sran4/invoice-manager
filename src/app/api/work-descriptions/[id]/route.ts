@@ -4,6 +4,48 @@ import { authOptions } from '@/lib/auth/config';
 import connectDB from '@/lib/db/connection';
 import WorkDescription from '@/lib/db/models/WorkDescription';
 
+// GET /api/work-descriptions/[id] - Get a specific work description
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    await connectDB();
+
+    const workDescription = await WorkDescription.findOne({
+      _id: params.id,
+      userId: session.user.email
+    });
+
+    if (!workDescription) {
+      return NextResponse.json(
+        { error: 'Work description not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      workDescription
+    });
+  } catch (error: any) {
+    console.error('Error fetching work description:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch work description', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 // PUT /api/work-descriptions/[id] - Update a specific work description
 export async function PUT(
   request: NextRequest,
@@ -32,8 +74,11 @@ export async function PUT(
 
     await connectDB();
 
-    const updatedWorkDescription = await WorkDescription.findByIdAndUpdate(
-      params.id,
+    const updatedWorkDescription = await WorkDescription.findOneAndUpdate(
+      {
+        _id: params.id,
+        userId: session.user.email
+      },
       {
         title,
         description,

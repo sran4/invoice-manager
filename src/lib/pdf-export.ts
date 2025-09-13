@@ -99,6 +99,18 @@ export const generateInvoicePDF = async (
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   
+  // Function to add page numbers
+  const addPageNumbers = () => {
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(128, 128, 128);
+      doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+    }
+  };
+  
   // Get template configuration based on invoice template
   const templateConfig = templateConfigs[invoice.template as keyof typeof templateConfigs] || templateConfigs['modern-blue'];
   
@@ -215,8 +227,8 @@ export const generateInvoicePDF = async (
   // Items
   doc.setFont('helvetica', 'normal');
   invoice.items.forEach((item, index) => {
-    // Check if we need a new page
-    if (yPosition > pageHeight - 60) {
+    // Check if we need a new page (leave space for page numbers)
+    if (yPosition > pageHeight - 80) {
       doc.addPage();
       yPosition = 20;
     }
@@ -300,27 +312,35 @@ export const generateInvoicePDF = async (
     doc.text(noteLines, 20, yPosition);
   }
   
-  // Footer
-  const footerY = pageHeight - 20;
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(128, 128, 128);
+  // Footer - only on the last page
+  const currentPage = doc.getCurrentPageInfo().pageNumber;
+  const totalPages = doc.getNumberOfPages();
   
-  // Thank you message (center)
-  doc.text('Thank you for your business!', pageWidth / 2, footerY, { align: 'center' });
+  if (currentPage === totalPages) {
+    const footerY = pageHeight - 30; // Leave space for page numbers
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(128, 128, 128);
+    
+    // Thank you message (center)
+    doc.text('Thank you for your business!', pageWidth / 2, footerY, { align: 'center' });
+    
+    // Timestamp (bottom right)
+    const currentDate = new Date();
+    const timestamp = currentDate.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    doc.text(`Generated: ${timestamp}`, pageWidth - 20, footerY, { align: 'right' });
+  }
   
-  // Timestamp (bottom right)
-  const currentDate = new Date();
-  const timestamp = currentDate.toLocaleString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
-  doc.text(`Generated: ${timestamp}`, pageWidth - 20, footerY, { align: 'right' });
+  // Add page numbers to all pages
+  addPageNumbers();
   
   // Save the PDF
   const fileName = `Invoice-${invoice.invoiceNumber}.pdf`;

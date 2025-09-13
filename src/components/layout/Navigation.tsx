@@ -27,7 +27,8 @@ import {
   Sun,
   Moon,
   Monitor,
-  BarChart3
+  BarChart3,
+  Plus
 } from 'lucide-react';
 
 export default function Navigation() {
@@ -88,7 +89,7 @@ export default function Navigation() {
   return (
     <nav className="gradient-card shadow-lg dark:shadow-gray-900/20 border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
@@ -106,20 +107,47 @@ export default function Navigation() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="flex items-center space-x-4">
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors duration-200"
+                  className="flex items-center space-x-1 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 px-2 py-1 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
                 >
                   <Icon className="h-4 w-4" />
-                  <span>{item.name}</span>
+                  <span className="font-medium">{item.name}</span>
                 </Link>
               );
             })}
+            
+            {/* Quick Actions */}
+            <div className="flex items-center space-x-2 ml-2 pl-2 border-l border-gray-200 dark:border-gray-700">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 text-xs px-2 py-1">
+                  <Link href="/invoices/create" className="flex items-center space-x-1">
+                    <Plus className="h-3 w-3" />
+                    <span>New Invoice</span>
+                  </Link>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button asChild size="sm" variant="outline" className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-xs px-2 py-1">
+                  <Link href="/customers/new" className="flex items-center space-x-1">
+                    <Users className="h-3 w-3" />
+                    <span>New Customer</span>
+                  </Link>
+                </Button>
+              </motion.div>
+            </div>
           </div>
 
           {/* User Menu */}
@@ -264,6 +292,30 @@ export default function Navigation() {
                   </motion.div>
                 );
               })}
+              
+              {/* Mobile Quick Actions */}
+              <motion.div 
+                className="px-3 py-2 border-t border-gray-200 dark:border-gray-700 mt-2 pt-4"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: navigation.length * 0.1 }}
+              >
+                <div className="space-y-2">
+                  <Button asChild size="sm" className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0">
+                    <Link href="/invoices/create" className="flex items-center justify-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Plus className="h-4 w-4" />
+                      <span>New Invoice</span>
+                    </Link>
+                  </Button>
+                  
+                  <Button asChild size="sm" variant="outline" className="w-full border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <Link href="/customers/new" className="flex items-center justify-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Users className="h-4 w-4" />
+                      <span>New Customer</span>
+                    </Link>
+                  </Button>
+                </div>
+              </motion.div>
               
               {/* Mobile Theme Toggle */}
               <motion.div 

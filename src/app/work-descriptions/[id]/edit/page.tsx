@@ -1,14 +1,14 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, FileText } from 'lucide-react';
+import { ArrowLeft, Save, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface WorkDescriptionFormData {
@@ -17,10 +17,14 @@ interface WorkDescriptionFormData {
   rate: number;
 }
 
-export default function NewWorkDescriptionPage() {
+export default function EditWorkDescriptionPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const params = useParams();
+  const workDescriptionId = params.id as string;
+  
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [formData, setFormData] = useState<WorkDescriptionFormData>({
     title: '',
     description: '',
@@ -31,8 +35,33 @@ export default function NewWorkDescriptionPage() {
     if (status === 'loading') return;
     if (!session) {
       router.push('/auth/signin');
+      return;
     }
-  }, [session, status, router]);
+    fetchWorkDescription();
+  }, [session, status, router, workDescriptionId]);
+
+  const fetchWorkDescription = async () => {
+    try {
+      const response = await fetch(`/api/work-descriptions/${workDescriptionId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setFormData({
+          title: data.workDescription.title,
+          description: data.workDescription.description,
+          rate: data.workDescription.rate || 0
+        });
+      } else {
+        toast.error('Failed to load work description');
+        router.push('/work-descriptions');
+      }
+    } catch (error) {
+      console.error('Error fetching work description:', error);
+      toast.error('Failed to load work description');
+      router.push('/work-descriptions');
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
@@ -46,8 +75,8 @@ export default function NewWorkDescriptionPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/work-descriptions', {
-        method: 'POST',
+      const response = await fetch(`/api/work-descriptions/${workDescriptionId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -55,24 +84,29 @@ export default function NewWorkDescriptionPage() {
       });
 
       if (response.ok) {
-        toast.success('Work description created successfully!');
+        toast.success('Work description updated successfully!');
         router.push('/work-descriptions');
       } else {
         const error = await response.json();
-        toast.error(error.message || 'Failed to create work description');
+        toast.error(error.message || 'Failed to update work description');
       }
     } catch (error) {
-      console.error('Error creating work description:', error);
-      toast.error('Failed to create work description');
+      console.error('Error updating work description:', error);
+      toast.error('Failed to update work description');
     } finally {
       setLoading(false);
     }
   };
 
-  if (status === 'loading') {
+  if (status === 'loading' || initialLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gradient-to-r from-slate-800 via-slate-900 to-black flex items-center justify-center">
+        <div className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 rounded-2xl p-8 border border-white/20 dark:border-slate-700/30 shadow-2xl">
+          <div className="flex items-center space-x-4">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+            <span className="text-white text-lg">Loading work description...</span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -94,7 +128,7 @@ export default function NewWorkDescriptionPage() {
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <div className="mb-8">
-          <div className="backdrop-blur-2xl bg-gradient-to-r from-slate-800/20 via-slate-700/15 to-slate-600/10 rounded-3xl p-6 border border-white/10 dark:border-slate-700/20 shadow-2xl hover:shadow-3xl transition-all duration-500">
+          <div className="backdrop-blur-2xl bg-white/5 dark:bg-slate-800/10 rounded-3xl p-6 border border-white/10 dark:border-slate-700/20 shadow-2xl hover:shadow-3xl transition-all duration-500">
             <div className="flex items-center space-x-4 mb-4">
               <Button
                 variant="ghost"
@@ -104,11 +138,11 @@ export default function NewWorkDescriptionPage() {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <div>
-                <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent animate-bounce">
-                  Add Work Description
+                <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                  Edit Work Description
                 </h1>
                 <p className="text-slate-200 text-lg">
-                  Create a reusable work description for your invoices
+                  Update your reusable work description
                 </p>
               </div>
             </div>
@@ -116,14 +150,14 @@ export default function NewWorkDescriptionPage() {
         </div>
 
         <form onSubmit={handleSubmit} className={loading ? 'cursor-not-allowed' : ''}>
-          <Card className="backdrop-blur-2xl bg-gradient-to-r from-slate-800/20 via-slate-700/15 to-slate-600/10 border border-white/10 dark:border-slate-700/20 shadow-2xl hover:shadow-3xl transition-all duration-500">
+          <Card className="backdrop-blur-2xl bg-white/5 dark:bg-slate-800/10 border border-white/10 dark:border-slate-700/20 shadow-2xl hover:shadow-3xl transition-all duration-500">
             <CardHeader>
               <CardTitle className="flex items-center text-white">
                 <FileText className="h-5 w-5 mr-2 text-blue-400" />
                 Work Description Details
               </CardTitle>
               <CardDescription className="text-slate-300">
-                Create a detailed description that you can reuse across multiple invoices
+                Update the details of your work description
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -228,17 +262,17 @@ export default function NewWorkDescriptionPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="min-w-[120px] bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 hover:from-blue-400 hover:via-purple-400 hover:to-cyan-400 text-white border-0 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer transform"
+              className="min-w-[120px] bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:from-blue-400 hover:via-blue-500 hover:to-cyan-400 text-white border-0 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer transform"
             >
               {loading ? (
                 <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  <span className="text-white">Saving...</span>
+                  <Loader2 className="h-4 w-4 animate-spin text-white mr-2" />
+                  <span className="text-white">Updating...</span>
                 </div>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Description
+                  Update Description
                 </>
               )}
             </Button>

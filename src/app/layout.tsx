@@ -27,7 +27,7 @@ export default function RootLayout({
         <ThemeProvider>
           <SessionProvider>
             <ClientNavigation />
-            <main className="min-h-screen overflow-visible">
+            <main className="min-h-screen overflow-visible bg-gradient-to-br from-slate-50 to-slate-100 dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800">
               {children}
             </main>
             <Toaster 

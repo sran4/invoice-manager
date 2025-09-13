@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +28,10 @@ import {
   Layout,
   Sparkles,
   Briefcase,
-  Zap
+  Zap,
+  Loader2,
+  Search,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -69,6 +72,9 @@ export default function CreateInvoicePage() {
   const [loading, setLoading] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [workDescriptions, setWorkDescriptions] = useState<WorkDescription[]>([]);
+  const [workDescriptionSearch, setWorkDescriptionSearch] = useState('');
+  const [showWorkDescriptionDropdown, setShowWorkDescriptionDropdown] = useState(false);
+  const searchDropdownRef = useRef<HTMLDivElement>(null);
   const [selectedTemplate, setSelectedTemplate] = useState('modern-blue');
   const [userSettings, setUserSettings] = useState<{
     companySettings?: {
@@ -144,13 +150,7 @@ export default function CreateInvoicePage() {
     discount: 0,
     companyName: '',
     currency: 'USD',
-    items: [{
-      id: 'default-item-1',
-      description: '',
-      quantity: 1,
-      rate: 0,
-      amount: 0
-    }]
+    items: []
   });
 
   useEffect(() => {
@@ -321,6 +321,20 @@ export default function CreateInvoicePage() {
     }
   }, [searchParams, customers]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target as Node)) {
+        setShowWorkDescriptionDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const addItem = () => {
     const newItem: InvoiceItem = {
       id: Date.now().toString(),
@@ -376,7 +390,17 @@ export default function CreateInvoicePage() {
       ...prev,
       items: [...prev.items, newItem]
     }));
+    // Clear search and close dropdown after adding
+    setWorkDescriptionSearch('');
+    setShowWorkDescriptionDropdown(false);
+    toast.success('Work description added to invoice');
   };
+
+  // Filter work descriptions based on search
+  const filteredWorkDescriptions = workDescriptions.filter(workDescription =>
+    workDescription.title.toLowerCase().includes(workDescriptionSearch.toLowerCase()) ||
+    workDescription.description.toLowerCase().includes(workDescriptionSearch.toLowerCase())
+  );
 
   const calculateSubtotal = () => {
     return formData.items.reduce((sum, item) => sum + item.amount, 0);
@@ -556,7 +580,7 @@ export default function CreateInvoicePage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className={loading ? 'cursor-not-allowed' : ''}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
@@ -676,7 +700,7 @@ export default function CreateInvoicePage() {
                           variant="outline"
                           size="sm"
                           onClick={() => router.push('/templates')}
-                          className={`bg-gradient-to-r ${currentTemplate.gradient} text-white border-0 hover:opacity-90 hover:bg-gradient-to-r ${currentTemplate.gradient}`}
+                          className={`bg-gradient-to-r ${currentTemplate.gradient} text-white border-0 hover:opacity-90 hover:bg-gradient-to-r ${currentTemplate.gradient} cursor-pointer`}
                         >
                           Change Template
                         </Button>
@@ -686,28 +710,95 @@ export default function CreateInvoicePage() {
                 </CardContent>
               </Card>
 
-              {/* Work Descriptions */}
+              {/* Work Description Search */}
               {workDescriptions.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Quick Add Work Descriptions</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <Search className="h-5 w-5 text-blue-400" />
+                      Add Work Description
+                    </CardTitle>
                     <CardDescription>
-                      Add pre-saved work descriptions to speed up invoice creation
+                      Search and add pre-saved work descriptions to your invoice
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {workDescriptions.map((workDescription) => (
-                        <Button
-                          key={workDescription._id}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addWorkDescription(workDescription)}
-                        >
-                          {workDescription.title}
-                        </Button>
-                      ))}
+                    <div className="relative" ref={searchDropdownRef}>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <Input
+                          type="text"
+                          placeholder="Search work descriptions..."
+                          value={workDescriptionSearch}
+                          onChange={(e) => {
+                            setWorkDescriptionSearch(e.target.value);
+                            setShowWorkDescriptionDropdown(true);
+                          }}
+                          onFocus={() => setShowWorkDescriptionDropdown(true)}
+                          className="pl-10 pr-10 bg-white/10 dark:bg-slate-700/20 border-white/20 dark:border-slate-600/20 text-white placeholder:text-slate-400 focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300"
+                        />
+                        {workDescriptionSearch && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setWorkDescriptionSearch('');
+                              setShowWorkDescriptionDropdown(false);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 text-slate-400 hover:text-white"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                      
+                      {/* Dropdown Results */}
+                      {showWorkDescriptionDropdown && workDescriptionSearch && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/30 rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto">
+                          {filteredWorkDescriptions.length > 0 ? (
+                            <div className="p-2">
+                              {filteredWorkDescriptions.map((workDescription) => (
+                                <div
+                                  key={workDescription._id}
+                                  onClick={() => addWorkDescription(workDescription)}
+                                  className="p-3 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg cursor-pointer transition-all duration-200 border-b border-white/10 dark:border-slate-700/20 last:border-b-0"
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-medium text-slate-900 dark:text-white truncate">
+                                        {workDescription.title}
+                                      </h4>
+                                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 line-clamp-2">
+                                        {workDescription.description}
+                                      </p>
+                                      {workDescription.rate > 0 && (
+                                        <div className="flex items-center mt-2 text-sm text-green-600 dark:text-green-400">
+                                          <DollarSign className="h-3 w-3 mr-1" />
+                                          <span>${workDescription.rate.toFixed(2)}/hour</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      className="ml-2 bg-blue-500 hover:bg-blue-600 text-white"
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="p-4 text-center text-slate-500 dark:text-slate-400">
+                              <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                              <p>No work descriptions found</p>
+                              <p className="text-sm">Try a different search term</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -735,14 +826,30 @@ export default function CreateInvoicePage() {
                       <div key={item.id} className="p-4 border rounded-lg">
                         <div className="grid grid-cols-12 gap-4 items-end">
                           <div className="col-span-5 space-y-2">
-                            <Label>Description *</Label>
+                            <div className="flex justify-between items-center">
+                              <Label>Description *</Label>
+                              <span className="text-xs text-slate-400">
+                                {item.description.length}/200
+                              </span>
+                            </div>
                             <Textarea
                               value={item.description}
-                              onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value.length <= 200) {
+                                  updateItem(item.id, 'description', value);
+                                }
+                              }}
                               placeholder="Item description..."
                               rows={2}
                               className="text-slate-200"
+                              maxLength={200}
                             />
+                            {item.description.length > 180 && (
+                              <p className="text-xs text-amber-500">
+                                ⚠️ Approaching character limit for clean printing
+                              </p>
+                            )}
                           </div>
                           
                           <div className="col-span-2 space-y-2">
@@ -811,16 +918,35 @@ export default function CreateInvoicePage() {
               {/* Notes */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Additional Notes</CardTitle>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Additional Notes</CardTitle>
+                    <span className="text-xs text-slate-400">
+                      {formData.notes.length}/500
+                    </span>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <Textarea
                     value={formData.notes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value.length <= 500) {
+                        setFormData(prev => ({ ...prev, notes: value }));
+                      }
+                    }}
                     placeholder="Add any additional notes or terms..."
                     rows={4}
                     className="text-slate-200 placeholder:text-slate-400 focus:text-slate-100 focus:placeholder:text-slate-500"
+                    maxLength={500}
                   />
+                  {formData.notes.length > 450 && (
+                    <p className="text-xs text-amber-500 mt-2">
+                      ⚠️ Approaching character limit for clean printing
+                    </p>
+                  )}
+                  <p className="text-xs text-slate-500 mt-2">
+                    💡 Keep notes concise for professional invoice appearance
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -932,10 +1058,17 @@ export default function CreateInvoicePage() {
                     </Button>
                     <Button
                       type="submit"
-                      className={`w-full bg-gradient-to-r ${currentTemplate.gradient} text-white border-0 hover:opacity-90`}
+                      className={`w-full bg-gradient-to-r ${currentTemplate.gradient} text-white border-0 hover:opacity-90 cursor-pointer ${loading ? 'cursor-not-allowed' : ''}`}
                       disabled={loading}
                     >
-                      {loading ? 'Creating...' : 'Create Invoice'}
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin text-red-500" />
+                          <span className="text-red-500">Creating Invoice...</span>
+                        </>
+                      ) : (
+                        'Create Invoice'
+                      )}
                     </Button>
                   </div>
                 </CardContent>

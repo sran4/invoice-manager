@@ -15,6 +15,15 @@ import {
   Trash2,
   DollarSign
 } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface WorkDescription {
   _id: string;
@@ -30,6 +39,8 @@ export default function WorkDescriptionsPage() {
   const [workDescriptions, setWorkDescriptions] = useState<WorkDescription[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [workDescriptionToDelete, setWorkDescriptionToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -54,19 +65,32 @@ export default function WorkDescriptionsPage() {
     }
   };
 
-  const handleDeleteWorkDescription = async (workDescriptionId: string) => {
-    if (!confirm('Are you sure you want to delete this work description?')) return;
+  const handleDeleteWorkDescription = (workDescriptionId: string) => {
+    setWorkDescriptionToDelete(workDescriptionId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!workDescriptionToDelete) return;
     
     try {
-      const response = await fetch(`/api/work-descriptions/${workDescriptionId}`, {
+      const response = await fetch(`/api/work-descriptions/${workDescriptionToDelete}`, {
         method: 'DELETE',
       });
       
       if (response.ok) {
-        setWorkDescriptions(workDescriptions.filter(w => w._id !== workDescriptionId));
+        setWorkDescriptions(workDescriptions.filter(w => w._id !== workDescriptionToDelete));
+        toast.success('Work description deleted successfully!');
+      } else {
+        const error = await response.json();
+        toast.error(error.message || 'Failed to delete work description');
       }
     } catch (error) {
       console.error('Error deleting work description:', error);
+      toast.error('Failed to delete work description');
+    } finally {
+      setDeleteDialogOpen(false);
+      setWorkDescriptionToDelete(null);
     }
   };
 
@@ -88,30 +112,44 @@ export default function WorkDescriptionsPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-r from-slate-800 via-slate-900 to-black p-6">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-slate-600/15 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-slate-700/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-slate-800/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">Work Descriptions</h1>
-              <p className="text-slate-600 text-lg">
-                Manage your reusable work descriptions and service rates
-              </p>
+          <div className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 rounded-2xl p-6 border border-white/20 dark:border-slate-700/30 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                  Work Descriptions
+                </h1>
+                <p className="text-slate-200 text-lg">
+                  Manage your reusable work descriptions and service rates
+                </p>
+              </div>
+              <Button 
+                onClick={() => router.push('/work-descriptions/new')}
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Description
+              </Button>
             </div>
-            <Button onClick={() => router.push('/work-descriptions/new')}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Description
-            </Button>
           </div>
         </div>
 
         {/* Search and Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="md:col-span-3">
+          <Card className="md:col-span-3 backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl transition-all duration-300">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Search className="h-5 w-5 mr-2" />
+              <CardTitle className="flex items-center text-white">
+                <Search className="h-5 w-5 mr-2 text-blue-400" />
                 Search Descriptions
               </CardTitle>
             </CardHeader>
@@ -120,21 +158,21 @@ export default function WorkDescriptionsPage() {
                 placeholder="Search by title or description..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full"
+                className="w-full bg-white/20 dark:bg-slate-700/30 border-white/30 dark:border-slate-600/30 text-white placeholder:text-slate-300 focus:ring-blue-400 focus:border-blue-400"
               />
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl transition-all duration-300">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="h-5 w-5 mr-2" />
+              <CardTitle className="flex items-center text-white">
+                <FileText className="h-5 w-5 mr-2 text-blue-400" />
                 Total Descriptions
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{workDescriptions.length}</div>
-              <p className="text-sm text-slate-600">
+              <div className="text-3xl font-bold text-blue-400">{workDescriptions.length}</div>
+              <p className="text-sm text-slate-300 overflow-hidden">
                 {filteredWorkDescriptions.length} shown
               </p>
             </CardContent>
@@ -143,20 +181,23 @@ export default function WorkDescriptionsPage() {
 
         {/* Work Descriptions List */}
         {filteredWorkDescriptions.length === 0 ? (
-          <Card>
+          <Card className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <FileText className="h-16 w-16 text-slate-400 mb-4" />
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+              <FileText className="h-16 w-16 text-blue-400 mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">
                 {searchTerm ? 'No descriptions found' : 'No work descriptions yet'}
               </h3>
-              <p className="text-slate-600 mb-6 text-center">
+              <p className="text-slate-300 mb-6 text-center">
                 {searchTerm 
                   ? 'Try adjusting your search terms'
                   : 'Create reusable work descriptions to speed up your invoice creation'
                 }
               </p>
               {!searchTerm && (
-                <Button onClick={() => router.push('/work-descriptions/new')}>
+                <Button 
+                  onClick={() => router.push('/work-descriptions/new')}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Your First Description
                 </Button>
@@ -166,62 +207,146 @@ export default function WorkDescriptionsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredWorkDescriptions.map((workDescription) => (
-              <Card key={workDescription._id} className="hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg mb-2">{workDescription.title}</CardTitle>
-                      <CardDescription>
+              <div 
+                key={workDescription._id} 
+                className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 cursor-pointer group rounded-lg overflow-hidden h-[300px] w-full relative"
+                style={{
+                  display: 'grid',
+                  gridTemplateRows: '80px 1fr 60px',
+                  gridTemplateAreas: '"header" "content" "footer"'
+                }}
+              >
+                {/* Header Section - Fixed 80px */}
+                <div 
+                  className="p-3 border-b border-white/10 dark:border-slate-600/20"
+                  style={{ gridArea: 'header' }}
+                >
+                  <div className="flex items-start justify-between gap-2 h-full">
+                    <div className="flex-1 min-w-0 h-full flex flex-col justify-center">
+                      <h3 
+                        className="text-base font-semibold text-white group-hover:text-blue-400 transition-colors duration-300 leading-tight"
+                        style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          maxWidth: '160px',
+                          lineHeight: '1.2'
+                        }}
+                        title={workDescription.title}
+                      >
+                        {workDescription.title}
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1 truncate">
                         Added {new Date(workDescription.createdAt).toLocaleDateString()}
-                      </CardDescription>
+                      </p>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-1 flex-shrink-0">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => router.push(`/work-descriptions/${workDescription._id}/edit`)}
+                        className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 transition-all duration-300 cursor-pointer p-1 h-6 w-6"
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-3 w-3" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteWorkDescription(workDescription._id)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-300 cursor-pointer p-1 h-6 w-6"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="text-sm text-slate-600">
-                    <p className="line-clamp-3">{workDescription.description}</p>
+                </div>
+
+                {/* Content Section - Flexible */}
+                <div 
+                  className="p-3 flex flex-col"
+                  style={{ gridArea: 'content', overflow: 'hidden' }}
+                >
+                  {/* Description - Strictly contained */}
+                  <div className="flex-1 min-h-0 mb-2">
+                    <p 
+                      className="text-sm text-slate-300 leading-relaxed"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 5,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        lineHeight: '1.3',
+                        maxHeight: '6.5rem', // 5 lines * 1.3 line-height
+                        wordBreak: 'break-word',
+                        hyphens: 'auto'
+                      }}
+                      title={workDescription.description}
+                    >
+                      {workDescription.description}
+                    </p>
                   </div>
                   
+                  {/* Rate Section */}
                   {workDescription.rate > 0 && (
-                    <div className="flex items-center text-sm font-medium text-green-600">
-                      <DollarSign className="h-4 w-4 mr-1" />
-                      <span>${workDescription.rate.toFixed(2)}/hour</span>
+                    <div className="flex items-center text-sm font-medium text-green-400 flex-shrink-0">
+                      <DollarSign className="h-3 w-3 mr-1" />
+                      <span className="truncate">${workDescription.rate.toFixed(2)}/hour</span>
                     </div>
                   )}
-                  
-                  <div className="pt-3 border-t">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => router.push(`/invoices/create?workDescription=${workDescription._id}`)}
-                    >
-                      Use in Invoice
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                {/* Button Section - Fixed 60px */}
+                <div 
+                  className="p-3 pt-0"
+                  style={{ gridArea: 'footer' }}
+                >
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 border-blue-400/30 text-blue-400 hover:text-white hover:border-blue-400 transition-all duration-300 cursor-pointer h-7 text-xs"
+                    onClick={() => router.push(`/invoices/create?workDescription=${workDescription._id}`)}
+                  >
+                    Use in Invoice
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="backdrop-blur-2xl bg-gradient-to-r from-slate-800/20 via-slate-700/15 to-slate-600/10 border border-white/10 dark:border-slate-700/20 shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center">
+              <Trash2 className="h-5 w-5 mr-2 text-red-400" />
+              Delete Work Description
+            </DialogTitle>
+            <DialogDescription className="text-slate-300">
+              Are you sure you want to delete this work description? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setWorkDescriptionToDelete(null);
+              }}
+              className="border-white/20 dark:border-slate-600/20 text-white hover:bg-white/10 hover:text-white hover:border-white/30 hover:shadow-lg transition-all duration-300 cursor-pointer backdrop-blur-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

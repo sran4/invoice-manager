@@ -220,9 +220,9 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
               <CardContent>
                 <div className="space-y-4">
                   {invoice.items.map((item, index) => (
-                    <div key={item.id} className="flex justify-between items-start p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-white">{item.description}</h4>
+                    <div key={item.id} className="flex justify-between items-start p-4 border rounded-lg overflow-hidden">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-white line-clamp-2 overflow-hidden text-ellipsis">{item.description}</h4>
                         <p className="text-sm text-blue-300">
                           {item.quantity} × ${item.rate.toFixed(2)}
                         </p>
@@ -243,7 +243,7 @@ export default function InvoiceViewPage({ params }: { params: Promise<{ id: stri
                   <CardTitle>Notes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-200 whitespace-pre-wrap">{invoice.notes}</p>
+                  <p className="text-slate-200 whitespace-pre-wrap line-clamp-4 overflow-hidden text-ellipsis">{invoice.notes}</p>
                 </CardContent>
               </Card>
             )}

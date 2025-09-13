@@ -1,4 +1,3 @@
-# 🎨 Authentication System - CSS Styles & Animations
 
 ## 🎯 **Core CSS Classes**
 

@@ -20,7 +20,9 @@ import {
   User,
   Phone,
   BarChart3,
-  AlertTriangle
+  AlertTriangle,
+  Edit,
+  Trash2
 } from 'lucide-react';
 
 interface Invoice {
@@ -194,33 +196,63 @@ export default function Dashboard() {
   const getCustomerDetails = (customerId: string) => {
     const customer = customers.find(c => c._id === customerId);
     if (!customer) {
-      return { name: 'Unknown Customer', city: 'Unknown City', phone: 'No Phone' };
+      return { name: 'Unknown Customer', city: 'Unknown City', phone: 'No Phone', companyName: '' };
     }
     return {
       name: customer.name,
       city: customer.address.city,
-      phone: customer.phone || 'No Phone'
+      phone: customer.phone || 'No Phone',
+      companyName: customer.companyName || ''
     };
+  };
+
+  const handleDownloadPDF = async (invoiceId: string) => {
+    try {
+      // Fetch invoice and customer data for PDF generation
+      const response = await fetch(`/api/invoices/${invoiceId}/export`);
+      if (!response.ok) {
+        console.error('Failed to fetch invoice data');
+        return;
+      }
+
+      const data = await response.json();
+      const { invoice, customer } = data;
+
+      if (!invoice || !customer) {
+        console.error('Invoice or customer data not available');
+        return;
+      }
+
+      // Import the PDF generation function
+      const { generateInvoicePDF, fetchCompanySettings, getDefaultCompanyInfo } = await import('@/lib/pdf-export');
+      const companyInfo = await fetchCompanySettings() || getDefaultCompanyInfo();
+      await generateInvoicePDF(invoice, customer, companyInfo);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+    }
+  };
+
+  const handleDeleteInvoice = async (invoiceId: string) => {
+    if (!confirm('Are you sure you want to delete this invoice?')) return;
+    
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        // Refresh dashboard data after deletion
+        fetchDashboardData();
+      }
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+    }
   };
 
   // Get recent invoices (last 5) - still show all invoices for recent activity
   const recentInvoices = invoices
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5)
-    .map(invoice => {
-      const customerDetails = getCustomerDetails(invoice.customerId);
-      return {
-        id: invoice.invoiceNumber,
-        customer: customerDetails.name,
-        city: customerDetails.city,
-        phone: customerDetails.phone,
-        amount: invoice.total,
-        status: invoice.status,
-        date: new Date(invoice.createdAt).toLocaleDateString(),
-        dueDate: invoice.dueDate,
-        _id: invoice._id
-      };
-    });
+    .slice(0, 5);
 
   return (
     <div className="pt-20 p-6 dashboard-container prevent-layout-shift">
@@ -528,69 +560,124 @@ export default function Dashboard() {
                   </motion.div>
                 </motion.div>
               ) : (
-                recentInvoices.map((invoice, index) => (
+                recentInvoices.map((invoice, index) => {
+                  const customerDetails = getCustomerDetails(invoice.customerId);
+                  return (
                   <motion.div 
                     key={invoice._id} 
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-blue-50 transition-all duration-300"
+                    className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 lg:p-6 border rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-blue-50 dark:hover:from-red-900/20 dark:hover:to-blue-900/20 transition-all duration-300 gap-4"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1 + index * 0.1 }}
                     whileHover={{ scale: 1.02, x: 5 }}
                   >
-                    <div className="flex items-center space-x-4">
+                    {/* Mobile/Tablet Layout */}
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 lg:space-x-6 flex-1">
                       <motion.div 
-                        className="p-2 bg-gradient-to-br from-red-100 to-blue-100 rounded-lg"
+                        className="p-2 lg:p-3 bg-gradient-to-br from-red-100 to-blue-100 rounded-lg self-start"
                         whileHover={{ rotate: 360 }}
                         transition={{ duration: 0.5 }}
                       >
-                        <FileText className="h-5 w-5 text-red-600" />
+                        <FileText className="h-5 w-5 lg:h-6 lg:w-6 text-red-600" />
                       </motion.div>
-                      <div>
-                        <p className="font-medium">{invoice.id}</p>
-                        <div className="flex items-center space-x-3 text-sm text-slate-600 dark:text-slate-300">
-                          <div className="flex items-center">
-                            <User className="h-3 w-3 mr-1" />
-                            {invoice.customer}, {invoice.city}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-base lg:text-lg truncate">{invoice.invoiceNumber}</h3>
+                        <div className="space-y-1 lg:space-y-2 mt-1">
+                          {/* Customer Information */}
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm text-slate-200 space-y-1 sm:space-y-0">
+                            <div className="flex items-center truncate">
+                              <User className="h-3 w-3 mr-1 text-blue-400 flex-shrink-0" />
+                              <span className="truncate">{customerDetails.name}</span>
+                              {customerDetails.companyName && (
+                                <span className="ml-1 text-blue-300 truncate">({customerDetails.companyName})</span>
+                              )}
+                            </div>
+                            <div className="flex items-center">
+                              <Phone className="h-3 w-3 mr-1 text-green-400 flex-shrink-0" />
+                              <span className="truncate">{customerDetails.phone}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="text-orange-400">📍</span>
+                              <span className="ml-1 truncate">{customerDetails.city}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {invoice.phone}
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            Due: {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : 'No due date'}
+                          {/* Invoice Dates */}
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm text-slate-300 space-y-1 sm:space-y-0">
+                            <div className="flex items-center">
+                              <Calendar className="h-3 w-3 mr-1 text-purple-400 flex-shrink-0" />
+                              {new Date(invoice.createdAt).toLocaleDateString()}
+                            </div>
+                            {invoice.dueDate && (
+                              <div className="flex items-center">
+                                <Calendar className="h-3 w-3 mr-1 text-red-400 flex-shrink-0" />
+                                Due: {new Date(invoice.dueDate).toLocaleDateString()}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <p className="font-medium gradient-text">${invoice.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                        <p className="text-sm text-slate-600 dark:text-slate-300">{invoice.date}</p>
+                    
+                    {/* Right Side - Amount, Status, Actions */}
+                    <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-start sm:items-center lg:items-end xl:items-center space-y-2 sm:space-y-0 sm:space-x-4 lg:space-x-0 lg:space-y-2 xl:space-y-0 xl:space-x-4">
+                      <div className="text-left sm:text-right">
+                        <p className="font-bold text-lg lg:text-xl gradient-text">${invoice.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                       </div>
                       <Badge 
                         className={
-                          invoice.status === 'paid' ? 'bg-green-100 text-green-800' : 
-                          invoice.status === 'sent' ? 'bg-blue-100 text-blue-800' :
-                          invoice.status === 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                          invoice.status === 'paid' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-lg' : 
+                          invoice.status === 'sent' ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-0 shadow-lg' :
+                          invoice.status === 'overdue' ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white border-0 shadow-lg' : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white border-0 shadow-lg'
                         }
                       >
                         {invoice.status}
                       </Badge>
-                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => router.push(`/invoices/${invoice._id}`)}
-                          title="View Invoice"
-                          className="hover:bg-blue-100"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </motion.div>
+                      <div className="flex items-center space-x-1 lg:space-x-2">
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => router.push(`/invoices/${invoice._id}`)}
+                            className="cursor-pointer p-1 hover:bg-transparent"
+                          >
+                            <Eye className="h-4 w-4 text-blue-400 hover:text-blue-300 transition-colors duration-200" />
+                          </Button>
+                        </motion.div>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => router.push(`/invoices/${invoice._id}/edit`)}
+                            className="cursor-pointer p-1 hover:bg-transparent"
+                          >
+                            <Edit className="h-4 w-4 text-green-400 hover:text-green-300 transition-colors duration-200" />
+                          </Button>
+                        </motion.div>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDownloadPDF(invoice._id)}
+                            className="cursor-pointer p-1 hover:bg-transparent"
+                          >
+                            <Download className="h-4 w-4 text-purple-400 hover:text-purple-300 transition-colors duration-200" />
+                          </Button>
+                        </motion.div>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteInvoice(invoice._id)}
+                            className="cursor-pointer p-1 hover:bg-transparent"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-400 hover:text-red-300 transition-colors duration-200" />
+                          </Button>
+                        </motion.div>
+                      </div>
                     </div>
                   </motion.div>
-                ))
+                  );
+                })
               )}
             </div>
           </CardContent>

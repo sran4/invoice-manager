@@ -24,12 +24,19 @@ import {
   Phone,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  ExternalLink,
+  Pencil,
+  ArrowDownToLine,
+  EyeIcon,
+  PenTool,
+  Trash
 } from 'lucide-react';
 import { generateInvoicePDF, fetchCompanySettings, getDefaultCompanyInfo } from '@/lib/pdf-export';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GradientTooltip } from '@/components/ui/gradient-tooltip';
 
 interface Invoice {
   _id: string;
@@ -548,12 +555,12 @@ export default function InvoicesPage() {
             
             {/* Status Filter Tabs */}
             <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
-              <TabsList className="grid w-full grid-cols-5 bg-slate-800">
-                <TabsTrigger value="all" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-slate-300 hover:text-white">All</TabsTrigger>
-                <TabsTrigger value="draft" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-white text-slate-300 hover:text-white">Draft</TabsTrigger>
-                <TabsTrigger value="sent" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-slate-300 hover:text-white">Sent</TabsTrigger>
-                <TabsTrigger value="paid" className="data-[state=active]:bg-green-500 data-[state=active]:text-white text-slate-300 hover:text-white">Paid</TabsTrigger>
-                <TabsTrigger value="overdue" className="data-[state=active]:bg-red-500 data-[state=active]:text-white text-slate-300 hover:text-white">Overdue</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-5 bg-slate-800 border border-slate-600">
+                <TabsTrigger value="all" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-white hover:text-blue-200 hover:bg-blue-500/30 transition-all duration-200 cursor-pointer font-medium">All</TabsTrigger>
+                <TabsTrigger value="draft" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-white text-white hover:text-yellow-200 hover:bg-yellow-500/30 transition-all duration-200 cursor-pointer font-medium">Draft</TabsTrigger>
+                <TabsTrigger value="sent" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-white hover:text-blue-200 hover:bg-blue-500/30 transition-all duration-200 cursor-pointer font-medium">Sent</TabsTrigger>
+                <TabsTrigger value="paid" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-white hover:text-green-200 hover:bg-green-500/30 transition-all duration-200 cursor-pointer font-medium">Paid</TabsTrigger>
+                <TabsTrigger value="overdue" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-rose-500 data-[state=active]:text-white text-white hover:text-red-200 hover:bg-red-500/30 transition-all duration-200 cursor-pointer font-medium">Overdue</TabsTrigger>
               </TabsList>
             </Tabs>
           </CardContent>
@@ -631,50 +638,51 @@ export default function InvoicesPage() {
                   return (
                     <motion.div 
                       key={invoice._id} 
-                      className="flex items-center justify-between p-6 border rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-blue-50 dark:hover:from-red-900/20 dark:hover:to-blue-900/20 transition-all duration-300"
+                      className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 lg:p-6 border rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-blue-50 dark:hover:from-red-900/20 dark:hover:to-blue-900/20 transition-all duration-300 gap-4"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 1 + index * 0.1 }}
                       whileHover={{ scale: 1.02, x: 5 }}
                     >
-                      <div className="flex items-center space-x-6">
+                      {/* Mobile/Tablet Layout */}
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 lg:space-x-6 flex-1">
                         <motion.div 
-                          className="p-3 bg-gradient-to-br from-red-100 to-blue-100 rounded-lg"
+                          className="p-2 lg:p-3 bg-gradient-to-br from-red-100 to-blue-100 rounded-lg self-start"
                           whileHover={{ rotate: 360 }}
                           transition={{ duration: 0.5 }}
                         >
-                          <FileText className="h-6 w-6 text-red-600" />
+                          <FileText className="h-5 w-5 lg:h-6 lg:w-6 text-red-600" />
                         </motion.div>
-                        <div>
-                          <h3 className="font-semibold text-lg">{invoice.invoiceNumber}</h3>
-                          <div className="space-y-2 mt-1">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-base lg:text-lg truncate">{invoice.invoiceNumber}</h3>
+                          <div className="space-y-1 lg:space-y-2 mt-1">
                             {/* Customer Information */}
-                            <div className="flex items-center space-x-4 text-sm text-slate-200">
-                              <div className="flex items-center">
-                                <User className="h-3 w-3 mr-1 text-blue-400" />
-                                {customerDetails.name}
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm text-slate-200 space-y-1 sm:space-y-0">
+                              <div className="flex items-center truncate">
+                                <User className="h-3 w-3 mr-1 text-blue-400 flex-shrink-0" />
+                                <span className="truncate">{customerDetails.name}</span>
                                 {customerDetails.companyName && (
-                                  <span className="ml-1 text-blue-300">({customerDetails.companyName})</span>
+                                  <span className="ml-1 text-blue-300 truncate">({customerDetails.companyName})</span>
                                 )}
                               </div>
                               <div className="flex items-center">
-                                <Phone className="h-3 w-3 mr-1 text-green-400" />
-                                {customerDetails.phone}
+                                <Phone className="h-3 w-3 mr-1 text-green-400 flex-shrink-0" />
+                                <span className="truncate">{customerDetails.phone}</span>
                               </div>
                               <div className="flex items-center">
                                 <span className="text-orange-400">📍</span>
-                                {customerDetails.city}
+                                <span className="ml-1 truncate">{customerDetails.city}</span>
                               </div>
                             </div>
                             {/* Invoice Dates */}
-                            <div className="flex items-center space-x-4 text-sm text-slate-300">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm text-slate-300 space-y-1 sm:space-y-0">
                               <div className="flex items-center">
-                                <Calendar className="h-3 w-3 mr-1 text-purple-400" />
+                                <Calendar className="h-3 w-3 mr-1 text-purple-400 flex-shrink-0" />
                                 {new Date(invoice.issueDate).toLocaleDateString()}
                               </div>
                               {invoice.dueDate && (
                                 <div className="flex items-center">
-                                  <Calendar className="h-3 w-3 mr-1 text-red-400" />
+                                  <Calendar className="h-3 w-3 mr-1 text-red-400 flex-shrink-0" />
                                   Due: {new Date(invoice.dueDate).toLocaleDateString()}
                                 </div>
                               )}
@@ -682,57 +690,61 @@ export default function InvoicesPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-6">
-                        <div className="text-right">
+                      {/* Right Side - Amount, Status, Actions */}
+                      <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-start sm:items-center lg:items-end xl:items-center space-y-2 sm:space-y-0 sm:space-x-4 lg:space-x-0 lg:space-y-2 xl:space-y-0 xl:space-x-4">
+                        <div className="text-left sm:text-right">
                           <p className="font-bold text-xl gradient-text">
                             ${invoice.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                         </div>
                         <Badge 
                           className={
-                            invoice.status === 'paid' ? 'bg-green-100 text-green-800' : 
-                            invoice.status === 'sent' ? 'bg-blue-100 text-blue-800' :
-                            invoice.status === 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                            invoice.status === 'paid' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-lg' : 
+                            invoice.status === 'sent' ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-0 shadow-lg' :
+                            invoice.status === 'overdue' ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white border-0 shadow-lg' : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white border-0 shadow-lg'
                           }
                         >
                           {invoice.status}
                         </Badge>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-1 lg:space-x-2">
                           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => router.push(`/invoices/${invoice._id}`)}
-                              title="View Invoice"
-                              className="hover:bg-blue-100"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                            <GradientTooltip content="View Invoice Details" className="bg-transparent">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => router.push(`/invoices/${invoice._id}`)}
+                                className="cursor-pointer p-1 hover:bg-transparent"
+                              >
+                                <Eye className="h-4 w-4 text-blue-400 hover:text-blue-300 transition-colors duration-200" />
+                              </Button>
+                            </GradientTooltip>
                           </motion.div>
                           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => router.push(`/invoices/${invoice._id}/edit`)}
-                              title="Edit Invoice"
-                              className="hover:bg-green-100"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
+                            <GradientTooltip content="Edit Invoice" className="bg-transparent">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => router.push(`/invoices/${invoice._id}/edit`)}
+                                className="cursor-pointer p-1 hover:bg-transparent"
+                              >
+                                <Edit className="h-4 w-4 text-green-400 hover:text-green-300 transition-colors duration-200" />
+                              </Button>
+                            </GradientTooltip>
                           </motion.div>
                           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleDownloadPDF(invoice._id)}
-                              title="Download PDF"
-                              className="hover:bg-purple-100"
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
+                            <GradientTooltip content="Download PDF" className="bg-transparent">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDownloadPDF(invoice._id)}
+                                className="cursor-pointer p-1 hover:bg-transparent"
+                              >
+                                <Download className="h-4 w-4 text-purple-400 hover:text-purple-300 transition-colors duration-200" />
+                              </Button>
+                            </GradientTooltip>
                           </motion.div>
                           <Select onValueChange={(value) => handleUpdateStatus(invoice._id, value)}>
-                            <SelectTrigger className="w-32 bg-slate-800 border-slate-600 text-blue-500 hover:text-blue-400 hover:border-blue-400 transition-colors duration-200 [&>span]:text-blue-500 [&>span]:font-semibold">
+                            <SelectTrigger className="w-24 sm:w-32 bg-slate-800 border-slate-600 text-blue-500 hover:text-blue-400 hover:border-blue-400 transition-colors duration-200 [&>span]:text-blue-500 [&>span]:font-semibold">
                               <SelectValue placeholder="Status" />
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-600">
@@ -743,15 +755,16 @@ export default function InvoicesPage() {
                             </SelectContent>
                           </Select>
                           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleDeleteInvoice(invoice._id)}
-                              title="Delete Invoice"
-                              className="hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400 hover:shadow-lg hover:shadow-red-500/25 transition-all duration-200"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <GradientTooltip content="Delete Invoice" className="bg-transparent">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDeleteInvoice(invoice._id)}
+                                className="cursor-pointer p-1 hover:bg-transparent"
+                              >
+                                <Trash2 className="h-4 w-4 text-red-400 hover:text-red-300 transition-colors duration-200" />
+                              </Button>
+                            </GradientTooltip>
                           </motion.div>
                         </div>
                       </div>

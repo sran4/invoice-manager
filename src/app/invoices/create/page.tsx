@@ -572,8 +572,8 @@ export default function CreateInvoicePage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-4xl font-bold gradient-text">Create Invoice</h1>
-              <p className="text-slate-300 text-lg">
+              <h1 className="text-4xl font-bold gradient-text mb-2 float-animation">Create Invoice</h1>
+              <p className="text-white text-lg">
                 Create a new invoice using the <span className={`font-semibold bg-gradient-to-r ${currentTemplate.gradient} bg-clip-text text-transparent`}>{currentTemplate.name}</span> template
               </p>
             </div>
@@ -585,16 +585,16 @@ export default function CreateInvoicePage() {
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
               {/* Customer Selection */}
-              <Card>
+              <Card className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl transition-all duration-500">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <User className="h-5 w-5 mr-2" />
+                  <CardTitle className="flex items-center text-white">
+                    <User className="h-5 w-5 mr-2 text-blue-400" />
                     Customer Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="customer">Select Customer *</Label>
+                    <Label htmlFor="customer" className="text-white font-medium">Select Customer *</Label>
                     <div className={fieldErrors.customerId ? 'border border-red-300 rounded-lg' : ''}>
                       <CustomerSearch
                         customers={customers}
@@ -610,7 +610,7 @@ export default function CreateInvoicePage() {
                     <div className="mt-2">
                       <a 
                         href="/customers/new" 
-                        className="text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors duration-200"
+                        className="text-blue-400 hover:text-blue-300 text-sm font-bold transition-colors duration-200"
                       >
                         + Create New Customer
                       </a>
@@ -620,17 +620,17 @@ export default function CreateInvoicePage() {
               </Card>
 
               {/* Invoice Details */}
-              <Card>
+              <Card className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl transition-all duration-500">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <FileText className="h-5 w-5 mr-2" />
+                  <CardTitle className="flex items-center text-white">
+                    <FileText className="h-5 w-5 mr-2 text-blue-400" />
                     Invoice Details
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="invoiceNumber">Invoice Number *</Label>
+                      <Label htmlFor="invoiceNumber" className="text-white font-medium">Invoice Number *</Label>
                       <div className="relative">
                         <Hash className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
                         <Input
@@ -648,7 +648,7 @@ export default function CreateInvoicePage() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="issueDate">Issue Date *</Label>
+                      <Label htmlFor="issueDate" className="text-white font-medium">Issue Date *</Label>
                       <div className="relative">
                         <Calendar className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
                         <Input
@@ -662,31 +662,31 @@ export default function CreateInvoicePage() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="dueDate">Due Date</Label>
-                      <div className="relative">
-                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
-                        <div className="flex items-center">
-                          <Input
-                            id="dueDate"
-                            type="text"
-                            value={formData.dueDate ? new Date(formData.dueDate).toLocaleDateString() : ''}
-                            readOnly
-                            className="pl-10 pr-10 bg-slate-50 text-slate-200"
-                            placeholder="Auto-calculated"
-                          />
-                          <GradientTooltip
-                            content="Due date is auto-calculated from issue date. You can change the default number of days in Settings."
-                          >
-                            <Settings className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400 cursor-help hover:text-purple-400 transition-colors duration-200" />
-                          </GradientTooltip>
+                      <Label htmlFor="dueDate" className="text-white font-medium">Due Date</Label>
+                      <GradientTooltip
+                        content="Due date is auto-calculated from issue date. You can change the default number of days in Settings."
+                      >
+                        <div className="relative">
+                          <Calendar className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
+                          <div className="flex items-center">
+                            <Input
+                              id="dueDate"
+                              type="text"
+                              value={formData.dueDate ? new Date(formData.dueDate).toLocaleDateString() : ''}
+                              readOnly
+                              className="pl-10 pr-10 bg-slate-50 text-slate-200 cursor-help"
+                              placeholder="Auto-calculated"
+                            />
+                            <Settings className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400 hover:text-purple-400 transition-colors duration-200" />
+                          </div>
                         </div>
-                      </div>
+                      </GradientTooltip>
                     </div>
                   </div>
 
                   {/* Template Selection */}
                   <div className="space-y-2">
-                    <Label>Invoice Template</Label>
+                    <Label className="text-white font-medium">Invoice Template</Label>
                     <div className="p-4 bg-slate-800 rounded-lg border border-slate-700">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
@@ -711,18 +711,32 @@ export default function CreateInvoicePage() {
               </Card>
 
               {/* Work Description Search */}
-              {workDescriptions.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Search className="h-5 w-5 text-blue-400" />
-                      Add Work Description
-                    </CardTitle>
-                    <CardDescription>
-                      Search and add pre-saved work descriptions to your invoice
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
+              <Card className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl transition-all duration-500">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-white">
+                        <Search className="h-5 w-5 text-blue-400" />
+                        Add Work Description
+                      </CardTitle>
+                      <CardDescription className="text-slate-300">
+                        Search and add pre-saved work descriptions to your invoice
+                      </CardDescription>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push('/work-descriptions/new?returnTo=invoices/create')}
+                      className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white border-0 cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add New
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {workDescriptions.length > 0 ? (
                     <div className="relative" ref={searchDropdownRef}>
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -735,7 +749,7 @@ export default function CreateInvoicePage() {
                             setShowWorkDescriptionDropdown(true);
                           }}
                           onFocus={() => setShowWorkDescriptionDropdown(true)}
-                          className="pl-10 pr-10 bg-white/10 dark:bg-slate-700/20 border-white/20 dark:border-slate-600/20 text-white placeholder:text-slate-400 focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300"
+                          className="pl-10 pr-10 bg-white/20 dark:bg-slate-800/40 border-white/30 dark:border-slate-600/40 text-white placeholder:text-slate-300 focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 shadow-lg"
                         />
                         {workDescriptionSearch && (
                           <Button
@@ -800,16 +814,36 @@ export default function CreateInvoicePage() {
                         </div>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-              )}
+                  ) : (
+                    <div className="text-center py-8">
+                      <Search className="h-12 w-12 mx-auto mb-4 text-slate-400" />
+                      <p className="text-slate-600 dark:text-slate-300 mb-2">No work descriptions yet</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                        Create your first work description to quickly add items to invoices
+                      </p>
+                      <Button
+                        type="button"
+                        onClick={() => router.push('/work-descriptions/new?returnTo=invoices/create')}
+                        className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Work Description
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Invoice Items */}
-              <Card>
+              <Card className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl transition-all duration-500">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>Invoice Items</CardTitle>
-                    <Button type="button" onClick={addItem}>
+                    <CardTitle className="text-white">Invoice Items</CardTitle>
+                    <Button 
+                      type="button" 
+                      onClick={addItem}
+                      className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Item
                     </Button>
@@ -827,7 +861,7 @@ export default function CreateInvoicePage() {
                         <div className="grid grid-cols-12 gap-4 items-end">
                           <div className="col-span-5 space-y-2">
                             <div className="flex justify-between items-center">
-                              <Label>Description *</Label>
+                              <Label className="text-white font-medium">Description *</Label>
                               <span className="text-xs text-slate-400">
                                 {item.description.length}/200
                               </span>
@@ -842,7 +876,7 @@ export default function CreateInvoicePage() {
                               }}
                               placeholder="Item description..."
                               rows={2}
-                              className="text-slate-200"
+                              className="bg-white/20 dark:bg-slate-800/40 border-white/30 dark:border-slate-600/40 text-white placeholder:text-slate-300 focus:text-white focus:placeholder:text-slate-200 focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 shadow-lg"
                               maxLength={200}
                             />
                             {item.description.length > 180 && (
@@ -853,7 +887,7 @@ export default function CreateInvoicePage() {
                           </div>
                           
                           <div className="col-span-2 space-y-2">
-                            <Label>Quantity</Label>
+                            <Label className="text-white font-medium">Quantity</Label>
                             <Input
                               type="number"
                               min="0"
@@ -864,12 +898,12 @@ export default function CreateInvoicePage() {
                                 updateItem(item.id, 'quantity', value === '' ? 0 : parseFloat(value) || 0);
                               }}
                               autoComplete="off"
-                              className="text-slate-200"
+                              className="bg-white/20 dark:bg-slate-800/40 border-white/30 dark:border-slate-600/40 text-white placeholder:text-slate-300 focus:text-white focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 shadow-lg"
                             />
                           </div>
                           
                           <div className="col-span-2 space-y-2">
-                            <Label>Rate *</Label>
+                            <Label className="text-white font-medium">Rate *</Label>
                             <Input
                               type="number"
                               min="0"
@@ -880,17 +914,17 @@ export default function CreateInvoicePage() {
                                 updateItem(item.id, 'rate', value === '' ? 0 : parseFloat(value) || 0);
                               }}
                               autoComplete="off"
-                              className="text-slate-200"
+                              className="bg-white/20 dark:bg-slate-800/40 border-white/30 dark:border-slate-600/40 text-white placeholder:text-slate-300 focus:text-white focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 shadow-lg"
                             />
                           </div>
                         
                           <div className="col-span-2 space-y-2">
-                            <Label>Amount</Label>
+                            <Label className="text-white font-medium">Amount</Label>
                             <Input
                               type="number"
                               value={item.amount}
                               readOnly
-                              className="bg-slate-50 text-slate-200"
+                              className="bg-white/15 dark:bg-slate-800/30 border-white/25 dark:border-slate-600/30 text-white backdrop-blur-sm transition-all duration-300 shadow-lg"
                             />
                           </div>
                           
@@ -916,11 +950,11 @@ export default function CreateInvoicePage() {
               </Card>
 
               {/* Notes */}
-              <Card>
+              <Card className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl transition-all duration-500">
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle>Additional Notes</CardTitle>
-                    <span className="text-xs text-slate-400">
+                    <CardTitle className="text-white">Additional Notes</CardTitle>
+                    <span className="text-xs text-blue-300 font-medium">
                       {formData.notes.length}/500
                     </span>
                   </div>
@@ -936,7 +970,7 @@ export default function CreateInvoicePage() {
                     }}
                     placeholder="Add any additional notes or terms..."
                     rows={4}
-                    className="text-slate-200 placeholder:text-slate-400 focus:text-slate-100 focus:placeholder:text-slate-500"
+                    className="bg-white/20 dark:bg-slate-800/40 border-white/30 dark:border-slate-600/40 text-white placeholder:text-slate-300 focus:text-white focus:placeholder:text-slate-200 focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 shadow-lg"
                     maxLength={500}
                   />
                   {formData.notes.length > 450 && (
@@ -944,7 +978,7 @@ export default function CreateInvoicePage() {
                       ⚠️ Approaching character limit for clean printing
                     </p>
                   )}
-                  <p className="text-xs text-slate-500 mt-2">
+                  <p className="text-xs text-blue-300 font-medium mt-2">
                     💡 Keep notes concise for professional invoice appearance
                   </p>
                 </CardContent>
@@ -953,10 +987,10 @@ export default function CreateInvoicePage() {
 
             {/* Sidebar - Calculations */}
             <div className="space-y-6">
-              <Card className="sticky top-6">
+              <Card className="sticky top-6 backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl transition-all duration-500">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calculator className="h-5 w-5 mr-2" />
+                  <CardTitle className="flex items-center text-white">
+                    <Calculator className="h-5 w-5 mr-2 text-blue-400" />
                     Invoice Summary
                   </CardTitle>
                 </CardHeader>
@@ -987,7 +1021,7 @@ export default function CreateInvoicePage() {
                   
                   <div className="space-y-3 pt-4">
                     <div className="space-y-2">
-                      <Label htmlFor="taxRate">Tax Rate (%)</Label>
+                      <Label htmlFor="taxRate" className="text-white font-medium">Tax Rate (%)</Label>
                       <Input
                         id="taxRate"
                         type="number"
@@ -1003,12 +1037,12 @@ export default function CreateInvoicePage() {
                           }));
                         }}
                         autoComplete="off"
-                        className="text-slate-200"
+                        className="bg-white/20 dark:bg-slate-800/40 border-white/30 dark:border-slate-600/40 text-white placeholder:text-slate-300 focus:text-white focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 shadow-lg"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="discount">Discount (%)</Label>
+                      <Label htmlFor="discount" className="text-white font-medium">Discount (%)</Label>
                       <Input
                         id="discount"
                         type="number"
@@ -1024,17 +1058,17 @@ export default function CreateInvoicePage() {
                           }));
                         }}
                         autoComplete="off"
-                        className="text-slate-200"
+                        className="bg-white/20 dark:bg-slate-800/40 border-white/30 dark:border-slate-600/40 text-white placeholder:text-slate-300 focus:text-white focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 shadow-lg"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="currency">Currency</Label>
+                      <Label htmlFor="currency" className="text-white font-medium">Currency</Label>
                       <Select
                         value={formData.currency}
                         onValueChange={(value) => setFormData(prev => ({ ...prev, currency: value }))}
                       >
-                        <SelectTrigger className="text-slate-200">
+                        <SelectTrigger className="bg-white/20 dark:bg-slate-800/40 border-white/30 dark:border-slate-600/40 text-white focus:ring-blue-400 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 shadow-lg">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -1051,7 +1085,7 @@ export default function CreateInvoicePage() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-gray-500 to-slate-600 hover:from-gray-600 hover:to-slate-700 text-white border-0 cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300"
                       onClick={() => router.push('/invoices')}
                     >
                       Cancel

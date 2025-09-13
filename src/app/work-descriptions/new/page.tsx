@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ interface WorkDescriptionFormData {
 export default function NewWorkDescriptionPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<WorkDescriptionFormData>({
     title: '',
@@ -56,7 +57,13 @@ export default function NewWorkDescriptionPage() {
 
       if (response.ok) {
         toast.success('Work description created successfully!');
-        router.push('/work-descriptions');
+        // Check if we should return to a specific page
+        const returnTo = searchParams.get('returnTo');
+        if (returnTo) {
+          router.push(`/${returnTo}`);
+        } else {
+          router.push('/work-descriptions');
+        }
       } else {
         const error = await response.json();
         toast.error(error.message || 'Failed to create work description');
@@ -98,7 +105,14 @@ export default function NewWorkDescriptionPage() {
             <div className="flex items-center space-x-4 mb-4">
               <Button
                 variant="ghost"
-                onClick={() => router.back()}
+                onClick={() => {
+                  const returnTo = searchParams.get('returnTo');
+                  if (returnTo) {
+                    router.push(`/${returnTo}`);
+                  } else {
+                    router.back();
+                  }
+                }}
                 className="p-2 text-white hover:text-blue-400 hover:bg-white/10 hover:shadow-lg transition-all duration-300 cursor-pointer backdrop-blur-sm rounded-xl"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -219,7 +233,14 @@ export default function NewWorkDescriptionPage() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.back()}
+              onClick={() => {
+                const returnTo = searchParams.get('returnTo');
+                if (returnTo) {
+                  router.push(`/${returnTo}`);
+                } else {
+                  router.back();
+                }
+              }}
               disabled={loading}
               className="border-white/20 dark:border-slate-600/20 text-white hover:bg-white/10 hover:text-white hover:border-white/30 hover:shadow-lg transition-all duration-300 cursor-pointer backdrop-blur-sm"
             >

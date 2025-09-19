@@ -1,13 +1,26 @@
-'use client';
+"use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface RevenueByCustomer {
   customerId: string;
   customerName: string;
   revenue: number;
-  totalShipped: number;
+  outstanding: number;
 }
 
 interface RevenueDonutChartProps {
@@ -17,22 +30,34 @@ interface RevenueDonutChartProps {
 }
 
 const COLORS = [
-  '#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00',
-  '#ff00ff', '#00ffff', '#ffff00', '#ff0000', '#0000ff',
-  '#800080', '#008000', '#ffa500', '#ff69b4', '#40e0d0'
+  "#8884d8",
+  "#82ca9d",
+  "#ffc658",
+  "#ff7300",
+  "#00ff00",
+  "#ff00ff",
+  "#00ffff",
+  "#ffff00",
+  "#ff0000",
+  "#0000ff",
+  "#800080",
+  "#008000",
+  "#ffa500",
+  "#ff69b4",
+  "#40e0d0",
 ];
 
-export default function RevenueDonutChart({ 
-  data, 
-  title = "Revenue by Customer",
-  description = "Distribution of revenue across customers"
+export default function RevenueDonutChart({
+  data,
+  title = "Revenue vs Outstanding by Customer",
+  description = "Distribution of revenue versus outstanding amounts across customers",
 }: RevenueDonutChartProps) {
   // Transform data for the chart
   const chartData = (data || []).map((item, index) => ({
-    name: item.customerName || 'Unknown Customer',
+    name: item.customerName || "Unknown Customer",
     value: item.revenue || 0,
-    totalShipped: item.totalShipped || 0,
-    fill: COLORS[index % COLORS.length]
+    outstanding: item.outstanding || 0,
+    fill: COLORS[index % COLORS.length],
   }));
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -42,10 +67,24 @@ export default function RevenueDonutChart({
         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
           <p className="font-medium">{data.name}</p>
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Revenue: <span className="font-semibold text-green-600">${data.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            Revenue:{" "}
+            <span className="font-semibold text-green-600">
+              $
+              {data.value.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Amount Shipped: <span className="font-semibold text-blue-600">${data.totalShipped.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            Outstanding:{" "}
+            <span className="font-semibold text-amber-600">
+              $
+              {data.outstanding.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
           </p>
         </div>
       );
@@ -58,8 +97,8 @@ export default function RevenueDonutChart({
       <div className="flex flex-wrap gap-2 mt-4">
         {payload.map((entry: any, index: number) => (
           <div key={index} className="flex items-center space-x-2">
-            <div 
-              className="w-3 h-3 rounded-full" 
+            <div
+              className="w-3 h-3 rounded-full"
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-sm text-gray-600 dark:text-gray-300">
@@ -81,8 +120,12 @@ export default function RevenueDonutChart({
         <CardContent>
           <div className="h-64 flex items-center justify-center text-gray-500">
             <div className="text-center">
-              <div className="text-lg font-medium mb-2">No revenue data available</div>
-              <div className="text-sm">Create and mark invoices as paid to see revenue analytics</div>
+              <div className="text-lg font-medium mb-2">
+                No revenue data available
+              </div>
+              <div className="text-sm">
+                Create and mark invoices as paid to see revenue analytics
+              </div>
             </div>
           </div>
         </CardContent>
@@ -120,12 +163,16 @@ export default function RevenueDonutChart({
               <Legend content={<CustomLegend />} />
             </PieChart>
           </ResponsiveContainer>
-          
+
           {/* Center total revenue display */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                ${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                $
+                {totalRevenue.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 Total Revenue
@@ -135,17 +182,32 @@ export default function RevenueDonutChart({
         </div>
         <div className="mt-4 grid grid-cols-1 gap-2">
           {chartData.slice(0, 5).map((item, index) => (
-            <div key={index} className="flex items-center justify-between text-sm">
+            <div
+              key={index}
+              className="flex items-center justify-between text-sm"
+            >
               <div className="flex items-center space-x-2">
-                <div 
-                  className="w-3 h-3 rounded-full" 
+                <div
+                  className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: item.fill }}
                 />
                 <span className="truncate max-w-[120px]">{item.name}</span>
               </div>
               <div className="text-right">
-                <div className="font-medium">${item.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                <div className="text-xs text-gray-500">Shipped: ${item.totalShipped.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="font-medium">
+                  $
+                  {item.value.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Outstanding: $
+                  {item.outstanding.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </div>
               </div>
             </div>
           ))}

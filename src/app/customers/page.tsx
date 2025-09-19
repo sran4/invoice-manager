@@ -1,26 +1,42 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { motion } from 'framer-motion';
-import { 
-  Users, 
-  Plus, 
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { AnimatedCard } from "@/components/ui/animated-card";
+import { motion } from "framer-motion";
+import {
+  Users,
+  Plus,
   Search,
   Edit,
   Trash2,
   Phone,
   Mail,
-  MapPin
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+  MapPin,
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Customer {
   _id: string;
@@ -41,16 +57,22 @@ export default function CustomersPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null);
+  const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(
+    null
+  );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(
+    null
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12); // 12 for large screens
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === "loading") return;
     if (!session) {
-      router.push('/auth/signin');
+      router.push("/auth/signin");
       return;
     }
     fetchCustomers();
@@ -58,20 +80,20 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/customers');
+      const response = await fetch("/api/customers");
       if (response.ok) {
         const data = await response.json();
         setCustomers(data.customers || []);
       }
     } catch (error) {
-      console.error('Error fetching customers:', error);
+      console.error("Error fetching customers:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteCustomer = (customerId: string) => {
-    const customer = customers.find(c => c._id === customerId);
+    const customer = customers.find((c) => c._id === customerId);
     if (customer) {
       setCustomerToDelete(customer);
       setShowDeleteModal(true);
@@ -80,22 +102,22 @@ export default function CustomersPage() {
 
   const confirmDelete = async () => {
     if (!customerToDelete) return;
-    
+
     setDeletingCustomerId(customerToDelete._id);
     try {
       const response = await fetch(`/api/customers/${customerToDelete._id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      
+
       if (response.ok) {
-        setCustomers(customers.filter(c => c._id !== customerToDelete._id));
+        setCustomers(customers.filter((c) => c._id !== customerToDelete._id));
         toast.success(`${customerToDelete.name} deleted successfully!`);
       } else {
-        toast.error('Failed to delete customer');
+        toast.error("Failed to delete customer");
       }
     } catch (error) {
-      console.error('Error deleting customer:', error);
-      toast.error('Failed to delete customer');
+      console.error("Error deleting customer:", error);
+      toast.error("Failed to delete customer");
     } finally {
       setDeletingCustomerId(null);
       setShowDeleteModal(false);
@@ -108,14 +130,33 @@ export default function CustomersPage() {
     setCustomerToDelete(null);
   };
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm) ||
-    (customer.companyName && customer.companyName.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredCustomers = customers.filter(
+    (customer) =>
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.phone.includes(searchTerm) ||
+      (customer.companyName &&
+        customer.companyName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  if (status === 'loading' || loading) {
+  // Pagination logic
+  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentCustomers = filteredCustomers.slice(startIndex, endIndex);
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of customer list
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -131,23 +172,35 @@ export default function CustomersPage() {
     <div className="pt-20 p-6 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <motion.div 
+        <motion.div
           className="mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
+          <div className="flex items-center space-x-4 mb-4">
+            <Button
+              variant="ghost"
+              onClick={() => router.push("/dashboard")}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Dashboard</span>
+            </Button>
+          </div>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold gradient-text mb-2 float-animation">Customers</h1>
+              <h1 className="text-4xl font-bold gradient-text mb-2 float-animation">
+                Customers
+              </h1>
               <p className="text-slate-600 dark:text-slate-300 text-lg">
                 Manage your customer database and contact information
               </p>
             </div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button 
-                className="gradient-button text-white border-0" 
-                onClick={() => router.push('/customers/new')}
+              <Button
+                className="gradient-button text-white border-0"
+                onClick={() => router.push("/customers/new")}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Customer
@@ -183,9 +236,14 @@ export default function CustomersPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{customers.length}</div>
+              <div className="text-3xl font-bold text-primary">
+                {customers.length}
+              </div>
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                {filteredCustomers.length} shown
+                {filteredCustomers.length} total
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Page {currentPage} of {totalPages}
               </p>
             </CardContent>
           </Card>
@@ -197,16 +255,15 @@ export default function CustomersPage() {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Users className="h-16 w-16 text-slate-400 mb-4" />
               <h3 className="text-xl font-semibold text-slate-900 mb-2">
-                {searchTerm ? 'No customers found' : 'No customers yet'}
+                {searchTerm ? "No customers found" : "No customers yet"}
               </h3>
               <p className="text-slate-600 dark:text-slate-300 mb-6 text-center">
-                {searchTerm 
-                  ? 'Try adjusting your search terms'
-                  : 'Start building your customer database by adding your first customer'
-                }
+                {searchTerm
+                  ? "Try adjusting your search terms"
+                  : "Start building your customer database by adding your first customer"}
               </p>
               {!searchTerm && (
-                <Button onClick={() => router.push('/customers/new')}>
+                <Button onClick={() => router.push("/customers/new")}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Your First Customer
                 </Button>
@@ -214,84 +271,179 @@ export default function CustomersPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCustomers.map((customer) => (
-              <Card key={customer._id} className="hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{customer.name}</CardTitle>
-                      {customer.companyName && (
-                        <p className="text-sm text-slate-600 mt-1">{customer.companyName}</p>
-                      )}
-                      <CardDescription>
-                        Added {new Date(customer.createdAt).toLocaleDateString()}
-                      </CardDescription>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => router.push(`/customers/${customer._id}/edit`)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteCustomer(customer._id)}
-                        disabled={deletingCustomerId === customer._id}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-all duration-200 hover:scale-110"
-                      >
-                        {deletingCustomerId === customer._id ? (
-                          <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {currentCustomers.map((customer) => (
+                <Card
+                  key={customer._id}
+                  className="hover:shadow-lg transition-all duration-300"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle className="text-lg">
+                          {customer.name}
+                        </CardTitle>
+                        {customer.companyName && (
+                          <p className="text-sm text-slate-600 mt-1">
+                            {customer.companyName}
+                          </p>
                         )}
-                      </Button>
+                        <CardDescription>
+                          Added{" "}
+                          {new Date(customer.createdAt).toLocaleDateString()}
+                        </CardDescription>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            router.push(`/customers/${customer._id}/edit`)
+                          }
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteCustomer(customer._id)}
+                          disabled={deletingCustomerId === customer._id}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-all duration-200 hover:scale-110"
+                        >
+                          {deletingCustomerId === customer._id ? (
+                            <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center text-sm text-slate-600 dark:text-slate-300">
-                    <Mail className="h-4 w-4 mr-2" />
-                    <span className="truncate">{customer.email}</span>
-                  </div>
-                  
-                  <div className="flex items-center text-sm text-slate-600 dark:text-slate-300">
-                    <Phone className="h-4 w-4 mr-2" />
-                    <span>{customer.phone}</span>
-                  </div>
-                  
-                  {customer.fax && (
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center text-sm text-slate-600 dark:text-slate-300">
+                      <Mail className="h-4 w-4 mr-2" />
+                      <span className="truncate">{customer.email}</span>
+                    </div>
+
                     <div className="flex items-center text-sm text-slate-600 dark:text-slate-300">
                       <Phone className="h-4 w-4 mr-2" />
-                      <span>Fax: {customer.fax}</span>
+                      <span>{customer.phone}</span>
                     </div>
-                  )}
-                  
-                  <div className="flex items-start text-sm text-slate-600 dark:text-slate-300">
-                    <MapPin className="h-4 w-4 mr-2 mt-0.5" />
-                    <div>
-                      <div>{customer.address.street}</div>
-                      <div>{customer.address.city}, {customer.address.state} {customer.address.zipCode}</div>
+
+                    {customer.fax && (
+                      <div className="flex items-center text-sm text-slate-600 dark:text-slate-300">
+                        <Phone className="h-4 w-4 mr-2" />
+                        <span>Fax: {customer.fax}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-start text-sm text-slate-600 dark:text-slate-300">
+                      <MapPin className="h-4 w-4 mr-2 mt-0.5" />
+                      <div>
+                        <div>{customer.address.street}</div>
+                        <div>
+                          {customer.address.city}, {customer.address.state}{" "}
+                          {customer.address.zipCode}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="pt-3 border-t">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => router.push(`/invoices/create?customer=${customer._id}`)}
-                    >
-                      Create Invoice
-                    </Button>
+
+                    <div className="pt-3 border-t">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() =>
+                          router.push(
+                            `/invoices/create?customer=${customer._id}`
+                          )
+                        }
+                      >
+                        Create Invoice
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <AnimatedCard delay={0.2} className="gradient-card mt-8">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-slate-600 dark:text-slate-300">
+                      Showing {startIndex + 1} to{" "}
+                      {Math.min(endIndex, filteredCustomers.length)} of{" "}
+                      {filteredCustomers.length} customers
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="flex items-center space-x-1"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          <span>Previous</span>
+                        </Button>
+                      </motion.div>
+
+                      <div className="flex items-center space-x-1">
+                        {Array.from(
+                          { length: totalPages },
+                          (_, i) => i + 1
+                        ).map((page) => (
+                          <motion.div
+                            key={page}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                          >
+                            <Button
+                              variant={
+                                currentPage === page ? "default" : "outline"
+                              }
+                              size="sm"
+                              onClick={() => handlePageChange(page)}
+                              className={`w-8 h-8 p-0 ${
+                                currentPage === page
+                                  ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0"
+                                  : "hover:bg-slate-100 dark:hover:bg-slate-700"
+                              }`}
+                            >
+                              {page}
+                            </Button>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className="flex items-center space-x-1"
+                        >
+                          <span>Next</span>
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
+                    </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
-          </div>
+              </AnimatedCard>
+            )}
+          </>
         )}
       </div>
 
@@ -304,8 +456,9 @@ export default function CustomersPage() {
               Delete Customer
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete <strong>{customerToDelete?.name}</strong>? 
-              This action cannot be undone and will permanently remove all customer data.
+              Are you sure you want to delete{" "}
+              <strong>{customerToDelete?.name}</strong>? This action cannot be
+              undone and will permanently remove all customer data.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex-col sm:flex-row gap-2">
@@ -318,10 +471,14 @@ export default function CustomersPage() {
               Cancel
             </Button>
             <motion.div
-              animate={deletingCustomerId === customerToDelete?._id ? {
-                x: [-3, 3, -3, 3, 0],
-                transition: { duration: 0.6, repeat: 3 }
-              } : {}}
+              animate={
+                deletingCustomerId === customerToDelete?._id
+                  ? {
+                      x: [-3, 3, -3, 3, 0],
+                      transition: { duration: 0.6, repeat: 3 },
+                    }
+                  : {}
+              }
               className="w-full sm:w-auto"
             >
               <Button

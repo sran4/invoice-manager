@@ -1,21 +1,29 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { 
-  FileText, 
-  Plus, 
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  FileText,
+  Plus,
   Search,
   Edit,
   Trash2,
-  DollarSign
-} from 'lucide-react';
-import { toast } from 'sonner';
+  DollarSign,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -23,7 +31,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 
 interface WorkDescription {
   _id: string;
@@ -36,16 +44,22 @@ interface WorkDescription {
 export default function WorkDescriptionsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [workDescriptions, setWorkDescriptions] = useState<WorkDescription[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [workDescriptions, setWorkDescriptions] = useState<WorkDescription[]>(
+    []
+  );
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [workDescriptionToDelete, setWorkDescriptionToDelete] = useState<string | null>(null);
+  const [workDescriptionToDelete, setWorkDescriptionToDelete] = useState<
+    string | null
+  >(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === "loading") return;
     if (!session) {
-      router.push('/auth/signin');
+      router.push("/auth/signin");
       return;
     }
     fetchWorkDescriptions();
@@ -53,13 +67,13 @@ export default function WorkDescriptionsPage() {
 
   const fetchWorkDescriptions = async () => {
     try {
-      const response = await fetch('/api/work-descriptions');
+      const response = await fetch("/api/work-descriptions");
       if (response.ok) {
         const data = await response.json();
         setWorkDescriptions(data.workDescriptions || []);
       }
     } catch (error) {
-      console.error('Error fetching work descriptions:', error);
+      console.error("Error fetching work descriptions:", error);
     } finally {
       setLoading(false);
     }
@@ -72,34 +86,62 @@ export default function WorkDescriptionsPage() {
 
   const confirmDelete = async () => {
     if (!workDescriptionToDelete) return;
-    
+
     try {
-      const response = await fetch(`/api/work-descriptions/${workDescriptionToDelete}`, {
-        method: 'DELETE',
-      });
-      
+      const response = await fetch(
+        `/api/work-descriptions/${workDescriptionToDelete}`,
+        {
+          method: "DELETE",
+        }
+      );
+
       if (response.ok) {
-        setWorkDescriptions(workDescriptions.filter(w => w._id !== workDescriptionToDelete));
-        toast.success('Work description deleted successfully!');
+        setWorkDescriptions(
+          workDescriptions.filter((w) => w._id !== workDescriptionToDelete)
+        );
+        toast.success("Work description deleted successfully!");
       } else {
         const error = await response.json();
-        toast.error(error.message || 'Failed to delete work description');
+        toast.error(error.message || "Failed to delete work description");
       }
     } catch (error) {
-      console.error('Error deleting work description:', error);
-      toast.error('Failed to delete work description');
+      console.error("Error deleting work description:", error);
+      toast.error("Failed to delete work description");
     } finally {
       setDeleteDialogOpen(false);
       setWorkDescriptionToDelete(null);
     }
   };
 
-  const filteredWorkDescriptions = workDescriptions.filter(workDescription =>
-    workDescription.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    workDescription.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredWorkDescriptions = workDescriptions.filter(
+    (workDescription) =>
+      workDescription.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      workDescription.description
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
 
-  if (status === 'loading' || loading) {
+  // Pagination logic
+  const totalPages = Math.ceil(filteredWorkDescriptions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentWorkDescriptions = filteredWorkDescriptions.slice(
+    startIndex,
+    endIndex
+  );
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of work descriptions list
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -119,7 +161,7 @@ export default function WorkDescriptionsPage() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-slate-700/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-slate-800/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="mb-8">
@@ -133,8 +175,8 @@ export default function WorkDescriptionsPage() {
                   Manage your reusable work descriptions and service rates
                 </p>
               </div>
-              <Button 
-                onClick={() => router.push('/work-descriptions/new')}
+              <Button
+                onClick={() => router.push("/work-descriptions/new")}
                 className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -171,9 +213,14 @@ export default function WorkDescriptionsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-400">{workDescriptions.length}</div>
+              <div className="text-3xl font-bold text-blue-400">
+                {workDescriptions.length}
+              </div>
               <p className="text-sm text-slate-300 overflow-hidden">
-                {filteredWorkDescriptions.length} shown
+                {filteredWorkDescriptions.length} total
+              </p>
+              <p className="text-xs text-slate-400">
+                Page {currentPage} of {totalPages}
               </p>
             </CardContent>
           </Card>
@@ -185,17 +232,18 @@ export default function WorkDescriptionsPage() {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <FileText className="h-16 w-16 text-blue-400 mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">
-                {searchTerm ? 'No descriptions found' : 'No work descriptions yet'}
+                {searchTerm
+                  ? "No descriptions found"
+                  : "No work descriptions yet"}
               </h3>
               <p className="text-slate-300 mb-6 text-center">
-                {searchTerm 
-                  ? 'Try adjusting your search terms'
-                  : 'Create reusable work descriptions to speed up your invoice creation'
-                }
+                {searchTerm
+                  ? "Try adjusting your search terms"
+                  : "Create reusable work descriptions to speed up your invoice creation"}
               </p>
               {!searchTerm && (
-                <Button 
-                  onClick={() => router.push('/work-descriptions/new')}
+                <Button
+                  onClick={() => router.push("/work-descriptions/new")}
                   className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -205,46 +253,53 @@ export default function WorkDescriptionsPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredWorkDescriptions.map((workDescription) => (
-              <div 
-                key={workDescription._id} 
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {currentWorkDescriptions.map((workDescription) => (
+              <div
+                key={workDescription._id}
                 className="backdrop-blur-xl bg-white/10 dark:bg-slate-800/20 border border-white/20 dark:border-slate-700/30 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 cursor-pointer group rounded-lg overflow-hidden h-[300px] w-full relative"
                 style={{
-                  display: 'grid',
-                  gridTemplateRows: '80px 1fr 60px',
-                  gridTemplateAreas: '"header" "content" "footer"'
+                  display: "grid",
+                  gridTemplateRows: "80px 1fr 60px",
+                  gridTemplateAreas: '"header" "content" "footer"',
                 }}
               >
                 {/* Header Section - Fixed 80px */}
-                <div 
+                <div
                   className="p-3 border-b border-white/10 dark:border-slate-600/20"
-                  style={{ gridArea: 'header' }}
+                  style={{ gridArea: "header" }}
                 >
                   <div className="flex items-start justify-between gap-2 h-full">
                     <div className="flex-1 min-w-0 h-full flex flex-col justify-center">
-                      <h3 
+                      <h3
                         className="text-base font-semibold text-white group-hover:text-blue-400 transition-colors duration-300 leading-tight"
                         style={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          maxWidth: '160px',
-                          lineHeight: '1.2'
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: "160px",
+                          lineHeight: "1.2",
                         }}
                         title={workDescription.title}
                       >
                         {workDescription.title}
                       </h3>
                       <p className="text-xs text-slate-400 mt-1 truncate">
-                        Added {new Date(workDescription.createdAt).toLocaleDateString()}
+                        Added{" "}
+                        {new Date(
+                          workDescription.createdAt
+                        ).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex space-x-1 flex-shrink-0">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => router.push(`/work-descriptions/${workDescription._id}/edit`)}
+                        onClick={() =>
+                          router.push(
+                            `/work-descriptions/${workDescription._id}/edit`
+                          )
+                        }
                         className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 transition-all duration-300 cursor-pointer p-1 h-6 w-6"
                       >
                         <Edit className="h-3 w-3" />
@@ -252,7 +307,9 @@ export default function WorkDescriptionsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteWorkDescription(workDescription._id)}
+                        onClick={() =>
+                          handleDeleteWorkDescription(workDescription._id)
+                        }
                         className="text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-300 cursor-pointer p-1 h-6 w-6"
                       >
                         <Trash2 className="h-3 w-3" />
@@ -262,55 +319,112 @@ export default function WorkDescriptionsPage() {
                 </div>
 
                 {/* Content Section - Flexible */}
-                <div 
+                <div
                   className="p-3 flex flex-col"
-                  style={{ gridArea: 'content', overflow: 'hidden' }}
+                  style={{ gridArea: "content", overflow: "hidden" }}
                 >
                   {/* Description - Strictly contained */}
                   <div className="flex-1 min-h-0 mb-2">
-                    <p 
+                    <p
                       className="text-sm text-slate-300 leading-relaxed"
                       style={{
-                        display: '-webkit-box',
+                        display: "-webkit-box",
                         WebkitLineClamp: 5,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        lineHeight: '1.3',
-                        maxHeight: '6.5rem', // 5 lines * 1.3 line-height
-                        wordBreak: 'break-word',
-                        hyphens: 'auto'
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        lineHeight: "1.3",
+                        maxHeight: "6.5rem", // 5 lines * 1.3 line-height
+                        wordBreak: "break-word",
+                        hyphens: "auto",
                       }}
                       title={workDescription.description}
                     >
                       {workDescription.description}
                     </p>
                   </div>
-                  
+
                   {/* Rate Section */}
                   {workDescription.rate > 0 && (
                     <div className="flex items-center text-sm font-medium text-green-400 flex-shrink-0">
                       <DollarSign className="h-3 w-3 mr-1" />
-                      <span className="truncate">${workDescription.rate.toFixed(2)}/hour</span>
+                      <span className="truncate">
+                        ${workDescription.rate.toFixed(2)}/hour
+                      </span>
                     </div>
                   )}
                 </div>
 
                 {/* Button Section - Fixed 60px */}
-                <div 
-                  className="p-3 pt-0"
-                  style={{ gridArea: 'footer' }}
-                >
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                <div className="p-3 pt-0" style={{ gridArea: "footer" }}>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="w-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 border-blue-400/30 text-blue-400 hover:text-white hover:border-blue-400 transition-all duration-300 cursor-pointer h-7 text-xs"
-                    onClick={() => router.push(`/invoices/create?workDescription=${workDescription._id}`)}
+                    onClick={() =>
+                      router.push(
+                        `/invoices/create?workDescription=${workDescription._id}`
+                      )
+                    }
                   >
                     Use in Invoice
                   </Button>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between">
+            <div className="text-sm text-slate-600 dark:text-slate-300">
+              Showing {startIndex + 1} to{" "}
+              {Math.min(endIndex, filteredWorkDescriptions.length)} of{" "}
+              {filteredWorkDescriptions.length} work descriptions
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="flex items-center space-x-1 bg-white/10 dark:bg-slate-800/20 border-white/20 dark:border-slate-700/30 text-white hover:bg-white/20 dark:hover:bg-slate-700/30"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span>Previous</span>
+              </Button>
+
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handlePageChange(page)}
+                      className={`w-8 h-8 p-0 ${
+                        currentPage === page
+                          ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0"
+                          : "bg-white/10 dark:bg-slate-800/20 border-white/20 dark:border-slate-700/30 text-white hover:bg-white/20 dark:hover:bg-slate-700/30"
+                      }`}
+                    >
+                      {page}
+                    </Button>
+                  )
+                )}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="flex items-center space-x-1 bg-white/10 dark:bg-slate-800/20 border-white/20 dark:border-slate-700/30 text-white hover:bg-white/20 dark:hover:bg-slate-700/30"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -324,7 +438,8 @@ export default function WorkDescriptionsPage() {
               Delete Work Description
             </DialogTitle>
             <DialogDescription className="text-slate-300">
-              Are you sure you want to delete this work description? This action cannot be undone.
+              Are you sure you want to delete this work description? This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

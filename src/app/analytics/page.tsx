@@ -1,29 +1,36 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { motion } from 'framer-motion';
-import { 
-  BarChart3, 
-  TrendingUp, 
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { AnimatedCard } from "@/components/ui/animated-card";
+import { motion } from "framer-motion";
+import {
+  BarChart3,
+  TrendingUp,
   Calendar,
   DollarSign,
   Users,
   Download,
   RefreshCw,
   Filter,
-  FileText
-} from 'lucide-react';
-import RevenueDonutChart from '@/components/charts/RevenueDonutChart';
-import RevenueLineChart from '@/components/charts/RevenueLineChart';
-import CustomerShippingBarChart from '@/components/charts/CustomerShippingBarChart';
-import DateRangePicker from '@/components/ui/date-range-picker';
-import CustomerMultiSelect from '@/components/ui/customer-multi-select';
+  FileText,
+  ArrowLeft,
+} from "lucide-react";
+import RevenueDonutChart from "@/components/charts/RevenueDonutChart";
+import RevenueLineChart from "@/components/charts/RevenueLineChart";
+import CustomerShippingBarChart from "@/components/charts/CustomerShippingBarChart";
+import DateRangePicker from "@/components/ui/date-range-picker";
+import CustomerMultiSelect from "@/components/ui/customer-multi-select";
 
 interface Invoice {
   _id: string;
@@ -42,7 +49,7 @@ interface Invoice {
   total: number;
   issueDate: string;
   dueDate?: string;
-  status: 'draft' | 'sent' | 'paid' | 'overdue';
+  status: "draft" | "sent" | "paid" | "overdue";
   notes?: string;
   template: string;
   createdAt: string;
@@ -92,16 +99,18 @@ interface AnalyticsData {
 export default function Analytics() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState('this-year'); // Default to year-to-date
+  const [dateRange, setDateRange] = useState("this-year"); // Default to year-to-date
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === "loading") return;
     if (!session) {
-      router.push('/auth/signin');
+      router.push("/auth/signin");
       return;
     }
     fetchAnalyticsData();
@@ -111,16 +120,20 @@ export default function Analytics() {
   const fetchAnalyticsData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/analytics?dateRange=${dateRange}&customers=${selectedCustomers.join(',')}`);
+      const response = await fetch(
+        `/api/analytics?dateRange=${dateRange}&customers=${selectedCustomers.join(
+          ","
+        )}`
+      );
       if (response.ok) {
         const data = await response.json();
         setAnalyticsData(data);
       } else {
         const errorData = await response.json();
-        console.error('Analytics API error:', errorData);
+        console.error("Analytics API error:", errorData);
       }
     } catch (error) {
-      console.error('Error fetching analytics data:', error);
+      console.error("Error fetching analytics data:", error);
     } finally {
       setLoading(false);
     }
@@ -128,13 +141,13 @@ export default function Analytics() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/customers');
+      const response = await fetch("/api/customers");
       if (response.ok) {
         const data = await response.json();
         setCustomers(data.customers || []);
       }
     } catch (error) {
-      console.error('Error fetching customers:', error);
+      console.error("Error fetching customers:", error);
     }
   };
 
@@ -146,28 +159,36 @@ export default function Analytics() {
     setSelectedCustomers(newSelectedCustomers);
   };
 
-  const handleExport = async (type: 'chart-data' | 'full-details' | 'summary') => {
+  const handleExport = async (
+    type: "chart-data" | "full-details" | "summary"
+  ) => {
     try {
-      const response = await fetch(`/api/analytics/export?type=${type}&dateRange=${dateRange}&customers=${selectedCustomers.join(',')}`);
+      const response = await fetch(
+        `/api/analytics/export?type=${type}&dateRange=${dateRange}&customers=${selectedCustomers.join(
+          ","
+        )}`
+      );
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = `analytics-${type}-${new Date().toISOString().split('T')[0]}.xlsx`;
+        a.download = `analytics-${type}-${
+          new Date().toISOString().split("T")[0]
+        }.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       } else {
-        console.error('Export failed');
+        console.error("Export failed");
       }
     } catch (error) {
-      console.error('Export error:', error);
+      console.error("Export error:", error);
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -185,20 +206,32 @@ export default function Analytics() {
     <div className="pt-20 p-6 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <motion.div 
+        <motion.div
           className="mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
+          <div className="flex items-center space-x-4 mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => router.push("/dashboard")}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Dashboard</span>
+            </Button>
+          </div>
           <h1 className="text-4xl font-bold gradient-text mb-2 float-animation">
             Analytics Dashboard
           </h1>
           <p className="text-slate-600 dark:text-slate-300 text-lg">
-            Track your sales revenue with interactive charts and detailed reports
+            Track your sales revenue with interactive charts and detailed
+            reports
           </p>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-            📊 Default view shows year-to-date data (Jan 1, {currentYear} - present)
+            📊 Default view shows year-to-date data (Jan 1, {currentYear} -
+            present)
           </p>
         </motion.div>
 
@@ -210,11 +243,11 @@ export default function Analytics() {
               <CardHeader>
                 <div className="flex items-center space-x-2">
                   <Filter className="h-5 w-5 text-blue-500" />
-                  <CardTitle className="gradient-text">Filters & Controls</CardTitle>
+                  <CardTitle className="gradient-text">
+                    Filters & Controls
+                  </CardTitle>
                 </div>
-                <CardDescription>
-                  Customize your analytics view
-                </CardDescription>
+                <CardDescription>Customize your analytics view</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Date Range Filter */}
@@ -243,13 +276,20 @@ export default function Analytics() {
                 </div>
 
                 {/* Refresh Button */}
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button 
-                    className="w-full gradient-button text-white border-0" 
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button
+                    className="w-full gradient-button text-white border-0"
                     onClick={fetchAnalyticsData}
                     disabled={loading}
                   >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    <RefreshCw
+                      className={`h-4 w-4 mr-2 ${
+                        loading ? "animate-spin" : ""
+                      }`}
+                    />
                     Refresh Data
                   </Button>
                 </motion.div>
@@ -263,7 +303,9 @@ export default function Analytics() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <AnimatedCard delay={0.2} className="gradient-card">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Revenue
+                  </CardTitle>
                   <motion.div
                     whileHover={{ rotate: 360 }}
                     transition={{ duration: 0.5 }}
@@ -272,23 +314,31 @@ export default function Analytics() {
                   </motion.div>
                 </CardHeader>
                 <CardContent>
-                  <motion.div 
+                  <motion.div
                     className="text-2xl font-bold gradient-text"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
                   >
-                    ${(analyticsData?.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    $
+                    {(analyticsData?.totalRevenue || 0).toLocaleString(
+                      "en-US",
+                      { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                    )}
                   </motion.div>
                   <p className="text-xs text-muted-foreground">
-                    {dateRange === 'this-year' ? `Year-to-date (${currentYear})` : 'Selected period'}
+                    {dateRange === "this-year"
+                      ? `Year-to-date (${currentYear})`
+                      : "Selected period"}
                   </p>
                 </CardContent>
               </AnimatedCard>
 
               <AnimatedCard delay={0.3} className="gradient-card">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Shipped</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Shipped
+                  </CardTitle>
                   <motion.div
                     whileHover={{ rotate: 360 }}
                     transition={{ duration: 0.5 }}
@@ -297,13 +347,22 @@ export default function Analytics() {
                   </motion.div>
                 </CardHeader>
                 <CardContent>
-                  <motion.div 
+                  <motion.div
                     className="text-2xl font-bold gradient-text"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
                   >
-                    ${(analyticsData?.revenueByCustomer?.reduce((sum, customer) => sum + customer.totalShipped, 0) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    $
+                    {(
+                      analyticsData?.revenueByCustomer?.reduce(
+                        (sum, customer) => sum + customer.totalShipped,
+                        0
+                      ) || 0
+                    ).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </motion.div>
                   <p className="text-xs text-muted-foreground">
                     Amount shipped to customers
@@ -313,7 +372,9 @@ export default function Analytics() {
 
               <AnimatedCard delay={0.4} className="gradient-card">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Active Customers
+                  </CardTitle>
                   <motion.div
                     whileHover={{ rotate: 360 }}
                     transition={{ duration: 0.5 }}
@@ -322,7 +383,7 @@ export default function Analytics() {
                   </motion.div>
                 </CardHeader>
                 <CardContent>
-                  <motion.div 
+                  <motion.div
                     className="text-2xl font-bold gradient-text"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -344,10 +405,16 @@ export default function Analytics() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-green-600">Paid</p>
-                        <p className="text-2xl font-bold">{analyticsData.invoiceStatusBreakdown.paid}</p>
+                        <p className="text-sm font-medium text-green-600">
+                          Paid
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {analyticsData.invoiceStatusBreakdown.paid}
+                        </p>
                       </div>
-                      <Badge className="bg-green-100 text-green-800">Paid</Badge>
+                      <Badge className="bg-green-100 text-green-800">
+                        Paid
+                      </Badge>
                     </div>
                   </CardContent>
                 </AnimatedCard>
@@ -356,8 +423,12 @@ export default function Analytics() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-blue-600">Sent</p>
-                        <p className="text-2xl font-bold">{analyticsData.invoiceStatusBreakdown.sent}</p>
+                        <p className="text-sm font-medium text-blue-600">
+                          Sent
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {analyticsData.invoiceStatusBreakdown.sent}
+                        </p>
                       </div>
                       <Badge className="bg-blue-100 text-blue-800">Sent</Badge>
                     </div>
@@ -368,10 +439,16 @@ export default function Analytics() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-orange-600">Overdue</p>
-                        <p className="text-2xl font-bold">{analyticsData.invoiceStatusBreakdown.overdue}</p>
+                        <p className="text-sm font-medium text-orange-600">
+                          Overdue
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {analyticsData.invoiceStatusBreakdown.overdue}
+                        </p>
                       </div>
-                      <Badge className="bg-orange-100 text-orange-800">Overdue</Badge>
+                      <Badge className="bg-orange-100 text-orange-800">
+                        Overdue
+                      </Badge>
                     </div>
                   </CardContent>
                 </AnimatedCard>
@@ -380,8 +457,12 @@ export default function Analytics() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Draft</p>
-                        <p className="text-2xl font-bold">{analyticsData.invoiceStatusBreakdown.draft}</p>
+                        <p className="text-sm font-medium text-gray-600">
+                          Draft
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {analyticsData.invoiceStatusBreakdown.draft}
+                        </p>
                       </div>
                       <Badge className="bg-gray-100 text-gray-800">Draft</Badge>
                     </div>
@@ -394,14 +475,17 @@ export default function Analytics() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               <AnimatedCard delay={0.6} className="gradient-card">
                 <CardHeader>
-                  <CardTitle className="gradient-text">Revenue vs Customer Dollar Amount Shipped</CardTitle>
+                  <CardTitle className="gradient-text">
+                    Revenue vs Customer Dollar Amount Shipped
+                  </CardTitle>
                   <CardDescription>
-                    Distribution of revenue across customers showing total amount shipped
+                    Distribution of revenue across customers showing total
+                    amount shipped
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <RevenueDonutChart 
-                    data={analyticsData?.revenueByCustomer || []} 
+                  <RevenueDonutChart
+                    data={analyticsData?.revenueByCustomer || []}
                     totalRevenue={analyticsData?.totalRevenue || 0}
                   />
                 </CardContent>
@@ -409,13 +493,15 @@ export default function Analytics() {
 
               <AnimatedCard delay={0.7} className="gradient-card">
                 <CardHeader>
-                  <CardTitle className="gradient-text">Amount Shipped to Each Customer</CardTitle>
+                  <CardTitle className="gradient-text">
+                    Amount Shipped to Each Customer
+                  </CardTitle>
                   <CardDescription>
                     Total dollar amount shipped to each customer
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CustomerShippingBarChart 
+                  <CustomerShippingBarChart
                     data={analyticsData?.revenueByCustomer || []}
                   />
                 </CardContent>
@@ -424,15 +510,15 @@ export default function Analytics() {
 
             <AnimatedCard delay={0.8} className="gradient-card">
               <CardHeader>
-                <CardTitle className="gradient-text">Revenue Trends Over Time</CardTitle>
+                <CardTitle className="gradient-text">
+                  Revenue Trends Over Time
+                </CardTitle>
                 <CardDescription>
                   Monthly revenue progression showing growth patterns
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <RevenueLineChart 
-                  data={analyticsData?.revenueByMonth || []}
-                />
+                <RevenueLineChart data={analyticsData?.revenueByMonth || []} />
               </CardContent>
             </AnimatedCard>
           </div>
@@ -451,28 +537,37 @@ export default function Analytics() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  className="w-full gradient-button text-white border-0" 
-                  onClick={() => handleExport('chart-data')}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  className="w-full gradient-button text-white border-0"
+                  onClick={() => handleExport("chart-data")}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Chart Data
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  className="w-full gradient-button text-white border-0" 
-                  onClick={() => handleExport('full-details')}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  className="w-full gradient-button text-white border-0"
+                  onClick={() => handleExport("full-details")}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Full Details
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  className="w-full gradient-button text-white border-0" 
-                  onClick={() => handleExport('summary')}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  className="w-full gradient-button text-white border-0"
+                  onClick={() => handleExport("summary")}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Summary Report

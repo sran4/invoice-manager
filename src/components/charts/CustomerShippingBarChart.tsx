@@ -1,13 +1,28 @@
-'use client';
+"use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface CustomerShippingData {
   customerId: string;
   customerName: string;
   revenue: number;
-  totalShipped: number;
+  outstanding: number;
 }
 
 interface CustomerShippingBarChartProps {
@@ -16,16 +31,16 @@ interface CustomerShippingBarChartProps {
   description?: string;
 }
 
-export default function CustomerShippingBarChart({ 
-  data, 
-  title = "Amount Shipped to Each Customer",
-  description = "Total dollar amount shipped to each customer"
+export default function CustomerShippingBarChart({
+  data,
+  title = "Revenue vs Outstanding by Customer",
+  description = "Total revenue versus outstanding amounts owed by each customer",
 }: CustomerShippingBarChartProps) {
   // Transform data for the chart
-  const chartData = (data || []).map(item => ({
-    customer: item.customerName || 'Unknown Customer',
-    shipped: item.totalShipped || 0,
-    revenue: item.revenue || 0
+  const chartData = (data || []).map((item) => ({
+    customer: item.customerName || "Unknown Customer",
+    outstanding: item.outstanding || 0,
+    revenue: item.revenue || 0,
   }));
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -35,9 +50,13 @@ export default function CustomerShippingBarChart({
           <p className="font-medium mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.dataKey === 'shipped' ? 'Amount Shipped' : 'Revenue'}: 
+              {entry.dataKey === "outstanding" ? "Outstanding" : "Revenue"}:
               <span className="font-semibold ml-1">
-                ${entry.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                $
+                {entry.value.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </span>
             </p>
           ))}
@@ -56,7 +75,7 @@ export default function CustomerShippingBarChart({
         </CardHeader>
         <CardContent>
           <div className="h-64 flex items-center justify-center text-gray-500">
-            No shipping data available
+            No revenue data available
           </div>
         </CardContent>
       </Card>
@@ -72,10 +91,13 @@ export default function CustomerShippingBarChart({
       <CardContent>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="customer" 
+              <XAxis
+                dataKey="customer"
                 stroke="#6b7280"
                 fontSize={12}
                 tickLine={false}
@@ -84,7 +106,7 @@ export default function CustomerShippingBarChart({
                 textAnchor="end"
                 height={80}
               />
-              <YAxis 
+              <YAxis
                 stroke="#6b7280"
                 fontSize={12}
                 tickLine={false}
@@ -93,15 +115,15 @@ export default function CustomerShippingBarChart({
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Bar 
-                dataKey="shipped" 
-                fill="#10b981" 
+              <Bar
+                dataKey="outstanding"
+                fill="#f59e0b"
                 radius={[4, 4, 0, 0]}
-                name="Amount Shipped"
+                name="Outstanding"
               />
-              <Bar 
-                dataKey="revenue" 
-                fill="#3b82f6" 
+              <Bar
+                dataKey="revenue"
+                fill="#3b82f6"
                 radius={[4, 4, 0, 0]}
                 name="Revenue"
               />
@@ -109,17 +131,30 @@ export default function CustomerShippingBarChart({
           </ResponsiveContainer>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-4">
-          <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-            <p className="text-lg font-bold text-green-600">
-              ${Math.max(...chartData.map(item => item.shipped)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <div className="text-center p-3 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg">
+            <p className="text-lg font-bold text-amber-600">
+              $
+              {Math.max(
+                ...chartData.map((item) => item.outstanding)
+              ).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
-            <p className="text-xs text-gray-600">Highest Shipped</p>
+            <p className="text-xs text-gray-600">Highest Outstanding</p>
           </div>
           <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
             <p className="text-lg font-bold text-blue-600">
-              ${Math.round(chartData.reduce((sum, item) => sum + item.shipped, 0) / chartData.length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              $
+              {Math.round(
+                chartData.reduce((sum, item) => sum + item.outstanding, 0) /
+                  chartData.length
+              ).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
-            <p className="text-xs text-gray-600">Average Shipped</p>
+            <p className="text-xs text-gray-600">Average Outstanding</p>
           </div>
           <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
             <p className="text-lg font-bold text-purple-600">

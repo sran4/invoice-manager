@@ -98,7 +98,8 @@ export default function AnalyticsTest() {
         alert(`Export failed: ${response.status}`);
       }
     } catch (error) {
-      alert(`Export error: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Export error: ${errorMessage}`);
     }
   };
 
@@ -160,7 +161,7 @@ export default function AnalyticsTest() {
                     <div>
                       <strong>Data:</strong>
                       <pre className="bg-gray-100 p-2 rounded text-sm overflow-auto">
-                        {JSON.stringify(result.data, null, 2)}
+                        {String(typeof result.data === 'string' ? result.data : JSON.stringify(result.data, null, 2))}
                       </pre>
                     </div>
                   )}

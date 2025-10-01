@@ -157,7 +157,7 @@ export default function AnalyticsTest() {
                   <p>
                     <strong>Status:</strong> {result.status}
                   </p>
-                  {result.data && (
+                  {result.data !== undefined && (
                     <div>
                       <strong>Data:</strong>
                       <pre className="bg-gray-100 p-2 rounded text-sm overflow-auto">

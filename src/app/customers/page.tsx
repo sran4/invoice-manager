@@ -50,6 +50,7 @@ interface Customer {
     zipCode: string;
   };
   fax?: string;
+  companyName?: string;
   createdAt: string;
 }
 

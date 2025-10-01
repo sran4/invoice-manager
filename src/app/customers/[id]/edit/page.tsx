@@ -1,15 +1,21 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, User } from 'lucide-react';
-import { toast } from 'sonner';
+import { useSession } from "next-auth/react";
+import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Save, User } from "lucide-react";
+import { toast } from "sonner";
 
 interface CustomerFormData {
   name: string;
@@ -33,23 +39,23 @@ export default function EditCustomerPage() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [formData, setFormData] = useState<CustomerFormData>({
-    name: '',
-    email: '',
-    phone: '',
-    fax: '',
-    companyName: '',
+    name: "",
+    email: "",
+    phone: "",
+    fax: "",
+    companyName: "",
     address: {
-      street: '',
-      city: '',
-      state: '',
-      zipCode: ''
-    }
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+    },
   });
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === "loading") return;
     if (!session) {
-      router.push('/auth/signin');
+      router.push("/auth/signin");
     }
   }, [session, status, router]);
 
@@ -57,34 +63,34 @@ export default function EditCustomerPage() {
   useEffect(() => {
     const loadCustomer = async () => {
       if (!customerId) return;
-      
+
       try {
         const response = await fetch(`/api/customers/${customerId}`);
         const data = await response.json();
-        
+
         if (data.success && data.customer) {
           const customer = data.customer;
           setFormData({
-            name: customer.name || '',
-            email: customer.email || '',
-            phone: customer.phone || '',
-            fax: customer.fax || '',
-            companyName: customer.companyName || '',
+            name: customer.name || "",
+            email: customer.email || "",
+            phone: customer.phone || "",
+            fax: customer.fax || "",
+            companyName: customer.companyName || "",
             address: {
-              street: customer.address?.street || '',
-              city: customer.address?.city || '',
-              state: customer.address?.state || '',
-              zipCode: customer.address?.zipCode || ''
-            }
+              street: customer.address?.street || "",
+              city: customer.address?.city || "",
+              state: customer.address?.state || "",
+              zipCode: customer.address?.zipCode || "",
+            },
           });
         } else {
-          toast.error('Customer not found');
-          router.push('/customers');
+          toast.error("Customer not found");
+          router.push("/customers");
         }
       } catch (error) {
-        console.error('Error loading customer:', error);
-        toast.error('Failed to load customer data');
-        router.push('/customers');
+        console.error("Error loading customer:", error);
+        toast.error("Failed to load customer data");
+        router.push("/customers");
       } finally {
         setInitialLoading(false);
       }
@@ -96,19 +102,19 @@ export default function EditCustomerPage() {
   }, [session, customerId, router]);
 
   const handleInputChange = (field: string, value: string) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setFormData(prev => ({
+    if (field.includes(".")) {
+      const [parent, child] = field.split(".");
+      setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...prev[parent as keyof CustomerFormData],
-          [child]: value
-        }
+          [child]: value,
+        },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: value
+        [field]: value,
       }));
     }
   };
@@ -119,29 +125,29 @@ export default function EditCustomerPage() {
 
     try {
       const response = await fetch(`/api/customers/${customerId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        toast.success('Customer updated successfully!');
-        router.push('/customers');
+        toast.success("Customer updated successfully!");
+        router.push("/customers");
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Failed to update customer');
+        toast.error(errorData.error || "Failed to update customer");
       }
     } catch (error) {
-      console.error('Error updating customer:', error);
-      toast.error('Failed to update customer');
+      console.error("Error updating customer:", error);
+      toast.error("Failed to update customer");
     } finally {
       setLoading(false);
     }
   };
 
-  if (status === 'loading' || initialLoading) {
+  if (status === "loading" || initialLoading) {
     return (
       <div className="pt-20 p-6 min-h-screen">
         <div className="max-w-4xl mx-auto">
@@ -166,17 +172,19 @@ export default function EditCustomerPage() {
           <div className="flex items-center space-x-4 mb-4">
             <Button
               variant="ghost"
-              onClick={() => router.push('/customers')}
+              onClick={() => router.push("/customers")}
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Back to Customers</span>
             </Button>
           </div>
-          <h1 className="text-4xl font-bold gradient-text mb-2">Edit Customer</h1>
-              <p className="text-slate-600 text-lg">
-                Update customer information and contact details
-              </p>
+          <h1 className="text-4xl font-bold gradient-text mb-2">
+            Edit Customer
+          </h1>
+          <p className="text-slate-600 text-lg">
+            Update customer information and contact details
+          </p>
         </div>
 
         {/* Form */}
@@ -188,7 +196,7 @@ export default function EditCustomerPage() {
                 Customer Information
               </CardTitle>
               <CardDescription>
-                Customer's personal and contact details
+                Customer&apos;s personal and contact details
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -198,7 +206,7 @@ export default function EditCustomerPage() {
                   id="name"
                   type="text"
                   value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
                   placeholder="Enter customer's full name"
                   required
                 />
@@ -210,7 +218,9 @@ export default function EditCustomerPage() {
                   id="companyName"
                   type="text"
                   value={formData.companyName}
-                  onChange={(e) => handleInputChange('companyName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("companyName", e.target.value)
+                  }
                   placeholder="Enter company name if applicable"
                 />
               </div>
@@ -221,7 +231,7 @@ export default function EditCustomerPage() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="customer@example.com"
                   required
                 />
@@ -234,7 +244,7 @@ export default function EditCustomerPage() {
                     id="phone"
                     type="tel"
                     value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
                     placeholder="(555) 123-4567"
                     required
                   />
@@ -245,7 +255,7 @@ export default function EditCustomerPage() {
                     id="fax"
                     type="tel"
                     value={formData.fax}
-                    onChange={(e) => handleInputChange('fax', e.target.value)}
+                    onChange={(e) => handleInputChange("fax", e.target.value)}
                     placeholder="(555) 123-4568"
                   />
                 </div>
@@ -258,7 +268,7 @@ export default function EditCustomerPage() {
             <CardHeader>
               <CardTitle>Address Information</CardTitle>
               <CardDescription>
-                Customer's billing and shipping address
+                Customer&apos;s billing and shipping address
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -268,7 +278,9 @@ export default function EditCustomerPage() {
                   id="street"
                   type="text"
                   value={formData.address.street}
-                  onChange={(e) => handleInputChange('address.street', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("address.street", e.target.value)
+                  }
                   placeholder="123 Main Street"
                   required
                 />
@@ -281,7 +293,9 @@ export default function EditCustomerPage() {
                     id="city"
                     type="text"
                     value={formData.address.city}
-                    onChange={(e) => handleInputChange('address.city', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("address.city", e.target.value)
+                    }
                     placeholder="San Francisco"
                     required
                   />
@@ -292,7 +306,9 @@ export default function EditCustomerPage() {
                     id="state"
                     type="text"
                     value={formData.address.state}
-                    onChange={(e) => handleInputChange('address.state', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("address.state", e.target.value)
+                    }
                     placeholder="CA"
                     required
                   />
@@ -303,7 +319,9 @@ export default function EditCustomerPage() {
                     id="zipCode"
                     type="text"
                     value={formData.address.zipCode}
-                    onChange={(e) => handleInputChange('address.zipCode', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("address.zipCode", e.target.value)
+                    }
                     placeholder="94105"
                     required
                   />
@@ -317,7 +335,7 @@ export default function EditCustomerPage() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push('/customers')}
+              onClick={() => router.push("/customers")}
             >
               Cancel
             </Button>

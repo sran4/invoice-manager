@@ -1,14 +1,24 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface SimpleChartProps {
   title: string;
   description: string;
-  data?: any[];
+  data?: unknown[];
 }
 
-export default function SimpleChart({ title, description, data }: SimpleChartProps) {
+export default function SimpleChart({
+  title,
+  description,
+  data,
+}: SimpleChartProps) {
   return (
     <Card>
       <CardHeader>

@@ -1,21 +1,18 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
-import connectDB from '@/lib/db/connection';
-import Customer from '@/lib/db/models/Customer';
-import WorkDescription from '@/lib/db/models/WorkDescription';
-import Invoice from '@/lib/db/models/Invoice';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/config";
+import connectDB from "@/lib/db/connection";
+import Customer from "@/lib/db/models/Customer";
+import WorkDescription from "@/lib/db/models/WorkDescription";
+import Invoice from "@/lib/db/models/Invoice";
 
 // POST /api/reset-db - Reset database collections (for development only)
 export async function POST() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
@@ -27,12 +24,14 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: 'Database collections cleared successfully'
+      message: "Database collections cleared successfully",
     });
-  } catch (error: any) {
-    console.error('Error resetting database:', error);
+  } catch (error: unknown) {
+    console.error("Error resetting database:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: 'Failed to reset database', details: error.message },
+      { error: "Failed to reset database", details: errorMessage },
       { status: 500 }
     );
   }

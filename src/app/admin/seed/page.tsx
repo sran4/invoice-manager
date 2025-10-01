@@ -26,7 +26,10 @@ import { toast } from "sonner";
 
 export default function SeedPage() {
   const [isSeeding, setIsSeeding] = useState(false);
-  const [seedResult, setSeedResult] = useState<any>(null);
+  const [seedResult, setSeedResult] = useState<{
+    loginCredentials: Array<{ email: string; password: string }>;
+    message?: string;
+  } | null>(null);
   const [clearData, setClearData] = useState(true);
   const [userCount, setUserCount] = useState(3);
   const [customerCount, setCustomerCount] = useState(20);
@@ -250,7 +253,7 @@ export default function SeedPage() {
                     </h3>
                     <div className="space-y-2">
                       {seedResult.loginCredentials.map(
-                        (cred: any, index: number) => (
+                        (cred, index: number) => (
                           <div
                             key={index}
                             className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg"
@@ -269,8 +272,8 @@ export default function SeedPage() {
                 <div className="text-center py-8">
                   <Database className="h-16 w-16 text-slate-400 mx-auto mb-4" />
                   <p className="text-slate-600 dark:text-slate-300">
-                    No seeding results yet. Click "Seed Database" to generate
-                    test data.
+                    No seeding results yet. Click &quot;Seed Database&quot; to
+                    generate test data.
                   </p>
                 </div>
               )}

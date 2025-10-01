@@ -35,7 +35,9 @@ export const authOptions: NextAuthOptions = {
               },
             },
           };
-          const rateLimitResult = loginRateLimit(mockReq as any);
+          const rateLimitResult = loginRateLimit(
+            mockReq as { ip: string; url: string }
+          );
           if (!rateLimitResult.success) {
             console.log("Rate limit exceeded, but allowing for testing");
             // throw new Error(`Too many login attempts. Try again in ${Math.ceil((rateLimitResult.resetTime - Date.now()) / 60000)} minutes.`);
@@ -159,13 +161,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
-        token.refreshToken = (user as any).refreshToken;
+        token.refreshToken = (user as { refreshToken?: string }).refreshToken;
 
-        if ((user as any).refreshToken) {
+        if ((user as { refreshToken?: string }).refreshToken) {
           console.log("🔑 JWT: Refresh token stored in JWT token");
           console.log(
             "🔑 JWT: Refresh token (first 10 chars):",
-            (user as any).refreshToken.substring(0, 10) + "..."
+            (user as { refreshToken: string }).refreshToken.substring(0, 10) +
+              "..."
           );
         } else {
           console.log("🔑 JWT: No refresh token provided");
@@ -183,7 +186,7 @@ export const authOptions: NextAuthOptions = {
           if (dbUser) {
             // Find the refresh token in the database
             const refreshTokenData = dbUser.refreshTokens.find(
-              (rt: any) =>
+              (rt: { token: string; expiresAt: Date }) =>
                 rt.token === token.refreshToken && rt.expiresAt > new Date()
             );
 

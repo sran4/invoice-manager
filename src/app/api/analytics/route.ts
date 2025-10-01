@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build query
-    const query: any = {
+    const query: Record<string, unknown> = {
       userId: session.user.email,
       issueDate: {
         $gte: startDate,

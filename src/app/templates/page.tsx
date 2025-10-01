@@ -41,7 +41,7 @@ interface Template {
   category: "modern" | "classic" | "minimal" | "professional" | "creative";
   preview: string;
   features: string[];
-  icon: any;
+  icon: React.ElementType;
   gradient: string;
   popular?: boolean;
 }

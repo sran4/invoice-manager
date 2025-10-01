@@ -1,7 +1,22 @@
-'use client';
+"use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface RevenueByMonth {
   month: string;
@@ -15,28 +30,38 @@ interface RevenueBarChartProps {
   description?: string;
 }
 
-export default function RevenueBarChart({ 
-  data, 
+export default function RevenueBarChart({
+  data,
   title = "Monthly Revenue Breakdown",
-  description = "Revenue distribution by month"
+  description = "Revenue distribution by month",
 }: RevenueBarChartProps) {
   // Transform data for the chart
-  const chartData = data.map(item => ({
+  const chartData = data.map((item) => ({
     month: item.month,
     revenue: item.revenue,
-    invoices: item.invoiceCount
+    invoices: item.invoiceCount,
   }));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: { dataKey: string; color: string; value: number }[];
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
           <p className="font-medium mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.dataKey === 'revenue' ? 'Revenue' : 'Invoices'}: 
+              {entry.dataKey === "revenue" ? "Revenue" : "Invoices"}:
               <span className="font-semibold ml-1">
-                {entry.dataKey === 'revenue' ? `$${entry.value.toLocaleString()}` : entry.value}
+                {entry.dataKey === "revenue"
+                  ? `$${entry.value.toLocaleString()}`
+                  : entry.value}
               </span>
             </p>
           ))}
@@ -71,16 +96,19 @@ export default function RevenueBarChart({
       <CardContent>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="month"
                 stroke="#6b7280"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
               />
-              <YAxis 
+              <YAxis
                 stroke="#6b7280"
                 fontSize={12}
                 tickLine={false}
@@ -89,15 +117,15 @@ export default function RevenueBarChart({
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Bar 
-                dataKey="revenue" 
-                fill="#10b981" 
+              <Bar
+                dataKey="revenue"
+                fill="#10b981"
                 radius={[4, 4, 0, 0]}
                 name="Revenue"
               />
-              <Bar 
-                dataKey="invoices" 
-                fill="#3b82f6" 
+              <Bar
+                dataKey="invoices"
+                fill="#3b82f6"
                 radius={[4, 4, 0, 0]}
                 name="Invoice Count"
               />
@@ -107,13 +135,20 @@ export default function RevenueBarChart({
         <div className="mt-4 grid grid-cols-3 gap-4">
           <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
             <p className="text-lg font-bold text-green-600">
-              ${Math.max(...chartData.map(item => item.revenue)).toLocaleString()}
+              $
+              {Math.max(
+                ...chartData.map((item) => item.revenue)
+              ).toLocaleString()}
             </p>
             <p className="text-xs text-gray-600">Peak Month</p>
           </div>
           <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
             <p className="text-lg font-bold text-blue-600">
-              ${Math.round(chartData.reduce((sum, item) => sum + item.revenue, 0) / chartData.length).toLocaleString()}
+              $
+              {Math.round(
+                chartData.reduce((sum, item) => sum + item.revenue, 0) /
+                  chartData.length
+              ).toLocaleString()}
             </p>
             <p className="text-xs text-gray-600">Average</p>
           </div>

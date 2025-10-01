@@ -1,55 +1,52 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
-import connectDB from '@/lib/db/connection';
-import Invoice from '@/lib/db/models/Invoice';
-import Customer from '@/lib/db/models/Customer';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/config";
+import connectDB from "@/lib/db/connection";
+import Invoice from "@/lib/db/models/Invoice";
+import Customer from "@/lib/db/models/Customer";
 
 // GET /api/invoices - Get paginated invoices for the authenticated user
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Get pagination parameters from query string
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const search = searchParams.get('search') || '';
-    const status = searchParams.get('status') || '';
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const search = searchParams.get("search") || "";
+    const status = searchParams.get("status") || "";
 
     await connectDB();
 
     // Build query
-    const query: any = { userId: session.user.email };
-    
+    const query: Record<string, unknown> = { userId: session.user.email };
+
     // Add search functionality if search term is provided
     if (search) {
       // Search by invoice number, customer name, or company name
       const customerIds = await Customer.find({
         $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
-          { companyName: { $regex: search, $options: 'i' } }
-        ]
-      }).select('_id');
-      
-      const customerIdList = customerIds.map(c => c._id);
-      
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { companyName: { $regex: search, $options: "i" } },
+        ],
+      }).select("_id");
+
+      const customerIdList = customerIds.map((c) => c._id);
+
       query.$or = [
-        { invoiceNumber: { $regex: search, $options: 'i' } },
-        { customerId: { $in: customerIdList } }
+        { invoiceNumber: { $regex: search, $options: "i" } },
+        { customerId: { $in: customerIdList } },
       ];
     }
 
     // Add status filter if provided
-    if (status && status !== 'all') {
+    if (status && status !== "all") {
       query.status = status;
     }
 
@@ -79,13 +76,15 @@ export async function GET(request: NextRequest) {
         totalCount,
         limit,
         hasNextPage,
-        hasPrevPage
-      }
+        hasPrevPage,
+      },
     });
-  } catch (error: any) {
-    console.error('Error fetching invoices:', error);
+  } catch (error: unknown) {
+    console.error("Error fetching invoices:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: 'Failed to fetch invoices', details: error.message },
+      { error: "Failed to fetch invoices", details: errorMessage },
       { status: 500 }
     );
   }
@@ -95,12 +94,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -116,13 +112,19 @@ export async function POST(request: NextRequest) {
       tax,
       discount,
       total,
-      companyName
+      companyName,
     } = body;
 
     // Validate required fields
-    if (!customerId || !invoiceNumber || !issueDate || !items || items.length === 0) {
+    if (
+      !customerId ||
+      !invoiceNumber ||
+      !issueDate ||
+      !items ||
+      items.length === 0
+    ) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -132,12 +134,12 @@ export async function POST(request: NextRequest) {
     // Check if invoice number already exists for this user
     const existingInvoice = await Invoice.findOne({
       userId: session.user.email,
-      invoiceNumber
+      invoiceNumber,
     });
 
     if (existingInvoice) {
       return NextResponse.json(
-        { error: 'Invoice number already exists' },
+        { error: "Invoice number already exists" },
         { status: 400 }
       );
     }
@@ -159,26 +161,31 @@ export async function POST(request: NextRequest) {
       dueDate: dueDate ? new Date(dueDate) : undefined,
       notes,
       items,
-      template: template || 'modern-blue',
+      template: template || "modern-blue",
       subtotal,
       tax,
       discount,
       total,
       companyName: finalCompanyName,
-      status: 'draft'
+      status: "draft",
     });
 
     await invoice.save();
 
-    return NextResponse.json({
-      success: true,
-      invoice,
-      message: 'Invoice created successfully'
-    }, { status: 201 });
-  } catch (error: any) {
-    console.error('Error creating invoice:', error);
     return NextResponse.json(
-      { error: 'Failed to create invoice', details: error.message },
+      {
+        success: true,
+        invoice,
+        message: "Invoice created successfully",
+      },
+      { status: 201 }
+    );
+  } catch (error: unknown) {
+    console.error("Error creating invoice:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json(
+      { error: "Failed to create invoice", details: errorMessage },
       { status: 500 }
     );
   }

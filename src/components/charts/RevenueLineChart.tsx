@@ -1,7 +1,22 @@
-'use client';
+"use client";
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface RevenueByMonth {
   month: string;
@@ -15,28 +30,38 @@ interface RevenueLineChartProps {
   description?: string;
 }
 
-export default function RevenueLineChart({ 
-  data, 
+export default function RevenueLineChart({
+  data,
   title = "Revenue Trend",
-  description = "Monthly revenue progression"
+  description = "Monthly revenue progression",
 }: RevenueLineChartProps) {
   // Transform data for the chart
-  const chartData = data.map(item => ({
+  const chartData = data.map((item) => ({
     month: item.month,
     revenue: item.revenue,
-    invoices: item.invoiceCount
+    invoices: item.invoiceCount,
   }));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: { dataKey: string; color: string; value: number }[];
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
           <p className="font-medium mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.dataKey === 'revenue' ? 'Revenue' : 'Invoices'}: 
+              {entry.dataKey === "revenue" ? "Revenue" : "Invoices"}:
               <span className="font-semibold ml-1">
-                {entry.dataKey === 'revenue' ? `$${entry.value.toLocaleString()}` : entry.value}
+                {entry.dataKey === "revenue"
+                  ? `$${entry.value.toLocaleString()}`
+                  : entry.value}
               </span>
             </p>
           ))}
@@ -71,16 +96,19 @@ export default function RevenueLineChart({
       <CardContent>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <LineChart
+              data={chartData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="month"
                 stroke="#6b7280"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
               />
-              <YAxis 
+              <YAxis
                 stroke="#6b7280"
                 fontSize={12}
                 tickLine={false}
@@ -89,22 +117,22 @@ export default function RevenueLineChart({
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="revenue" 
-                stroke="#10b981" 
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#10b981"
                 strokeWidth={3}
-                dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2 }}
+                dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: "#10b981", strokeWidth: 2 }}
                 name="Revenue"
               />
-              <Line 
-                type="monotone" 
-                dataKey="invoices" 
-                stroke="#3b82f6" 
+              <Line
+                type="monotone"
+                dataKey="invoices"
+                stroke="#3b82f6"
                 strokeWidth={2}
-                dot={{ fill: '#3b82f6', strokeWidth: 2, r: 3 }}
-                activeDot={{ r: 5, stroke: '#3b82f6', strokeWidth: 2 }}
+                dot={{ fill: "#3b82f6", strokeWidth: 2, r: 3 }}
+                activeDot={{ r: 5, stroke: "#3b82f6", strokeWidth: 2 }}
                 name="Invoice Count"
               />
             </LineChart>
@@ -113,7 +141,10 @@ export default function RevenueLineChart({
         <div className="mt-4 grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
             <p className="text-2xl font-bold text-green-600">
-              ${chartData.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()}
+              $
+              {chartData
+                .reduce((sum, item) => sum + item.revenue, 0)
+                .toLocaleString()}
             </p>
             <p className="text-sm text-gray-600">Total Revenue</p>
           </div>

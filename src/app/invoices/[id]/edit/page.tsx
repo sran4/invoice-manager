@@ -1,24 +1,35 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Save,
-  FileText,
-  Download
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { generateInvoicePDF, fetchCompanySettings, getDefaultCompanyInfo } from '@/lib/pdf-export';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AnimatedCard } from "@/components/ui/animated-card";
+import { motion } from "framer-motion";
+import { ArrowLeft, Save, FileText, Download } from "lucide-react";
+import { toast } from "sonner";
+import {
+  generateInvoicePDF,
+  fetchCompanySettings,
+  getDefaultCompanyInfo,
+} from "@/lib/pdf-export";
 
 interface Invoice {
   _id: string;
@@ -37,7 +48,7 @@ interface Invoice {
   total: number;
   issueDate: string;
   dueDate?: string;
-  status: 'draft' | 'sent' | 'paid' | 'overdue';
+  status: "draft" | "sent" | "paid" | "overdue";
   notes?: string;
   template: string;
   createdAt: string;
@@ -58,14 +69,18 @@ interface Customer {
   };
 }
 
-export default function EditInvoicePage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditInvoicePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [invoiceId, setInvoiceId] = useState<string>('');
+  const [invoiceId, setInvoiceId] = useState<string>("");
 
   useEffect(() => {
     const getParams = async () => {
@@ -76,9 +91,9 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
   }, [params]);
 
   useEffect(() => {
-    if (status === 'loading' || !invoiceId) return;
+    if (status === "loading" || !invoiceId) return;
     if (!session) {
-      router.push('/auth/signin');
+      router.push("/auth/signin");
       return;
     }
     fetchInvoice();
@@ -92,11 +107,11 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
         setInvoice(data.invoice);
         setCustomer(data.customer);
       } else {
-        router.push('/invoices');
+        router.push("/invoices");
       }
     } catch (error) {
-      console.error('Error fetching invoice:', error);
-      router.push('/invoices');
+      console.error("Error fetching invoice:", error);
+      router.push("/invoices");
     } finally {
       setLoading(false);
     }
@@ -104,30 +119,30 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
 
   const handleSave = async () => {
     if (!invoice || !invoiceId) return;
-    
+
     setSaving(true);
     try {
       const response = await fetch(`/api/invoices/${invoiceId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           status: invoice.status,
-          notes: invoice.notes
+          notes: invoice.notes,
         }),
       });
 
       if (response.ok) {
-        toast.success('Invoice updated successfully!');
+        toast.success("Invoice updated successfully!");
         router.push(`/invoices/${invoiceId}`);
       } else {
         const error = await response.json();
-        toast.error(error.message || 'Failed to update invoice');
+        toast.error(error.message || "Failed to update invoice");
       }
     } catch (error) {
-      console.error('Error updating invoice:', error);
-      toast.error('Failed to update invoice');
+      console.error("Error updating invoice:", error);
+      toast.error("Failed to update invoice");
     } finally {
       setSaving(false);
     }
@@ -135,21 +150,22 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
 
   const handleDownloadPDF = async () => {
     if (!invoice || !customer) {
-      toast.error('Invoice or customer data not available');
+      toast.error("Invoice or customer data not available");
       return;
     }
 
     try {
-      const companyInfo = await fetchCompanySettings() || getDefaultCompanyInfo();
+      const companyInfo =
+        (await fetchCompanySettings()) || getDefaultCompanyInfo();
       await generateInvoicePDF(invoice, customer, companyInfo);
-      toast.success('Invoice PDF downloaded successfully!');
+      toast.success("Invoice PDF downloaded successfully!");
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      toast.error('Failed to generate PDF. Please try again.');
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF. Please try again.");
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -165,7 +181,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
     <div className="pt-20 p-6 min-h-screen">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <motion.div 
+        <motion.div
           className="mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -182,7 +198,9 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
               </Button>
             </motion.div>
             <div>
-              <h1 className="text-4xl font-bold gradient-text">Edit Invoice {invoice.invoiceNumber}</h1>
+              <h1 className="text-4xl font-bold gradient-text">
+                Edit Invoice {invoice.invoiceNumber}
+              </h1>
               <p className="text-slate-600 text-lg">
                 Update invoice details and status
               </p>
@@ -217,9 +235,14 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
 
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select 
-                  value={invoice.status} 
-                  onValueChange={(value) => setInvoice({...invoice, status: value as any})}
+                <Select
+                  value={invoice.status}
+                  onValueChange={(value) =>
+                    setInvoice({
+                      ...invoice,
+                      status: value as "draft" | "sent" | "paid" | "overdue",
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -238,7 +261,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                 <Input
                   id="issueDate"
                   type="date"
-                  value={invoice.issueDate.split('T')[0]}
+                  value={invoice.issueDate.split("T")[0]}
                   readOnly
                   className="bg-slate-50"
                 />
@@ -249,7 +272,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                 <Input
                   id="dueDate"
                   type="date"
-                  value={invoice.dueDate ? invoice.dueDate.split('T')[0] : ''}
+                  value={invoice.dueDate ? invoice.dueDate.split("T")[0] : ""}
                   readOnly
                   className="bg-slate-50"
                 />
@@ -292,8 +315,10 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
           </CardHeader>
           <CardContent>
             <Textarea
-              value={invoice.notes || ''}
-              onChange={(e) => setInvoice({...invoice, notes: e.target.value})}
+              value={invoice.notes || ""}
+              onChange={(e) =>
+                setInvoice({ ...invoice, notes: e.target.value })
+              }
               placeholder="Add any additional notes..."
               rows={4}
             />
@@ -301,7 +326,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
         </AnimatedCard>
 
         {/* Action Buttons */}
-        <motion.div 
+        <motion.div
           className="flex items-center justify-end space-x-4 mt-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

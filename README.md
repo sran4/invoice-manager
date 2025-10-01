@@ -1,395 +1,376 @@
-# 🧾 Enterprise-Grade Invoice Management System
+# 🧾 Enterprise Invoice Management System
 
-A comprehensive, production-ready invoice management platform built with cutting-edge technologies. Designed for businesses, freelancers, and enterprises who demand professional invoicing, advanced analytics, and seamless user experience. This system combines enterprise-level security, modern UI/UX design, and powerful automation features to streamline your billing operations and accelerate business growth.
+A comprehensive, production-ready invoice management platform built with cutting-edge technologies. This system combines enterprise-level security, modern UI/UX design, and powerful automation features to streamline your billing operations.
 
-![Invoice Manager](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=for-the-badge&logo=mongodb)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript)
-![NextAuth.js](https://img.shields.io/badge/NextAuth.js-000000?style=for-the-badge&logo=nextauthjs)
 
-## ✨ Enterprise Features & Capabilities
+## ✨ Key Features
 
-### 🎨 **Modern UI/UX Design System**
+### 🎨 **Modern UI/UX Design**
+- **Glassmorphism Interface** with gradient themes and premium aesthetics
+- **Dark/Light Mode** with smooth transitions and system preference detection
+- **Mobile-First Responsive** design optimized for all devices
+- **Micro-Animations** powered by Framer Motion for enhanced UX
+- **WCAG 2.1 AA Compliant** with keyboard navigation and screen reader support
 
-- **Glassmorphism Interface**: Cutting-edge glassmorphism effects with gradient themes that provide a premium, modern aesthetic
-- **Intelligent Theme System**: Seamless dark/light mode switching with stunning gradient transitions and system preference detection
-- **Mobile-First Responsive**: Fully responsive design optimized for desktop, tablet, and mobile with touch-friendly interactions
-- **Micro-Animations**: Smooth Framer Motion animations and transitions that enhance user experience without compromising performance
-- **Professional Layout**: Clean, intuitive interface designed for maximum productivity and user satisfaction
-- **Accessibility Compliant**: WCAG 2.1 AA compliant design with keyboard navigation and screen reader support
+### 📊 **Business Intelligence & Analytics**
+- **Real-time Dashboard** with comprehensive business metrics and KPIs
+- **Financial Analytics** tracking revenue trends, payment tracking, and cash flow
+- **Customer Insights** with payment patterns and relationship management
+- **Interactive Charts** for data visualization (revenue, customers, trends)
+- **Performance Metrics** for invoice conversion and payment times
 
-### 📊 **Advanced Business Intelligence & Analytics**
+### 🧾 **Professional Invoice Management**
+- **5 Premium Templates** (Modern Blue, Classic Green, Minimal Purple, Professional Gray, Creative Orange)
+- **Smart PDF Generation** with template-specific branding and auto-formatting
+- **Advanced Calculations** for tax, discounts, and multi-currency support
+- **Status Tracking** from draft to paid with automated reminders
+- **Auto-Numbering** with year-based sequential tracking
+- **Smart Due Dates** with configurable payment terms
 
-- **Real-time Executive Dashboard**: Comprehensive business metrics with live data updates, revenue tracking, and performance indicators
-- **Financial Analytics**: Advanced invoice statistics, revenue trends, payment tracking, and cash flow analysis
-- **Customer Insights**: Detailed customer analytics, payment patterns, and relationship management tools
-- **Interactive Data Visualization**: Beautiful, interactive charts using Chart.js for revenue trends, customer analysis, and business performance
-- **Quick Action Center**: Streamlined access to create invoices, manage customers, and generate reports with one-click operations
-- **Performance Metrics**: Track invoice conversion rates, average payment times, and customer satisfaction indicators
+### 👥 **Customer Relationship Management**
+- **Complete CRM** with comprehensive customer profiles
+- **Company Information** support for B2B invoicing
+- **Smart Search** with filters by name, company, email, and location
+- **Customer Analytics** showing invoice history and payment patterns
+- **Bulk Operations** for efficient customer management
 
-### 🧾 **Professional Invoice Management System**
+### 🔐 **Enterprise Security**
+- **NextAuth.js** authentication with Google OAuth support
+- **Password Security** with strength validation and hashing
+- **Rate Limiting** to prevent brute force attacks (5 attempts, 30-min lockout)
+- **Session Management** with 30-day refresh tokens
+- **Multi-tenant** architecture with complete data isolation
+- **CSRF Protection** and secure API endpoints
 
-- **Intelligent Invoice Builder**: Advanced invoice creation with drag-and-drop functionality, auto-save, and real-time validation
-- **Premium Template Library**: 5 professionally designed templates (Modern Blue, Classic Green, Minimal Purple, Professional Gray, Creative Orange) with customizable branding
-- **Smart PDF Generation**: High-quality PDF exports with template-specific styling, automatic formatting, and print optimization
-- **Live Template Preview**: Real-time preview system showing exactly how invoices will appear before finalizing
-- **Advanced Calculations**: Intelligent tax calculations, discount management, and automatic total computation with multiple currency support
-- **Comprehensive Status Tracking**: Complete invoice lifecycle management from draft to paid with automated reminders
-- **Intelligent Numbering**: Auto-generated invoice numbering with customizable prefixes and sequential tracking
-- **Smart Due Date Management**: Automated due date calculation, payment reminders, and overdue tracking
-- **Custom Terms & Conditions**: Flexible terms and conditions management with legal compliance features
-
-### 📄 **Advanced PDF Export & Document Management**
-
-- **Enterprise PDF Generation**: High-quality PDF exports using jsPDF with advanced formatting and compression
-- **Intelligent Template Integration**: PDFs automatically inherit selected template colors, fonts, and branding elements
-- **Professional Branding**: Complete company branding integration with logos, contact information, and custom styling
-- **Audit Trail Management**: Comprehensive timestamp tracking and document version control for compliance
-- **Multi-Format Export**: Optimized for digital distribution, printing, and archival with various quality settings
-- **Dynamic Page Management**: Automatic page breaks, table formatting, and responsive layout for any invoice length
-- **Clean Professional Output**: Production-ready formatting with no internal system information or debug data
-
-### 👥 **Advanced Customer Relationship Management (CRM)**
-
-- **Comprehensive Customer Database**: Centralized customer information management with contact details, billing addresses, and business relationships
-- **Intelligent Customer Selection**: Smart dropdown with search, recent customers, and favorites for rapid invoice creation
-- **Complete Customer Profiles**: Detailed customer information including personal/company details, payment preferences, and communication history
-- **Advanced Search & Filtering**: Powerful search capabilities with filters by location, payment status, invoice history, and custom criteria
-- **Customer Analytics Dashboard**: Complete invoice history, payment patterns, and relationship insights for each customer
-- **Bulk Operations Management**: Efficient mass operations for customer updates, communications, and data management
-- **Customer Segmentation**: Advanced customer categorization for targeted marketing and personalized service
-
-### 🎨 **Template System**
-
-- **5 Professional Templates**: Each with unique color schemes and styling
-- **Template Selection**: Choose templates during invoice creation
-- **Template Preview**: Preview templates before selection
-- **Consistent Branding**: Templates maintain your company branding
-- **PDF Integration**: Templates are reflected in PDF exports
-
-### ⚙️ **Settings & Customization**
-
-- **Company Settings**: Manage your company information, logo, and branding
-- **Theme Preferences**: Choose between light, dark, or auto theme
-- **Notification Settings**: Customize your notification preferences
-- **Invoice Defaults**: Set default tax rates, due dates, and currency
-- **Security Settings**: Manage your account security
-- **User Preferences**: Customize your experience
-
-### 🔐 **Enterprise-Grade Security & Authentication**
-
-- **Advanced Authentication System**: Secure multi-factor authentication with NextAuth.js, Google OAuth integration, and enterprise SSO support
-- **Complete Data Isolation**: Multi-tenant architecture ensuring each user has completely separate data with no cross-contamination
-- **Military-Grade Encryption**: End-to-end encryption for all data transmission and storage with AES-256 encryption standards
-- **Intelligent Session Management**: Secure session handling with automatic refresh tokens, device tracking, and suspicious activity detection
-- **Comprehensive Access Control**: Role-based access control with protected routes, API rate limiting, and audit logging
-- **Security Compliance**: SOC 2 Type II compliant security measures with regular security audits and penetration testing
-
-### 🚀 **Performance & Reliability**
-
-- **Fast Loading**: Optimized for speed and performance
-- **Real-time Updates**: Instant updates across the application
-- **Error Handling**: Comprehensive error handling and user feedback
-- **Toast Notifications**: Beautiful success and error notifications
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
-- **Offline Support**: Basic functionality works offline
-
-### 📱 **Mobile-First Experience**
-
-- **Progressive Web App**: Mobile-first design with offline capabilities and app-like experience
-- **Touch-Optimized Interface**: Intuitive touch interactions with gesture support and haptic feedback
-- **Adaptive Responsive Layout**: Seamless adaptation to any screen size from mobile to ultra-wide displays
-- **Mobile-Native Navigation**: Optimized mobile navigation with bottom tabs and swipe gestures
-- **Network Optimization**: Intelligent caching and compression for fast performance on mobile networks
-
----
-
-## 💼 **Business Benefits & ROI**
-
-### 🎯 **For Small Businesses & Freelancers**
-
-- **Save 15+ Hours Per Week**: Automate invoice creation, customer management, and payment tracking
-- **Increase Revenue by 25%**: Professional invoices improve payment rates and client perception
-- **Reduce Administrative Costs**: Eliminate paper-based processes and manual calculations
-- **Improve Cash Flow**: Faster invoice delivery and automated payment reminders
-- **Professional Brand Image**: Custom-branded invoices enhance business credibility
-
-### 🏢 **For Medium to Large Enterprises**
-
-- **Scalable Architecture**: Handle thousands of customers and invoices with enterprise-grade performance
-- **Advanced Analytics**: Data-driven insights for business growth and customer relationship optimization
-- **Integration Ready**: API-first design for seamless integration with existing business systems
-- **Compliance & Audit**: Complete audit trails and compliance reporting for regulatory requirements
-- **Team Collaboration**: Multi-user access with role-based permissions and team management
-
-### 📈 **Quantified Benefits**
-
-- **Time Savings**: 75% reduction in invoice creation time compared to manual processes
-- **Error Reduction**: 95% fewer calculation errors with automated tax and total computations
-- **Payment Speed**: 40% faster payment collection with professional, branded invoices
-- **Customer Satisfaction**: 90% improvement in client satisfaction with streamlined communication
-- **Business Growth**: Scalable system supports business growth from startup to enterprise
-
-### 🔧 **Technical Advantages**
-
-- **Modern Tech Stack**: Built with latest technologies for future-proof scalability and maintenance
-- **Cloud-Native**: Designed for cloud deployment with automatic scaling and high availability
-- **API-First Design**: RESTful APIs enable custom integrations and third-party connections
-- **Performance Optimized**: Sub-second load times with intelligent caching and optimization
-- **Security Focused**: Enterprise-grade security with regular updates and vulnerability management
+### 📄 **Advanced PDF Export**
+- **High-Quality PDFs** with professional formatting
+- **Template Integration** matching your selected invoice design
+- **Company Branding** with logo and custom information
+- **Optimized Output** for digital and print distribution
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
-- Node.js 18+
-- MongoDB Atlas account
+- Node.js 18 or higher
+- MongoDB Atlas account (free tier available)
 - Git
 
 ### Installation
 
 1. **Clone the repository**
-
    ```bash
    git clone https://github.com/sran4/invoice-manager.git
    cd invoice-manager
    ```
 
 2. **Install dependencies**
-
    ```bash
    npm install
    ```
 
-3. **Set up environment variables**
-   Create a `.env.local` file in the root directory:
-
+3. **Configure environment variables**
+   
+   Create `.env.local` in the root directory:
    ```env
+   # Database
    MONGODB_URI=your_mongodb_atlas_connection_string
+   
+   # Authentication (generate secret: openssl rand -base64 32)
    NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=your_super_secret_key
+   NEXTAUTH_SECRET=your_super_secret_key_here
+   
+   # App Configuration
    NEXT_PUBLIC_APP_NAME=Invoice Manager
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
 4. **Run the development server**
-
    ```bash
    npm run dev
    ```
 
 5. **Open your browser**
+   
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+6. **Create your account**
+   
+   Sign up with your email or use Google OAuth for instant access
 
 ## 🗄️ Database Setup
 
-### MongoDB Atlas Configuration
+### MongoDB Atlas (Free Tier)
 
-1. **Create a MongoDB Atlas cluster**
+1. **Create cluster** at [MongoDB Atlas](https://www.mongodb.com/atlas)
+2. **Create database user** with read/write permissions
+3. **Whitelist IP** (use `0.0.0.0/0` for development, specific IPs for production)
+4. **Get connection string** from Atlas dashboard
+5. **Add to `.env.local`** as `MONGODB_URI`
 
-   - Go to [MongoDB Atlas](https://www.mongodb.com/atlas)
-   - Create a free cluster
-   - Get your connection string
+### Database Seeding (Optional)
 
-2. **Set up database user**
+Generate test data for development:
 
-   - Create a database user with read/write permissions
-   - Whitelist your IP address (or use 0.0.0.0/0 for development)
+```bash
+# Via API endpoint (requires authentication)
+POST http://localhost:3000/api/seed
 
-3. **Update environment variables**
-   - Add your MongoDB connection string to `.env.local`
+# Via seed script
+npm run seed
+```
 
-## 📱 Screenshots
-
-### Dashboard
-
-![Dashboard](https://via.placeholder.com/800x400/4F46E5/FFFFFF?text=Modern+Dashboard)
-
-### Invoice Creation
-
-![Invoice Creation](https://via.placeholder.com/800x400/10B981/FFFFFF?text=Create+Invoices)
-
-### Templates
-
-![Templates](https://via.placeholder.com/800x400/F59E0B/FFFFFF?text=Beautiful+Templates)
-
-## 🛠️ **Advanced Technology Stack**
-
-### **Frontend Architecture**
-
-- **Next.js 15**: Latest React framework with App Router, Server Components, and Edge Runtime
-- **React 18**: Modern React with Concurrent Features, Suspense, and improved performance
-- **TypeScript**: Full type safety with advanced type inference and compile-time error checking
-- **Tailwind CSS**: Utility-first CSS framework with custom design system and responsive utilities
-- **shadcn/ui**: Modern component library with accessibility-first design and customizable themes
-
-### **Backend & Database**
-
-- **MongoDB Atlas**: Cloud-native database with automatic scaling, backups, and global distribution
-- **Mongoose**: Elegant MongoDB object modeling with schema validation and middleware
-- **NextAuth.js**: Complete authentication solution with OAuth providers and session management
-- **API Routes**: Serverless API endpoints with built-in rate limiting and error handling
-
-### **Performance & UX**
-
-- **Framer Motion**: Production-ready motion library with gesture support and layout animations
-- **Lucide React**: Beautiful, customizable SVG icons with tree-shaking optimization
-- **Sonner**: Toast notifications with customizable themes and animations
-- **jsPDF**: Client-side PDF generation with advanced formatting and compression
-
-### **Development & Deployment**
-
-- **ESLint**: Code quality enforcement with custom rules and TypeScript integration
-- **PostCSS**: CSS processing with Tailwind integration and autoprefixing
-- **Vercel**: Optimized deployment with Edge Functions and automatic scaling
-- **Git**: Version control with semantic commits and automated workflows
-
----
-
-## 🎓 **For Resume & Portfolio**
-
-### **Technical Achievements**
-
-- **Full-Stack Development**: Built complete invoice management system with modern web technologies
-- **Enterprise Architecture**: Designed scalable, multi-tenant SaaS application with advanced security
-- **Performance Optimization**: Achieved sub-second load times with intelligent caching and code splitting
-- **Security Implementation**: Implemented enterprise-grade authentication with OAuth, rate limiting, and encryption
-- **Database Design**: Created efficient MongoDB schemas with proper indexing and relationship modeling
-
-### **Key Skills Demonstrated**
-
-- **Frontend**: React, Next.js, TypeScript, Tailwind CSS, Framer Motion, Responsive Design
-- **Backend**: Node.js, MongoDB, Mongoose, API Development, Authentication, Rate Limiting
-- **DevOps**: Vercel Deployment, Environment Management, Database Optimization, Performance Monitoring
-- **UI/UX**: Modern Design Systems, Accessibility, Mobile-First Development, User Experience Optimization
-- **Security**: NextAuth.js, OAuth Integration, Data Encryption, Session Management, CSRF Protection
-
-### **Business Impact**
-
-- **Automation**: Reduced invoice creation time by 75% through intelligent form automation
-- **User Experience**: Achieved 90% user satisfaction with modern, intuitive interface design
-- **Scalability**: Built system capable of handling 10,000+ concurrent users with sub-second response times
-- **Security**: Implemented SOC 2 Type II compliant security measures with zero data breaches
-- **Performance**: Optimized application for 99.9% uptime with intelligent error handling and recovery
-
-### **Project Highlights**
-
-- **Modern Tech Stack**: Latest Next.js 15 with App Router and Server Components
-- **Enterprise Features**: Multi-tenant architecture, advanced analytics, and comprehensive audit trails
-- **Mobile Optimization**: Progressive Web App with offline capabilities and touch-optimized interface
-- **Professional Design**: 5 custom invoice templates with glassmorphism UI and dark/light themes
-- **API-First Design**: RESTful APIs with comprehensive documentation and rate limiting
-
-### **Code Quality & Best Practices**
-
-- **TypeScript**: 100% type coverage with strict mode and advanced type inference
-- **Testing**: Comprehensive unit and integration tests with Jest and React Testing Library
-- **Documentation**: Detailed API documentation with OpenAPI/Swagger specifications
-- **Performance**: Lighthouse score of 95+ with optimized Core Web Vitals
-- **Accessibility**: WCAG 2.1 AA compliance with screen reader support and keyboard navigation
+This creates sample users, customers, invoices, and work descriptions for testing.
 
 ## 📁 Project Structure
 
 ```
 invoice-manager/
 ├── src/
-│   ├── app/                    # Next.js app router pages
-│   │   ├── api/               # API routes
-│   │   ├── auth/              # Authentication pages
-│   │   ├── dashboard/         # Dashboard page
-│   │   ├── invoices/          # Invoice management
-│   │   ├── customers/         # Customer management
-│   │   ├── templates/         # Template selection
-│   │   └── settings/          # Settings page
-│   ├── components/            # Reusable components
-│   │   ├── ui/               # shadcn/ui components
-│   │   └── layout/           # Layout components
+│   ├── app/                      # Next.js App Router
+│   │   ├── api/                 # API routes & endpoints
+│   │   │   ├── auth/           # Authentication endpoints
+│   │   │   ├── customers/      # Customer CRUD operations
+│   │   │   ├── invoices/       # Invoice management
+│   │   │   ├── analytics/      # Analytics & reporting
+│   │   │   └── settings/       # User settings
+│   │   ├── auth/               # Auth pages (signin/signup)
+│   │   ├── dashboard/          # Main dashboard
+│   │   ├── invoices/           # Invoice pages
+│   │   ├── customers/          # Customer pages
+│   │   ├── templates/          # Template selection
+│   │   ├── settings/           # Settings page
+│   │   └── work-descriptions/  # Reusable work items
+│   ├── components/             # React components
+│   │   ├── ui/                # shadcn/ui components
+│   │   ├── charts/            # Chart components
+│   │   └── layout/            # Layout components
+│   ├── lib/                   # Utilities & helpers
+│   │   ├── db/               # Database models & connection
+│   │   ├── auth/             # Auth configuration
+│   │   ├── pdf-export.ts     # PDF generation
+│   │   └── utils.ts          # Shared utilities
 │   ├── contexts/             # React contexts
-│   ├── lib/                  # Utility functions
-│   │   ├── pdf-export.ts     # PDF generation utilities
-│   │   └── company-settings.ts # Company settings management
-│   └── types/                # TypeScript type definitions
+│   ├── types/                # TypeScript definitions
+│   └── middleware.ts         # Next.js middleware
 ├── public/                   # Static assets
+├── scripts/                  # Database seed scripts
 └── README.md
 ```
 
-## 🎨 Customization
+## 🛠️ Tech Stack
 
-### Themes
+### Frontend
+- **Next.js 15** - React framework with App Router
+- **React 18** - UI library with Server Components
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling
+- **shadcn/ui** - Modern component library
+- **Framer Motion** - Animation library
+- **Lucide Icons** - Beautiful SVG icons
 
-The app supports three themes:
+### Backend
+- **MongoDB Atlas** - Cloud database
+- **Mongoose** - MongoDB ODM
+- **NextAuth.js** - Authentication
+- **jsPDF** - PDF generation
 
-- **Light**: Clean, bright interface
-- **Dark**: Dark mode with beautiful gradients
-- **Auto**: Automatically switches based on system preference
+### Dev Tools
+- **ESLint** - Code quality
+- **PostCSS** - CSS processing
+- **Vercel** - Deployment platform
 
-### Templates
+## 📱 Features Walkthrough
 
-Choose from 5 professional templates:
+### Creating Your First Invoice
 
-- **Modern Blue**: Clean and professional with blue gradients
-- **Classic Green**: Traditional business layout
-- **Minimal Purple**: Simple and elegant design
-- **Professional Gray**: Corporate-style template
-- **Creative Orange**: Vibrant and creative design
+1. **Add a Customer** - Go to Customers → New Customer
+2. **Select Template** - Choose from 5 professional templates
+3. **Create Invoice** - Fill in details, add line items
+4. **Download PDF** - Generate professional PDF instantly
+5. **Track Status** - Monitor payment status and send reminders
+
+### Managing Customers
+
+- Create unlimited customer profiles
+- Add company information for B2B invoicing
+- Search by name, company, or email
+- View invoice history per customer
+- Track payment patterns and reliability
+
+### Analytics & Reporting
+
+- **Year-to-Date** revenue tracking
+- **Monthly trends** with interactive charts
+- **Customer analysis** showing top clients
+- **Status breakdown** (draft, sent, paid, overdue)
+- **Export capabilities** for accounting integration
+
+### Customization & Settings
+
+- **Company Profile** - Add your business information and logo
+- **Invoice Defaults** - Set default tax rates, payment terms, currency
+- **Theme Selection** - Choose light, dark, or auto mode
+- **Template Preferences** - Set your favorite invoice template
+
+## 🔐 Authentication & Security
+
+### User Authentication
+- **Email/Password** with strength validation
+- **Google OAuth** for quick sign-in
+- **Session Management** with 30-day refresh tokens
+- **Remember Me** functionality for convenience
+
+### Security Features
+- **Rate Limiting** - 5 login attempts, 30-minute lockout
+- **Password Policy** - Minimum 8 characters, mixed case, numbers, symbols
+- **CSRF Protection** - Built-in Next.js security
+- **Data Encryption** - All sensitive data encrypted at rest
+- **Multi-Tenant Isolation** - Complete data separation per user
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Deploy to Vercel (Recommended)
 
-1. **Connect to Vercel**
+1. Push code to GitHub
+2. Import project in [Vercel](https://vercel.com)
+3. Add environment variables:
+   - `MONGODB_URI`
+   - `NEXTAUTH_URL` (your production URL)
+   - `NEXTAUTH_SECRET`
+4. Deploy!
 
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
+### Environment Variables for Production
 
-2. **Add environment variables**
+```env
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/invoices
+NEXTAUTH_URL=https://your-domain.com
+NEXTAUTH_SECRET=your_production_secret_here
+NEXT_PUBLIC_APP_NAME=Invoice Manager
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+```
 
-   - Add all variables from your `.env.local` file
+### Build Commands
 
-3. **Deploy**
-   - Click deploy and your app will be live!
+```bash
+# Development
+npm run dev
 
-### Other Platforms
+# Production build
+npm run build
 
-- **Netlify**: Works with Next.js static export
-- **Railway**: Great for full-stack apps
-- **DigitalOcean**: VPS deployment option
+# Start production server
+npm start
 
-## 🤝 Contributing
+# Type checking
+npm run type-check
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+# Linting
+npm run lint
+```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## 📊 Database Schema
+
+### User Model
+- Email, password, name
+- Company settings (name, logo, address, contact)
+- Invoice preferences (tax rate, payment terms, template)
+- Session and refresh tokens
+
+### Customer Model
+- Personal information (name, email, phone)
+- Company details (name, address)
+- Relationship tracking
+- Payment history
+
+### Invoice Model
+- Invoice details (number, dates, status)
+- Line items (description, quantity, rate)
+- Calculations (subtotal, tax, discount, total)
+- Template selection
+- Company information
+
+### Work Description Model
+- Reusable service descriptions
+- Default rates and terms
+- Quick-add functionality
+
+## 🎯 Roadmap
+
+### Upcoming Features
+- [ ] Email integration for sending invoices
+- [ ] Payment gateway integration (Stripe, PayPal)
+- [ ] Recurring invoices and subscriptions
+- [ ] Multi-currency advanced features
+- [ ] Team collaboration and permissions
+- [ ] Mobile apps (iOS/Android)
+- [ ] Advanced reporting and exports
+- [ ] API access for integrations
+
+## 💡 Tips & Best Practices
+
+### For Freelancers
+- Use work descriptions for common services
+- Set up default tax rates in settings
+- Choose a template that matches your brand
+- Enable company settings for professional invoices
+
+### For Small Businesses
+- Add all customers upfront for easy selection
+- Use consistent invoice numbering
+- Set payment terms in settings (e.g., Net 30)
+- Regularly review analytics for insights
+
+### For Enterprises
+- Utilize company branding features
+- Set up standardized work descriptions
+- Use analytics for customer segmentation
+- Export data regularly for accounting
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**MongoDB Connection Failed**
+- Verify `MONGODB_URI` is correct
+- Check IP whitelist in MongoDB Atlas
+- Ensure database user has proper permissions
+
+**Build Errors**
+- Clear `.next` folder: `rm -rf .next`
+- Reinstall dependencies: `rm -rf node_modules && npm install`
+- Check Node.js version (requires 18+)
+
+**Authentication Issues**
+- Verify `NEXTAUTH_SECRET` is set
+- Check `NEXTAUTH_URL` matches your domain
+- Clear browser cookies and try again
+
+## 📞 Support & Contact
+
+- **GitHub Issues**: [Report bugs or request features](https://github.com/sran4/invoice-manager/issues)
+- **Documentation**: Check this README and inline code comments
+- **Community**: Join discussions in GitHub Discussions
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is open source and available under the [MIT License](LICENSE).
 
 ## 🙏 Acknowledgments
 
-- [Next.js](https://nextjs.org/) - The React framework
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [shadcn/ui](https://ui.shadcn.com/) - Beautiful UI components
-- [Framer Motion](https://www.framer.com/motion/) - Animation library
+Built with amazing open-source technologies:
+- [Next.js](https://nextjs.org/) - React framework
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [shadcn/ui](https://ui.shadcn.com/) - UI components
+- [Framer Motion](https://www.framer.com/motion/) - Animations
 - [MongoDB](https://www.mongodb.com/) - Database
 - [NextAuth.js](https://next-auth.js.org/) - Authentication
 
-## 📞 Support
-
-If you have any questions or need help, please:
-
-- Open an issue on GitHub
-- Check the documentation
-- Contact the maintainers
-
 ---
 
-**Made with ❤️ by [Satwant S Sran](https://github.com/sran4)**
+**Made with ❤️ for the developer community**
 
-⭐ **Star this repository if you found it helpful!**
+⭐ **Star this repository if you find it helpful!**

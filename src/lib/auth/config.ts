@@ -6,6 +6,7 @@ import User from "../db/models/User";
 import bcrypt from "bcryptjs";
 import { loginRateLimit } from "../rate-limit";
 import crypto from "crypto";
+import { NextRequest } from "next/server";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -36,7 +37,7 @@ export const authOptions: NextAuthOptions = {
             },
           };
           const rateLimitResult = loginRateLimit(
-            mockReq as { ip: string; url: string }
+            mockReq as NextRequest
           );
           if (!rateLimitResult.success) {
             console.log("Rate limit exceeded, but allowing for testing");
@@ -167,7 +168,7 @@ export const authOptions: NextAuthOptions = {
           console.log("🔑 JWT: Refresh token stored in JWT token");
           console.log(
             "🔑 JWT: Refresh token (first 10 chars):",
-            (user as { refreshToken: string }).refreshToken.substring(0, 10) +
+            ((user as { refreshToken?: string }).refreshToken || "").substring(0, 10) +
               "..."
           );
         } else {
@@ -203,12 +204,12 @@ export const authOptions: NextAuthOptions = {
               console.log("❌ JWT: Refresh token expired or not found");
               // Remove invalid refresh token
               await dbUser.removeRefreshToken(token.refreshToken);
-              return null; // This will force a re-login
+              return token; // Return current token, will be handled by session callback
             }
           }
         } catch (error) {
           console.error("❌ JWT: Error during token refresh:", error);
-          return null; // This will force a re-login
+          return token; // Return current token, will be handled by session callback
         }
       }
 

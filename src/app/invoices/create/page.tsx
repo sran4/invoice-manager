@@ -167,7 +167,13 @@ export default function CreateInvoicePage() {
     discount: 0,
     companyName: "",
     currency: "USD",
-    items: [],
+    items: [] as Array<{
+      id: string;
+      description: string;
+      quantity: number;
+      rate: number;
+      amount: number;
+    }>,
   });
 
   useEffect(() => {
@@ -333,7 +339,7 @@ export default function CreateInvoicePage() {
       if (defaults.currency) {
         setFormData((prev) => ({
           ...prev,
-          currency: defaults.currency,
+          currency: defaults.currency || "USD",
         }));
       }
 

@@ -436,7 +436,7 @@ export default function Home() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handlePreviewTemplate(template);
+                          handlePreviewTemplate(template.id);
                         }}
                       >
                         Preview Template
@@ -495,23 +495,27 @@ export default function Home() {
               transition={{ duration: 0.3 }}
             >
               <DialogTitle className="gradient-text text-2xl">
-                {previewTemplate?.name} - Template Preview
+                {templates.find(t => t.id === previewTemplate)?.name} - Template Preview
               </DialogTitle>
             </motion.div>
           </DialogHeader>
 
-          {previewTemplate && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-            >
-              {/* Sample Invoice Preview */}
+          {previewTemplate && (() => {
+            const template = templates.find(t => t.id === previewTemplate);
+            if (!template) return null;
+            
+            return (
               <motion.div
-                className={`bg-gradient-to-r ${previewTemplate.gradient} p-8 rounded-lg text-white mb-6 shadow-2xl`}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
               >
+                {/* Sample Invoice Preview */}
+                <motion.div
+                  className={`bg-gradient-to-r ${template.gradient} p-8 rounded-lg text-white mb-6 shadow-2xl`}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
                 <motion.div
                   className="flex justify-between items-start mb-6"
                   initial={{ opacity: 0, x: -20 }}
@@ -624,7 +628,8 @@ export default function Home() {
                 </motion.div>
               </motion.div>
             </motion.div>
-          )}
+            );
+          })()}
         </DialogContent>
       </Dialog>
 

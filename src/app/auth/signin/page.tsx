@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { signIn, getSession } from "next-auth/react";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -14,11 +14,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileText, ArrowLeft, Eye, EyeOff, Loader2, X } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { Switch } from "@/components/ui/switch";
-import { validatePassword } from "@/lib/password-validation";
-import { PasswordStrengthIndicator } from "@/components/ui/password-strength-indicator";
+// Removed unused imports
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SignInPage() {
@@ -30,10 +28,7 @@ export default function SignInPage() {
   const [showPasswordHelp, setShowPasswordHelp] = useState(false);
   const router = useRouter();
 
-  // Real-time password validation for help
-  const passwordValidation = useMemo(() => {
-    return validatePassword(password);
-  }, [password]);
+  // Removed unused password validation
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

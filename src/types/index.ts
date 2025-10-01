@@ -16,6 +16,7 @@ export interface Customer {
   email: string;
   phone?: string;
   fax?: string;
+  companyName?: string;
   address: {
     street: string;
     city: string;
@@ -77,10 +78,10 @@ export interface Invoice {
   total: number;
   issueDate: Date;
   dueDate: Date;
-  status: 'draft' | 'sent' | 'paid' | 'overdue';
+  status: "draft" | "sent" | "paid" | "overdue";
   notes?: string;
   templateId: string;
-  theme: 'blue-purple' | 'green-teal';
+  theme: "blue-purple" | "green-teal";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -122,7 +123,7 @@ export interface InvoiceFormData {
   dueDate: string;
   notes?: string;
   templateId: string;
-  theme: 'blue-purple' | 'green-teal';
+  theme: "blue-purple" | "green-teal";
 }
 
 // API Response Types
@@ -134,7 +135,7 @@ export interface ApiResponse<T> {
 }
 
 // Theme Types
-export type Theme = 'blue-purple' | 'green-teal';
+export type Theme = "blue-purple" | "green-teal";
 
 export interface ThemeConfig {
   primary: string;
@@ -143,4 +144,3 @@ export interface ThemeConfig {
   background: string;
   text: string;
 }
-

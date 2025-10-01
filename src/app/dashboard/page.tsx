@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -60,6 +59,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
+  companyName?: string;
   address: {
     street: string;
     city: string;

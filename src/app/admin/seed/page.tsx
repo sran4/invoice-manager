@@ -18,7 +18,6 @@ import {
   Users,
   FileText,
   User,
-  Trash2,
   CheckCircle,
   AlertTriangle,
 } from "lucide-react";

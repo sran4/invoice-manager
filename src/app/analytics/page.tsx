@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -15,7 +15,6 @@ import { Badge } from "@/components/ui/badge";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { motion } from "framer-motion";
 import {
-  BarChart3,
   TrendingUp,
   Calendar,
   DollarSign,
@@ -32,28 +31,7 @@ import CustomerShippingBarChart from "@/components/charts/CustomerShippingBarCha
 import DateRangePicker from "@/components/ui/date-range-picker";
 import CustomerMultiSelect from "@/components/ui/customer-multi-select";
 
-interface Invoice {
-  _id: string;
-  invoiceNumber: string;
-  customerId: string;
-  items: Array<{
-    id: string;
-    description: string;
-    quantity: number;
-    rate: number;
-    amount: number;
-  }>;
-  subtotal: number;
-  tax: number;
-  discount: number;
-  total: number;
-  issueDate: string;
-  dueDate?: string;
-  status: "draft" | "sent" | "paid" | "overdue";
-  notes?: string;
-  template: string;
-  createdAt: string;
-}
+// Removed unused Invoice interface
 
 interface Customer {
   _id: string;
@@ -107,17 +85,7 @@ export default function Analytics() {
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
-  useEffect(() => {
-    if (status === "loading") return;
-    if (!session) {
-      router.push("/auth/signin");
-      return;
-    }
-    fetchAnalyticsData();
-    fetchCustomers();
-  }, [session, status, router, dateRange, selectedCustomers]);
-
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -137,9 +105,9 @@ export default function Analytics() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange, selectedCustomers]);
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       const response = await fetch("/api/customers");
       if (response.ok) {
@@ -149,7 +117,17 @@ export default function Analytics() {
     } catch (error) {
       console.error("Error fetching customers:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+    fetchAnalyticsData();
+    fetchCustomers();
+  }, [session, status, router, fetchAnalyticsData, fetchCustomers]);
 
   const handleDateRangeChange = (newDateRange: string) => {
     setDateRange(newDateRange);

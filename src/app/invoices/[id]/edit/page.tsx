@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -90,16 +90,7 @@ export default function EditInvoicePage({
     getParams();
   }, [params]);
 
-  useEffect(() => {
-    if (status === "loading" || !invoiceId) return;
-    if (!session) {
-      router.push("/auth/signin");
-      return;
-    }
-    fetchInvoice();
-  }, [session, status, router, invoiceId]);
-
-  const fetchInvoice = async () => {
+  const fetchInvoice = useCallback(async () => {
     try {
       const response = await fetch(`/api/invoices/${invoiceId}/export`);
       if (response.ok) {
@@ -115,7 +106,18 @@ export default function EditInvoicePage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [invoiceId, router]);
+
+  useEffect(() => {
+    if (status === "loading" || !invoiceId) return;
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+    fetchInvoice();
+  }, [session, status, router, invoiceId, fetchInvoice]);
+
+  // fetchInvoice is memoized with useCallback above
 
   const handleSave = async () => {
     if (!invoice || !invoiceId) return;

@@ -75,7 +75,7 @@ interface AnalyticsData {
     customerId: string;
     customerName: string;
     revenue: number;
-    totalShipped: number;
+    outstanding: number;
   }>;
   revenueByMonth: Array<{
     month: string;
@@ -356,7 +356,7 @@ export default function Analytics() {
                     $
                     {(
                       analyticsData?.revenueByCustomer?.reduce(
-                        (sum, customer) => sum + customer.totalShipped,
+                        (sum, customer) => sum + customer.outstanding,
                         0
                       ) || 0
                     ).toLocaleString("en-US", {
@@ -486,7 +486,6 @@ export default function Analytics() {
                 <CardContent>
                   <RevenueDonutChart
                     data={analyticsData?.revenueByCustomer || []}
-                    totalRevenue={analyticsData?.totalRevenue || 0}
                   />
                 </CardContent>
               </AnimatedCard>

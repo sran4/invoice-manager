@@ -209,49 +209,51 @@ export default function SeedPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <Users className="h-8 w-8 text-blue-600" />
-                      <div>
-                        <div className="text-2xl font-bold text-blue-600">
-                          {seedResult.summary.users}
+                  {seedResult.summary && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <Users className="h-8 w-8 text-blue-600" />
+                        <div>
+                          <div className="text-2xl font-bold text-blue-600">
+                            {seedResult.summary.users}
+                          </div>
+                          <div className="text-sm text-blue-600">Users</div>
                         </div>
-                        <div className="text-sm text-blue-600">Users</div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <User className="h-8 w-8 text-green-600" />
-                      <div>
-                        <div className="text-2xl font-bold text-green-600">
-                          {seedResult.summary.customers}
+                      <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <User className="h-8 w-8 text-green-600" />
+                        <div>
+                          <div className="text-2xl font-bold text-green-600">
+                            {seedResult.summary.customers}
+                          </div>
+                          <div className="text-sm text-green-600">Customers</div>
                         </div>
-                        <div className="text-sm text-green-600">Customers</div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center space-x-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <FileText className="h-8 w-8 text-purple-600" />
-                      <div>
-                        <div className="text-2xl font-bold text-purple-600">
-                          {seedResult.summary.invoices}
+                      <div className="flex items-center space-x-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                        <FileText className="h-8 w-8 text-purple-600" />
+                        <div>
+                          <div className="text-2xl font-bold text-purple-600">
+                            {seedResult.summary.invoices}
+                          </div>
+                          <div className="text-sm text-purple-600">Invoices</div>
                         </div>
-                        <div className="text-sm text-purple-600">Invoices</div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center space-x-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                      <Database className="h-8 w-8 text-orange-600" />
-                      <div>
-                        <div className="text-2xl font-bold text-orange-600">
-                          {seedResult.summary.workDescriptions}
-                        </div>
-                        <div className="text-sm text-orange-600">
-                          Work Items
+                      <div className="flex items-center space-x-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                        <Database className="h-8 w-8 text-orange-600" />
+                        <div>
+                          <div className="text-2xl font-bold text-orange-600">
+                            {seedResult.summary.workDescriptions}
+                          </div>
+                          <div className="text-sm text-orange-600">
+                            Work Items
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="mt-6">
                     <h3 className="font-semibold mb-3">

@@ -25,7 +25,7 @@ async function connectDB() {
   };
 
   if (!MONGODB_URI) {
-    throw new Error('MONGODB_URI is not defined');
+    throw new Error("MONGODB_URI is not defined");
   }
 
   return mongoose.connect(MONGODB_URI, opts);

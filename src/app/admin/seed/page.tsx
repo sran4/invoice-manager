@@ -29,6 +29,12 @@ export default function SeedPage() {
   const [seedResult, setSeedResult] = useState<{
     loginCredentials: Array<{ email: string; password: string }>;
     message?: string;
+    summary?: {
+      users: number;
+      customers: number;
+      invoices: number;
+      workDescriptions: number;
+    };
   } | null>(null);
   const [clearData, setClearData] = useState(true);
   const [userCount, setUserCount] = useState(3);

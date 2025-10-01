@@ -10,6 +10,7 @@ A comprehensive, production-ready invoice management platform built with cutting
 ## ✨ Key Features
 
 ### 🎨 **Modern UI/UX Design**
+
 - **Glassmorphism Interface** with gradient themes and premium aesthetics
 - **Dark/Light Mode** with smooth transitions and system preference detection
 - **Mobile-First Responsive** design optimized for all devices
@@ -17,6 +18,7 @@ A comprehensive, production-ready invoice management platform built with cutting
 - **WCAG 2.1 AA Compliant** with keyboard navigation and screen reader support
 
 ### 📊 **Business Intelligence & Analytics**
+
 - **Real-time Dashboard** with comprehensive business metrics and KPIs
 - **Financial Analytics** tracking revenue trends, payment tracking, and cash flow
 - **Customer Insights** with payment patterns and relationship management
@@ -24,6 +26,7 @@ A comprehensive, production-ready invoice management platform built with cutting
 - **Performance Metrics** for invoice conversion and payment times
 
 ### 🧾 **Professional Invoice Management**
+
 - **5 Premium Templates** (Modern Blue, Classic Green, Minimal Purple, Professional Gray, Creative Orange)
 - **Smart PDF Generation** with template-specific branding and auto-formatting
 - **Advanced Calculations** for tax, discounts, and multi-currency support
@@ -32,6 +35,7 @@ A comprehensive, production-ready invoice management platform built with cutting
 - **Smart Due Dates** with configurable payment terms
 
 ### 👥 **Customer Relationship Management**
+
 - **Complete CRM** with comprehensive customer profiles
 - **Company Information** support for B2B invoicing
 - **Smart Search** with filters by name, company, email, and location
@@ -39,6 +43,7 @@ A comprehensive, production-ready invoice management platform built with cutting
 - **Bulk Operations** for efficient customer management
 
 ### 🔐 **Enterprise Security**
+
 - **NextAuth.js** authentication with Google OAuth support
 - **Password Security** with strength validation and hashing
 - **Rate Limiting** to prevent brute force attacks (5 attempts, 30-min lockout)
@@ -47,6 +52,7 @@ A comprehensive, production-ready invoice management platform built with cutting
 - **CSRF Protection** and secure API endpoints
 
 ### 📄 **Advanced PDF Export**
+
 - **High-Quality PDFs** with professional formatting
 - **Template Integration** matching your selected invoice design
 - **Company Branding** with logo and custom information
@@ -55,6 +61,7 @@ A comprehensive, production-ready invoice management platform built with cutting
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18 or higher
 - MongoDB Atlas account (free tier available)
 - Git
@@ -62,43 +69,47 @@ A comprehensive, production-ready invoice management platform built with cutting
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/sran4/invoice-manager.git
    cd invoice-manager
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Configure environment variables**
-   
+
    Create `.env.local` in the root directory:
+
    ```env
    # Database
    MONGODB_URI=your_mongodb_atlas_connection_string
-   
+
    # Authentication (generate secret: openssl rand -base64 32)
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=your_super_secret_key_here
-   
+
    # App Configuration
    NEXT_PUBLIC_APP_NAME=Invoice Manager
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
 4. **Run the development server**
+
    ```bash
    npm run dev
    ```
 
 5. **Open your browser**
-   
+
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 6. **Create your account**
-   
+
    Sign up with your email or use Google OAuth for instant access
 
 ## 🗄️ Database Setup
@@ -164,6 +175,7 @@ invoice-manager/
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Next.js 15** - React framework with App Router
 - **React 18** - UI library with Server Components
 - **TypeScript** - Type-safe development
@@ -173,12 +185,14 @@ invoice-manager/
 - **Lucide Icons** - Beautiful SVG icons
 
 ### Backend
+
 - **MongoDB Atlas** - Cloud database
 - **Mongoose** - MongoDB ODM
 - **NextAuth.js** - Authentication
 - **jsPDF** - PDF generation
 
 ### Dev Tools
+
 - **ESLint** - Code quality
 - **PostCSS** - CSS processing
 - **Vercel** - Deployment platform
@@ -219,12 +233,14 @@ invoice-manager/
 ## 🔐 Authentication & Security
 
 ### User Authentication
+
 - **Email/Password** with strength validation
 - **Google OAuth** for quick sign-in
 - **Session Management** with 30-day refresh tokens
 - **Remember Me** functionality for convenience
 
 ### Security Features
+
 - **Rate Limiting** - 5 login attempts, 30-minute lockout
 - **Password Policy** - Minimum 8 characters, mixed case, numbers, symbols
 - **CSRF Protection** - Built-in Next.js security
@@ -275,18 +291,21 @@ npm run lint
 ## 📊 Database Schema
 
 ### User Model
+
 - Email, password, name
 - Company settings (name, logo, address, contact)
 - Invoice preferences (tax rate, payment terms, template)
 - Session and refresh tokens
 
 ### Customer Model
+
 - Personal information (name, email, phone)
 - Company details (name, address)
 - Relationship tracking
 - Payment history
 
 ### Invoice Model
+
 - Invoice details (number, dates, status)
 - Line items (description, quantity, rate)
 - Calculations (subtotal, tax, discount, total)
@@ -294,6 +313,7 @@ npm run lint
 - Company information
 
 ### Work Description Model
+
 - Reusable service descriptions
 - Default rates and terms
 - Quick-add functionality
@@ -301,6 +321,7 @@ npm run lint
 ## 🎯 Roadmap
 
 ### Upcoming Features
+
 - [ ] Email integration for sending invoices
 - [ ] Payment gateway integration (Stripe, PayPal)
 - [ ] Recurring invoices and subscriptions
@@ -313,18 +334,21 @@ npm run lint
 ## 💡 Tips & Best Practices
 
 ### For Freelancers
+
 - Use work descriptions for common services
 - Set up default tax rates in settings
 - Choose a template that matches your brand
 - Enable company settings for professional invoices
 
 ### For Small Businesses
+
 - Add all customers upfront for easy selection
 - Use consistent invoice numbering
 - Set payment terms in settings (e.g., Net 30)
 - Regularly review analytics for insights
 
 ### For Enterprises
+
 - Utilize company branding features
 - Set up standardized work descriptions
 - Use analytics for customer segmentation
@@ -335,16 +359,19 @@ npm run lint
 ### Common Issues
 
 **MongoDB Connection Failed**
+
 - Verify `MONGODB_URI` is correct
 - Check IP whitelist in MongoDB Atlas
 - Ensure database user has proper permissions
 
 **Build Errors**
+
 - Clear `.next` folder: `rm -rf .next`
 - Reinstall dependencies: `rm -rf node_modules && npm install`
 - Check Node.js version (requires 18+)
 
 **Authentication Issues**
+
 - Verify `NEXTAUTH_SECRET` is set
 - Check `NEXTAUTH_URL` matches your domain
 - Clear browser cookies and try again
@@ -362,6 +389,7 @@ This project is open source and available under the [MIT License](LICENSE).
 ## 🙏 Acknowledgments
 
 Built with amazing open-source technologies:
+
 - [Next.js](https://nextjs.org/) - React framework
 - [Tailwind CSS](https://tailwindcss.com/) - CSS framework
 - [shadcn/ui](https://ui.shadcn.com/) - UI components

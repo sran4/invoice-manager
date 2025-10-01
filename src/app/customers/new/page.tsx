@@ -62,7 +62,7 @@ export default function NewCustomerPage() {
       setFormData((prev) => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof CustomerFormData],
+          ...(prev[parent as keyof CustomerFormData] as object),
           [child]: value,
         },
       }));

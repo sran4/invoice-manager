@@ -227,7 +227,9 @@ export default function SeedPage() {
                           <div className="text-2xl font-bold text-green-600">
                             {seedResult.summary.customers}
                           </div>
-                          <div className="text-sm text-green-600">Customers</div>
+                          <div className="text-sm text-green-600">
+                            Customers
+                          </div>
                         </div>
                       </div>
 
@@ -237,7 +239,9 @@ export default function SeedPage() {
                           <div className="text-2xl font-bold text-purple-600">
                             {seedResult.summary.invoices}
                           </div>
-                          <div className="text-sm text-purple-600">Invoices</div>
+                          <div className="text-sm text-purple-600">
+                            Invoices
+                          </div>
                         </div>
                       </div>
 

@@ -398,11 +398,11 @@ export async function POST(request: NextRequest) {
                   1000
             );
 
-      const invoice = new Invoice({
-        userId: user._id.toString(),
-        invoiceNumber: generateInvoiceNumber(),
-        customerId: customer._id.toString(),
-        items,
+        const invoice = new Invoice({
+          userId: user._id.toString(),
+          invoiceNumber: generateInvoiceNumber(),
+          customerId: String(customer._id),
+          items,
         subtotal: Math.round(subtotal * 100) / 100,
         tax: Math.round(tax * 100) / 100,
         discount: Math.round(discount * 100) / 100,
